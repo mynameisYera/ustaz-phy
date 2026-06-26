@@ -1,18 +1,8 @@
-import { existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 
-/** Корень проекта — всегда родитель папки server/ */
-export const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-
-const envPath = resolve(projectRoot, ".env");
-
-if (existsSync(envPath)) {
-  dotenv.config({ path: envPath, override: true });
-
-  
-} else {
+// On Vercel (and other production hosts), env vars come from the platform.
+// Only load .env file in development.
+if (process.env.NODE_ENV !== "production") {
   dotenv.config({ override: true });
 }
 

@@ -8,12 +8,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const result = await handleGenerate(req.body ?? {});
+  try {
+    const result = await handleGenerate(req.body ?? {});
 
-  if (!result.ok) {
-    res.status(result.status).json({ error: result.error });
-    return;
+    if (!result.ok) {
+      res.status(result.status).json({ error: result.error });
+      return;
+    }
+
+    res.status(200).json({ files: result.files });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Внутренняя ошибка сервера";
+    console.error("[api/generate] unhandled:", message);
+    res.status(500).json({ error: message });
   }
-
-  res.status(200).json({ files: result.files });
 }
