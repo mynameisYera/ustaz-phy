@@ -10,6 +10,8 @@ const envPath = resolve(projectRoot, ".env");
 
 if (existsSync(envPath)) {
   dotenv.config({ path: envPath, override: true });
+
+  
 } else {
   dotenv.config({ override: true });
 }
