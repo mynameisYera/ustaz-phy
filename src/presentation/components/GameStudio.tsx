@@ -9,7 +9,7 @@ type ChatMsg = {
 
 export function GameStudio() {
   const [input, setInput] = useState(
-    "Сделай змейку"
+    "Викторина по кинематике: скорость, ускорение, графики движения"
   );
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -61,13 +61,13 @@ export function GameStudio() {
       <div className="studio-left">
         <header className="studio-header">
           <h1>Game Studio</h1>
-          <p>Генерация интерактивных игр через OpenAI — ключ задаётся в .env на сервере.</p>
+          <p>Генерация учебных игр для уроков через OpenAI — ключ задаётся в .env на сервере.</p>
         </header>
 
         <div className="chat-history">
           {messages.length === 0 && (
             <p className="chat-empty">
-              Опишите игру и нажмите «Создать» — здесь появится история.
+              Опишите учебную игру для урока и нажмите «Создать» — здесь появится история.
             </p>
           )}
           {messages.map((msg, i) => (

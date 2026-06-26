@@ -31,9 +31,25 @@ function tryParseStandaloneHtml(raw: string): GameFile[] | null {
   return null;
 }
 
+function tryExtractRefusal(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (/<!DOCTYPE\s+html|<html[\s>]/i.test(trimmed)) return null;
+
+  const fenced = trimmed.match(/```(?:html)?\s*\n([\s\S]*?)```/i);
+  if (fenced?.[1]?.trim().match(/<!DOCTYPE\s+html|<html[\s>]/i)) return null;
+
+  if (trimmed.length > 1500) return null;
+
+  return trimmed;
+}
+
 export function parseGameResponse(raw: string): GameFile[] {
   const standalone = tryParseStandaloneHtml(raw);
   if (standalone) return [finalizeIndex(standalone[0].content)];
+
+  const refusal = tryExtractRefusal(raw);
+  if (refusal) throw new Error(refusal);
 
   let parsed: unknown;
 
