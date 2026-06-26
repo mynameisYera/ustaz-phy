@@ -5,7 +5,7 @@ import {
   getActiveModelName,
   getAiProvider,
   isAiConfigured,
-} from "./ai";
+} from "./ai.js";
 import { handleGenerate } from "./handleGenerate.js";
 
 export function createApiApp(): Express {

@@ -1,7 +1,7 @@
 import { getEnv } from "./env.js";
 import OpenAI from "openai";
-import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts";
-import type { FixRequestInput } from "./prompts";
+import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
+import type { FixRequestInput } from "./prompts.js";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 

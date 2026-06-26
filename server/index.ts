@@ -1,4 +1,4 @@
-import { createApiApp, isAiConfigured } from "./app";
+import { createApiApp, isAiConfigured } from "./app.js";
 
 const port = Number(process.env.PORT) || 3001;
 
