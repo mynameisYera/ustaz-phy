@@ -50,7 +50,7 @@ export async function generateGameWithOpenAi(
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
     temperature: 0.7,
-    max_completion_tokens: 16000,
+    max_completion_tokens: 1000,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: buildUserPrompt(description, fixHistory) },
