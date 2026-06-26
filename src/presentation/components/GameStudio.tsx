@@ -29,9 +29,9 @@ export function GameStudio() {
     <div className="studio">
       <header className="studio-header">
         <h1>Game Studio</h1>
-        {/* <p>Сервис создания интерактивных игр через ChatGPT / Gemini по вашему описанию</p> */}
+        <p>Генерация игр через</p>
         {creating && (
-          <p className="ai-status">ИИ генерирует игру по вашей задумке… обычно 15–40 сек</p>
+          <p className="ai-status">ИИ создаёт интерактивную игру обычно 10–30 сек</p>
         )}
         {fixing && (
           <p className="ai-status">ИИ применяет ваш фикс и пересобирает игру…</p>
