@@ -1,93 +1,138 @@
-import { useState, type FormEvent } from "react";
-import { FixRequestForm } from "./FixRequestForm";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import { GamePlayer } from "./GamePlayer";
 import { useGameStudio } from "../hooks/useGameStudio";
+type ChatMsg = {
+  kind: "user" | "ai";
+  text: string;
+  isError?: boolean;
+};
 
 export function GameStudio() {
-  const [description, setDescription] = useState(
+  const [input, setInput] = useState(
     "Викторина по кинематике: скорость, ускорение, графики движения"
   );
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const {
-    game,
-    launchUrl,
-    creating,
-    fixing,
-    downloading,
-    error,
-    create,
-    download,
-    submitFix,
-  } = useGameStudio();
+  const { game, launchUrl, creating, fixing, downloading, create, download, submitFix } =
+    useGameStudio();
 
-  const canGenerate = !creating;
+  const loading = creating || fixing;
 
-  function handleCreate(e: FormEvent) {
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    create(description);
+    const text = input.trim();
+    if (!text || loading) return;
+
+    setInput("");
+    setMessages((prev) => [...prev, { kind: "user", text }]);
+
+    if (!game) {
+      const result = await create(text);
+      setMessages((prev) => [
+        ...prev,
+        result.ok
+          ? { kind: "ai", text: "Игра создана и запущена." }
+          : { kind: "ai", text: result.error, isError: true },
+      ]);
+    } else {
+      const result = await submitFix(text);
+      setMessages((prev) => [
+        ...prev,
+        result.ok
+          ? { kind: "ai", text: `Готово — обновлено до v${result.game.version}.` }
+          : { kind: "ai", text: result.error, isError: true },
+      ]);
+    }
+
+    textareaRef.current?.focus();
   }
+
+  const hasGame = Boolean(game);
 
   return (
     <div className="studio">
-      <header className="studio-header">
-        <h1>Game Studio</h1>
-        <p>Генерация интерактивных игр через OpenAI — ключ задаётся в .env на сервере.</p>
-        {creating && (
-          <p className="ai-status">ИИ создаёт интерактивную игру обычно 10–30 сек</p>
-        )}
-        {fixing && (
-          <p className="ai-status">ИИ применяет ваш фикс и пересобирает игру…</p>
-        )}
-      </header>
+      {/* LEFT: Chat panel */}
+      <div className="studio-left">
+        <header className="studio-header">
+          <h1>Game Studio</h1>
+          <p>Генерация интерактивных игр через OpenAI — ключ задаётся в .env на сервере.</p>
+        </header>
 
-      <form className="create-form" onSubmit={handleCreate}>
-        <label htmlFor="description">Описание игры</label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          disabled={creating}
-        />
-        <button type="submit" disabled={!canGenerate || !description.trim()}>
-          {creating ? "ИИ генерирует…" : "1. Создать и запустить игру"}
-        </button>
-      </form>
-
-      {error && <p className="error" role="alert">{error}</p>}
-
-      {game && (
-        <div className="actions">
-          <span className="version">Версия: v{game.version}</span>
-          <button type="button" onClick={download} disabled={downloading}>
-            {downloading ? "Собираем архив…" : "2. Скачать файлы (ZIP)"}
-          </button>
+        <div className="chat-history">
+          {messages.length === 0 && (
+            <p className="chat-empty">
+              Опишите игру и нажмите «Создать» — здесь появится история.
+            </p>
+          )}
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`chat-msg chat-msg--${msg.kind}${msg.isError ? " chat-msg--error" : ""}`}
+            >
+              {msg.text}
+            </div>
+          ))}
+          {loading && (
+            <div className="chat-msg chat-msg--ai chat-msg--loading">
+              {creating ? "Генерирую игру…" : "Применяю фикс…"}
+            </div>
+          )}
+          <div ref={bottomRef} />
         </div>
-      )}
 
-      <div className="workspace">
-        <GamePlayer launchUrl={launchUrl} />
-        {game && (
-          <FixRequestForm
-            version={game.version}
-            loading={fixing}
-            onSubmit={submitFix}
+        <form className="chat-input-area" onSubmit={handleSubmit}>
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }
+            }}
+            placeholder={
+              hasGame
+                ? "Что исправить? (Enter — отправить, Shift+Enter — новая строка)"
+                : "Описание игры…"
+            }
+            rows={3}
+            disabled={loading}
           />
-        )}
+          <div className="chat-actions">
+            {hasGame && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={download}
+                disabled={downloading}
+              >
+                {downloading ? "Собираем…" : "Скачать ZIP"}
+              </button>
+            )}
+            <button type="submit" disabled={loading || !input.trim()}>
+              {loading
+                ? creating
+                  ? "Генерирую…"
+                  : "Применяю фикс…"
+                : hasGame
+                ? "Отправить фикс"
+                : "Создать и запустить игру"}
+            </button>
+          </div>
+        </form>
       </div>
 
-      {game && game.fixHistory.length > 0 && (
-        <aside className="fix-history">
-          <h3>История фиксов</h3>
-          <ul>
-            {game.fixHistory.map((fix) => (
-              <li key={fix.id}>
-                <time>{fix.createdAt.toLocaleTimeString()}</time> — {fix.message}
-              </li>
-            ))}
-          </ul>
-        </aside>
-      )}
+      {/* RIGHT: Preview */}
+      <div className="studio-right">
+        <GamePlayer launchUrl={launchUrl} />
+      </div>
     </div>
   );
 }

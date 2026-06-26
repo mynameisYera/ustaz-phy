@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Game } from "@/domain/entities/Game";
 import { useServices } from "../context/ServicesContext";
 
+type CreateResult = { ok: true; game: Game } | { ok: false; error: string };
+type FixResult = { ok: true; game: Game } | { ok: false; error: string };
+
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -27,14 +30,12 @@ export function useGameStudio() {
   const [creating, setCreating] = useState(false);
   const [fixing, setFixing] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => () => revokeLaunch(), [revokeLaunch]);
 
   const create = useCallback(
-    async (description: string) => {
+    async (description: string): Promise<CreateResult> => {
       setCreating(true);
-      setError(null);
       revokeLaunch();
 
       try {
@@ -43,8 +44,10 @@ export function useGameStudio() {
         revokeRef.current = launch.revoke;
         setGame(created);
         setLaunchUrl(launch.launchUrl);
+        return { ok: true, game: created };
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Ошибка создания");
+        const error = e instanceof Error ? e.message : "Ошибка создания";
+        return { ok: false, error };
       } finally {
         setCreating(false);
       }
@@ -55,23 +58,19 @@ export function useGameStudio() {
   const download = useCallback(async () => {
     if (!game) return;
     setDownloading(true);
-    setError(null);
 
     try {
       const blob = await exportGame.execute(game.id);
       downloadBlob(blob, `game-v${game.version}.zip`);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Ошибка скачивания");
     } finally {
       setDownloading(false);
     }
   }, [exportGame, game]);
 
   const submitFix = useCallback(
-    async (message: string) => {
-      if (!game) return;
+    async (message: string): Promise<FixResult> => {
+      if (!game) return { ok: false, error: "Игра не создана" };
       setFixing(true);
-      setError(null);
       revokeLaunch();
 
       try {
@@ -80,8 +79,10 @@ export function useGameStudio() {
         revokeRef.current = launch.revoke;
         setGame(updated);
         setLaunchUrl(launch.launchUrl);
+        return { ok: true, game: updated };
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Ошибка фикса");
+        const error = e instanceof Error ? e.message : "Ошибка фикса";
+        return { ok: false, error };
       } finally {
         setFixing(false);
       }
@@ -95,7 +96,6 @@ export function useGameStudio() {
     creating,
     fixing,
     downloading,
-    error,
     create,
     download,
     submitFix,
