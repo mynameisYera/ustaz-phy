@@ -212,7 +212,7 @@ function buildReadme(description: string): string {
 // Заглушка генератора. Позже заменить на LLM/API без изменения domain.
 export class TemplateGameGenerator implements GameGenerator {
   async generate(input: GenerateGameInput): Promise<GameFile[]> {
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 36000));
 
     return [
       { path: "index.html", content: buildIndexHtml(input.description, input.fixHistory) },

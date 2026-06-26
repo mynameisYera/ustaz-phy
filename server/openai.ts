@@ -50,16 +50,23 @@ export async function generateGameWithOpenAi(
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
     temperature: 0.7,
-    max_completion_tokens: 5000,
+    max_completion_tokens: 16384,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       { role: "user", content: buildUserPrompt(description, fixHistory) },
     ],
   });
 
-  const content = completion.choices[0]?.message?.content;
+  const choice = completion.choices[0];
+  const content = choice?.message?.content;
   if (!content) {
     throw new Error("ChatGPT бос жауап қайтарды");
+  }
+
+  if (choice.finish_reason === "length") {
+    throw new Error(
+      "ЖИ жауабы токен лимитіне жетті — ойын жартылай жасалды. Қайта көріңіз немесе сипаттаманы қысқартыңыз."
+    );
   }
 
   return content;

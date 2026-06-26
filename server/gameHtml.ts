@@ -65,7 +65,7 @@ export function polishGameHtml(html: string): string {
   }
 
   const styleContent = extractStyleContent(result);
-  const needsBase = styleContent.length < 120;
+  const needsBase = styleContent.length < 120 && !/<style[^>]*>[\s\S]{200,}/i.test(result);
 
   if (!/<style/i.test(result)) {
     if (result.includes("</head>")) {
@@ -105,10 +105,18 @@ function wrapBodyIfNeeded(html: string): string {
 }
 
 export function validateGameHtml(html: string): void {
-  // if (!html.includes("<script")) {
-  //   throw new Error("index.html ішінде <script> жоқ — ойын интерактивті емес");
+  if (!/<\/html>/i.test(html)) {
+    throw new Error(
+      "ЖИ ойын кодын толық аяқтамады (жауап кесілді). Қайта көріңіз."
+    );
+  }
+
+  // if (!/<script[\s>]/i.test(html) || !/<\/script>/i.test(html)) {
+  //   throw new Error("index.html ішінде толық <script> жоқ — ойын интерактивті емес");
   // }
-  // if (!html.includes("<style") && extractStyleContent(html).length === 0) {
-  //   throw new Error("index.html ішінде CSS жоқ");
+
+  // const hasClosedStyle = /<style[^>]*>[\s\S]*<\/style>/i.test(html);
+  // if (!hasClosedStyle) {
+  //   throw new Error("index.html ішінде CSS толық емес — жауап кесілді");
   // }
 }

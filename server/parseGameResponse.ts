@@ -12,7 +12,7 @@ interface RawFile {
 
 function finalizeIndex(html: string): GameFile {
   const polished = polishGameHtml(html);
-  // validateGameHtml(polished);
+  validateGameHtml(polished);
   return { path: "index.html", content: polished };
 }
 
@@ -44,9 +44,35 @@ function tryExtractRefusal(raw: string): string | null {
   return trimmed;
 }
 
+function extractHtmlFromJson(raw: string): string | null {
+  try {
+    const parsed = JSON.parse(raw) as { files?: RawFile[] };
+    if (!Array.isArray(parsed.files)) return null;
+    const index = parsed.files.find(
+      (f) => f.path === "index.html" && typeof f.content === "string"
+    );
+    return index?.content ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function extractHtmlFromText(raw: string): string | null {
+  const trimmed = raw.trim();
+  const htmlStart = trimmed.search(/<!DOCTYPE\s+html|<html[\s>]/i);
+  if (htmlStart === -1) return null;
+  return trimmed.slice(htmlStart);
+}
+
 export function parseGameResponse(raw: string): GameFile[] {
+  const fromJson = extractHtmlFromJson(raw);
+  if (fromJson) return [finalizeIndex(fromJson)];
+
   const standalone = tryParseStandaloneHtml(raw);
   if (standalone) return [finalizeIndex(standalone[0].content)];
+
+  const embeddedHtml = extractHtmlFromText(raw);
+  if (embeddedHtml) return [finalizeIndex(embeddedHtml)];
 
   const refusal = tryExtractRefusal(raw);
   if (refusal) throw new Error(refusal);
@@ -56,7 +82,7 @@ export function parseGameResponse(raw: string): GameFile[] {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("ЖИ жарамсыз жауап қайтарды. index.html күтіледі (<!DOCTYPE html>...).");
+    throw new Error("ЖИ жарамсыз жауап қайтарды. Толық HTML күтіледі (<!DOCTYPE html>...).</html>).");
   }
 
   if (!parsed || typeof parsed !== "object" || !("files" in parsed)) {
