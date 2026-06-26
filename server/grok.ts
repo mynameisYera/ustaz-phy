@@ -15,53 +15,77 @@ export function getGrokApiKey(): string | undefined {
   return getEnv("GROK_API_KEY") || getEnv("XAI_API_KEY") || getEnv("GROQ_API_KEY");
 }
 
-export function getGrokBackend(): GrokBackend {
-  const key = getGrokApiKey();
-  if (key?.startsWith("gsk_")) return "groq";
+export function resolveGrokApiKey(userKey?: string): string | undefined {
+  const trimmed = userKey?.trim();
+  return trimmed || getGrokApiKey();
+}
+
+export function getGrokBackendForKey(key: string): GrokBackend {
+  if (key.startsWith("gsk_")) return "groq";
   return "xai";
 }
 
-export function getGrokModelName(): string {
+export function getGrokBackend(): GrokBackend {
+  const key = getGrokApiKey();
+  if (!key) return "groq";
+  return getGrokBackendForKey(key);
+}
+
+export function getGrokModelNameForKey(key: string): string {
   const custom = getEnv("GROK_MODEL");
   if (custom) return custom;
-  return getGrokBackend() === "groq" ? DEFAULT_GROQ_MODEL : DEFAULT_XAI_MODEL;
+  return getGrokBackendForKey(key) === "groq" ? DEFAULT_GROQ_MODEL : DEFAULT_XAI_MODEL;
+}
+
+export function getGrokModelName(): string {
+  const key = getGrokApiKey();
+  if (!key) return DEFAULT_GROQ_MODEL;
+  return getGrokModelNameForKey(key);
+}
+
+export function getGrokDisplayNameForKey(key: string): string {
+  return getGrokBackendForKey(key) === "groq" ? "Groq (Llama)" : "xAI Grok";
 }
 
 export function getGrokDisplayName(): string {
-  return getGrokBackend() === "groq" ? "Groq (Llama)" : "xAI Grok";
+  const key = getGrokApiKey();
+  if (!key) return "Groq (Llama)";
+  return getGrokDisplayNameForKey(key);
 }
 
 export function isGrokConfigured(): boolean {
   return Boolean(getGrokApiKey());
 }
 
-export function getGrokConfigError(): string | null {
-  if (isGrokConfigured()) return null;
+export function getGrokConfigError(userKey?: string): string | null {
+  if (resolveGrokApiKey(userKey)) return null;
 
   return (
-    "GROK_API_KEY не задан. Ключ xAI (xai-...) → console.x.ai, " +
-    "или Groq (gsk_...) → console.groq.com/keys"
+    "Введите API-ключ в Game Studio: Groq (gsk_...) → console.groq.com/keys, " +
+    "или xAI (xai-...) → console.x.ai"
   );
 }
 
 export async function generateGameWithGrok(
   description: string,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  userApiKey?: string
 ): Promise<string> {
-  const apiKey = getGrokApiKey();
+  const apiKey = resolveGrokApiKey(userApiKey);
   if (!apiKey) {
-    throw new Error(getGrokConfigError() ?? "GROK_API_KEY не задан");
+    throw new Error(getGrokConfigError(userApiKey) ?? "API-ключ не задан");
   }
 
-  const backend = getGrokBackend();
+  const backend = getGrokBackendForKey(apiKey);
   const baseURL = backend === "groq" ? GROQ_BASE : XAI_BASE;
 
   const client = new OpenAI({ apiKey, baseURL });
 
   const maxTokens = backend === "groq" ? 8000 : 12000;
+  const displayName = getGrokDisplayNameForKey(apiKey);
 
   const completion = await client.chat.completions.create({
-    model: getGrokModelName(),
+    model: getGrokModelNameForKey(apiKey),
     temperature: 0.7,
     max_tokens: maxTokens,
     response_format: { type: "json_object" },
@@ -73,7 +97,7 @@ export async function generateGameWithGrok(
 
   const content = completion.choices[0]?.message?.content;
   if (!content) {
-    throw new Error(`${getGrokDisplayName()} вернул пустой ответ`);
+    throw new Error(`${displayName} вернул пустой ответ`);
   }
 
   return content;

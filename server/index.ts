@@ -5,6 +5,6 @@ const port = Number(process.env.PORT) || 3001;
 createApiApp().listen(port, () => {
   console.log(`Game AI server → http://localhost:${port}`);
   if (!isAiConfigured()) {
-    console.warn("⚠ AI ключ не задан — см. .env");
+    console.log("ℹ Grok/Groq: ключ вводится пользователем в Game Studio");
   }
 });

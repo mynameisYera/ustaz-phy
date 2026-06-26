@@ -17,25 +17,28 @@ export function createApiApp(): Express {
   app.use(express.json({ limit: "2mb" }));
 
   app.get("/api/health", (_req, res) => {
+    const provider = getAiProvider();
     res.json({
       ok: true,
-      provider: getAiProvider(),
+      provider,
       aiConfigured: isAiConfigured(),
+      userApiKeySupported: provider === "grok",
       model: getActiveModelName(),
     });
   });
 
   app.post("/api/generate", async (req, res) => {
-    const configError = getAiConfigError();
-    if (configError) {
-      res.status(503).json({ error: configError });
-      return;
-    }
-
-    const { description, fixHistory = [] } = req.body as {
+    const { description, fixHistory = [], apiKey } = req.body as {
       description?: string;
       fixHistory?: { message: string }[];
+      apiKey?: string;
     };
+
+    const configError = getAiConfigError(apiKey);
+    if (configError) {
+      res.status(400).json({ error: configError });
+      return;
+    }
 
     if (!description?.trim()) {
       res.status(400).json({ error: "description обязателен" });
@@ -43,7 +46,7 @@ export function createApiApp(): Express {
     }
 
     try {
-      const content = await generateGame(description.trim(), fixHistory);
+      const content = await generateGame(description.trim(), fixHistory, apiKey);
       const files = parseGameResponse(content);
       res.json({ files });
     } catch (e) {

@@ -11,7 +11,7 @@ export class CreateGameUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(description: string): Promise<Game> {
+  async execute(description: string, apiKey?: string): Promise<Game> {
     const trimmed = description.trim();
     if (!trimmed) {
       throw new Error("Описание игры не может быть пустым");
@@ -20,6 +20,7 @@ export class CreateGameUseCase {
     const files = await this.generator.generate({
       description: trimmed,
       fixHistory: [],
+      apiKey: apiKey?.trim() || undefined,
     });
 
     const now = new Date();

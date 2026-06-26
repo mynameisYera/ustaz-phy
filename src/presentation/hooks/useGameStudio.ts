@@ -11,7 +11,7 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function useGameStudio() {
+export function useGameStudio(apiKey: string) {
   const { createGame, launchGame, exportGame, applyFix } = useServices();
 
   const [game, setGame] = useState<Game | null>(null);
@@ -38,7 +38,7 @@ export function useGameStudio() {
       revokeLaunch();
 
       try {
-        const created = await createGame.execute(description);
+        const created = await createGame.execute(description, apiKey);
         const launch = await launchGame.execute(created.id);
         revokeRef.current = launch.revoke;
         setGame(created);
@@ -49,7 +49,7 @@ export function useGameStudio() {
         setCreating(false);
       }
     },
-    [createGame, launchGame, revokeLaunch]
+    [createGame, launchGame, revokeLaunch, apiKey]
   );
 
   const download = useCallback(async () => {
@@ -75,7 +75,7 @@ export function useGameStudio() {
       revokeLaunch();
 
       try {
-        const updated = await applyFix.execute(game.id, message);
+        const updated = await applyFix.execute(game.id, message, apiKey);
         const launch = await launchGame.execute(updated.id);
         revokeRef.current = launch.revoke;
         setGame(updated);
@@ -86,7 +86,7 @@ export function useGameStudio() {
         setFixing(false);
       }
     },
-    [applyFix, game, launchGame, revokeLaunch]
+    [applyFix, game, launchGame, revokeLaunch, apiKey]
   );
 
   return {

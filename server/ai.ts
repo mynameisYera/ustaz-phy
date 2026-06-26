@@ -33,7 +33,7 @@ export function isAiConfigured(): boolean {
   return isGrokConfigured();
 }
 
-export function getAiConfigError(): string | null {
+export function getAiConfigError(userApiKey?: string): string | null {
   const provider = getAiProvider();
 
   if (provider === "gemini") {
@@ -50,15 +50,16 @@ export function getAiConfigError(): string | null {
     return "OPENAI_API_KEY не задан → проверьте .env в корне проекта и перезапустите npm run dev";
   }
 
-  return getGrokConfigError();
+  return getGrokConfigError(userApiKey);
 }
 
 export async function generateGame(
   description: string,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  userApiKey?: string
 ): Promise<string> {
   const provider = getAiProvider();
   if (provider === "gemini") return generateGameWithGemini(description, fixHistory);
   if (provider === "openai") return generateGameWithOpenAi(description, fixHistory);
-  return generateGameWithGrok(description, fixHistory);
+  return generateGameWithGrok(description, fixHistory, userApiKey);
 }
