@@ -33,21 +33,12 @@
   margin-bottom: 16px;
 }
 
-textarea,
-.api-key-input {
+textarea {
   padding: 12px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   font: inherit;
-}
-
-textarea {
   resize: vertical;
-}
-
-.api-key-input {
-  font-family: ui-monospace, monospace;
-  letter-spacing: 0.02em;
 }
 
 .field-hint {

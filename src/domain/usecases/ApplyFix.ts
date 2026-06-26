@@ -13,7 +13,7 @@ export class ApplyFixUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(gameId: GameId, message: string, apiKey?: string): Promise<Game> {
+  async execute(gameId: GameId, message: string): Promise<Game> {
     const trimmed = message.trim();
     if (!trimmed) {
       throw new Error("Запрос на фикс не может быть пустым");
@@ -34,7 +34,6 @@ export class ApplyFixUseCase {
     const files = await this.generator.generate({
       description: existing.description,
       fixHistory,
-      apiKey: apiKey?.trim() || undefined,
     });
 
     const updated: Game = {

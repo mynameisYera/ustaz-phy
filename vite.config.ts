@@ -18,9 +18,9 @@ export default defineConfig(async () => {
       console.log("✓ AI API встроен в Vite (/api/generate)");
 
       if (isAiConfigured()) {
-        console.log(`✓ AI настроен через .env: ${process.env.AI_PROVIDER || "grok"}`);
+        console.log(`✓ AI настроен через .env: ${process.env.AI_PROVIDER || "openai"}`);
       } else {
-        console.log("ℹ Grok/Groq: ключ вводится пользователем в Game Studio");
+        console.log("ℹ Задайте OPENAI_API_KEY в .env и перезапустите npm run dev");
       }
     },
   };
