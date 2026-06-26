@@ -11,7 +11,7 @@ export class ExportGameUseCase {
   async execute(gameId: GameId): Promise<Blob> {
     const game = await this.repository.getById(gameId);
     if (!game) {
-      throw new Error("Игра не найдена");
+      throw new Error("Ойын табылмады");
     }
     return this.exporter.export(game);
   }

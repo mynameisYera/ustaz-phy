@@ -19,7 +19,6 @@ export interface GameChallenge {
   unit: string;
 }
 
-/** Режим «Уронить»: v₀ = 0, скорость удара не спрашиваем — это противоречит условию. */
 const HIDDEN_BY_MODE: Record<InteractionMode, HiddenParam[]> = {
   drop: ["mass", "energy", "distance"],
   push: ["mass", "energy", "velocity", "distance"],
@@ -27,30 +26,30 @@ const HIDDEN_BY_MODE: Record<InteractionMode, HiddenParam[]> = {
 };
 
 const MODE_LABELS: Record<InteractionMode, string> = {
-  push: "Толкнуть",
-  throw: "Бросить",
-  drop: "Уронить (v₀ = 0)",
+  push: "Итеру",
+  throw: "Лақтыру",
+  drop: "Түсіру (v₀ = 0)",
 };
 
 function velocityQuestion(mode: InteractionMode): string {
-  if (mode === "throw") return "Найдите начальную скорость броска";
-  return "Найдите скорость после толчка";
+  if (mode === "throw") return "Лақтырудың бастапқы жылдамдығын табыңыз";
+  return "Итергеннен кейінгі жылдамдықты табыңыз";
 }
 
 function distanceQuestion(mode: InteractionMode): string {
-  if (mode === "drop") return "Найдите высоту падения h";
-  if (mode === "throw") return "Найдите дальность полёта L";
-  return "Найдите путь до остановки L";
+  if (mode === "drop") return "Түсу биіктігі h табыңыз";
+  if (mode === "throw") return "Ұшу қашықтығы L табыңыз";
+  return "Тоқтауға дейінгі жол L табыңыз";
 }
 
 export function questionForHidden(hidden: HiddenParam, mode: InteractionMode): string {
   switch (hidden) {
     case "mass":
-      return "Найдите массу стального куба";
+      return "Болат кубтың массасын табыңыз";
     case "energy":
-      return mode === "drop" ? "Найдите потенциальную энергию Ep" : "Найдите кинетическую энергию Ek";
+      return mode === "drop" ? "Ep потенциалдық энергиясын табыңыз" : "Ek кинетикалық энергиясын табыңыз";
     case "angle":
-      return "Найдите угол броска θ";
+      return "Лақтыру бұрышын θ табыңыз";
     case "velocity":
       return velocityQuestion(mode);
     case "distance":
@@ -134,7 +133,6 @@ export function distanceSymbol(mode: InteractionMode): string {
   return mode === "drop" ? "h" : "L";
 }
 
-/** Показывать ли величину после эксперимента (только то, что нужно для решения). */
 export function showsAfterExperiment(
   challenge: GameChallenge,
   param: HiddenParam | "velocity"
@@ -165,39 +163,39 @@ export function getGameHint(challenge: GameChallenge): string {
 
   if (mode === "drop") {
     if (hidden === "mass") {
-      return `Тело отпускают без начальной скорости (v₀ = 0). Запустите эксперимент, измерьте h, используйте Ep = mgh, ${g}.`;
+      return `Дене бастапқы жылдамдықсыз (v₀ = 0) қояды. Тәжірибені іске қосып, h өлшеңіз, Ep = mgh, ${g} қолданыңыз.`;
     }
     if (hidden === "energy") {
-      return `v₀ = 0. Запустите эксперимент, узнайте h, затем Ep = mgh, ${g}.`;
+      return `v₀ = 0. Тәжірибені іске қосып, h біліңіз, содан кейін Ep = mgh, ${g}.`;
     }
-    return `v₀ = 0. Даны m и Ep. Высота: h = Ep/(mg), ${g}. Эксперимент не обязателен.`;
+    return `v₀ = 0. m және Ep берілген. Биіктік: h = Ep/(mg), ${g}. Тәжірибе міндетті емес.`;
   }
 
   if (mode === "push") {
     const mu = `μ = ${FRICTION_COEFF}`;
     if (hidden === "mass") {
-      return `Запустите эксперимент, измерьте L. Формула: Ek = μmgL, отсюда m, ${g}, ${mu}.`;
+      return `Тәжірибені іске қосып, L өлшеңіз. Формула: Ek = μmgL, одан m, ${g}, ${mu}.`;
     }
     if (hidden === "energy") {
-      return `Запустите эксперимент, измерьте L. Формула: Ek = μmgL, ${g}, ${mu}.`;
+      return `Тәжірибені іске қосып, L өлшеңіз. Формула: Ek = μmgL, ${g}, ${mu}.`;
     }
     if (hidden === "distance") {
-      return `Даны m и Ek. Путь: L = Ek/(μmg), ${g}, ${mu}.`;
+      return `m және Ek берілген. Жол: L = Ek/(μmg), ${g}, ${mu}.`;
     }
-    return `Даны m и Ek. Скорость: v = √(2Ek/m).`;
+    return `m және Ek берілген. Жылдамдық: v = √(2Ek/m).`;
   }
 
   if (hidden === "mass") {
-    return `Запустите эксперимент, измерьте L. m = 2Ek·sin(2θ)/(g·L), ${g}.`;
+    return `Тәжірибені іске қосып, L өлшеңіз. m = 2Ek·sin(2θ)/(g·L), ${g}.`;
   }
   if (hidden === "energy") {
-    return `Запустите эксперимент, измерьте L. Ek = m·g·L/(2·sin(2θ)), ${g}.`;
+    return `Тәжірибені іске қосып, L өлшеңіз. Ek = m·g·L/(2·sin(2θ)), ${g}.`;
   }
   if (hidden === "angle") {
-    return `Запустите эксперимент, измерьте L. sin(2θ) = L·g/v², v = √(2Ek/m), ${g}.`;
+    return `Тәжірибені іске қосып, L өлшеңіз. sin(2θ) = L·g/v², v = √(2Ek/m), ${g}.`;
   }
   if (hidden === "distance") {
-    return `Даны m, Ek и θ. Дальность: L = Ek·sin(2θ)/(mg), ${g}.`;
+    return `m, Ek және θ берілген. Қашықтық: L = Ek·sin(2θ)/(mg), ${g}.`;
   }
-  return `Даны m и Ek. Скорость: v = √(2Ek/m).`;
+  return `m және Ek берілген. Жылдамдық: v = √(2Ek/m).`;
 }

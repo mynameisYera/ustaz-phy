@@ -31,9 +31,9 @@ import { TrajectoryOverlay } from "./TrajectoryOverlay";
 type Phase = "idle" | "animating" | "done";
 
 const MODES: { id: InteractionMode; label: string }[] = [
-  { id: "push", label: "Толкнуть" },
-  { id: "throw", label: "Бросить" },
-  { id: "drop", label: "Уронить" },
+  { id: "push", label: "Итеру" },
+  { id: "throw", label: "Лақтыру" },
+  { id: "drop", label: "Түсіру" },
 ];
 
 const MIN_MASS = 0.5;
@@ -354,10 +354,10 @@ export function EnergySimulator() {
     appMode === "game" && challenge
       ? getModeLabel(challenge.mode)
       : activeMode === "push"
-        ? "Толкнуть"
+        ? "Итеру"
         : activeMode === "throw"
-          ? "Бросить"
-          : "Уронить";
+          ? "Лақтыру"
+          : "Түсіру";
 
   const formatTick = (m: number) => String(m);
 
@@ -370,19 +370,19 @@ export function EnergySimulator() {
       <aside className="sim-panel">
         <div className="sim-panel-scroll">
           <header className="sim-panel-header">
-            <h1>Симулятор энергии</h1>
-            <p>Стальной куб · траектория · решение задачи</p>
+            <h1>Энергия симуляторы</h1>
+            <p>Болат куб · траектория · есепті шешу</p>
           </header>
 
           <section className="sim-section">
             <button type="button" className="sim-expand-panel-btn" onClick={() => setPlaygroundExpanded(true)}>
-              ⛶ Развернуть площадку
+              ⛶ Алаңды кеңейту
             </button>
           </section>
 
           <section className="sim-section">
             <button type="button" className="sim-game-start-btn" onClick={startGame}>
-              🎯 Игра: Угадай
+              🎯 Ойын: Тап
             </button>
           </section>
 
@@ -403,10 +403,10 @@ export function EnergySimulator() {
           </section>
 
           <section className="sim-section">
-            <h2>2. Тело</h2>
+            <h2>2. Дене</h2>
             <div className="sim-cube-card">
               <SimObjectVisual material="steel-cube" size="md" />
-              <span>Стальной куб</span>
+              <span>Болат куб</span>
             </div>
             <label className="sim-energy-label">
               Масса: <strong>{mass} кг</strong>
@@ -451,7 +451,7 @@ export function EnergySimulator() {
 
           {mode === "throw" && (
             <section className="sim-section">
-              <h2>4. Угол броска</h2>
+              <h2>4. Лақтыру бұрышы</h2>
               <label className="sim-energy-label">θ = <strong>{angle}°</strong></label>
               <input
                 type="range"
@@ -470,16 +470,16 @@ export function EnergySimulator() {
               onClick={() => launch()}
               disabled={phase === "animating"}
             >
-              {phase === "animating" ? "Эксперимент…" : "Запустить"}
+              {phase === "animating" ? "Тәжірибе…" : "Іске қосу"}
             </button>
             {phase !== "idle" && (
-              <button type="button" className="sim-reset-btn" onClick={reset}>Сбросить</button>
+              <button type="button" className="sim-reset-btn" onClick={reset}>Қалпына келтіру</button>
             )}
           </section>
 
           {result && (
             <section className="sim-metrics">
-              <h2>Показатели</h2>
+              <h2>Көрсеткіштер</h2>
               <dl>
                 <div><dt>E</dt><dd>{result.energyJ.toFixed(1)} Дж</dd></div>
                 <div><dt>F</dt><dd>{result.forceN.toFixed(1)} Н</dd></div>
@@ -502,13 +502,13 @@ export function EnergySimulator() {
                 onClick={() => setBreakdownOpen((v) => !v)}
                 aria-expanded={breakdownOpen}
               >
-                Разбор
+                Талдау
                 <span className="sim-breakdown-chevron" aria-hidden>▾</span>
               </button>
               {breakdownOpen && (
                 <div className="sim-breakdown-content">
                   <section className="sim-solution">
-                    <h2>Решение задачи</h2>
+                    <h2>Есепті шешу</h2>
                     <ol>
                       {result.solutionSteps.map((step, i) => (
                         <li key={i}>{step}</li>
@@ -516,7 +516,7 @@ export function EnergySimulator() {
                     </ol>
                   </section>
                   <section className="sim-explanation">
-                    <h2>Вывод</h2>
+                    <h2>Қорытынды</h2>
                     <p>{result.explanation}</p>
                   </section>
                 </div>
@@ -526,13 +526,13 @@ export function EnergySimulator() {
 
           {result && phase !== "done" && (
             <section className="sim-explanation sim-explanation--pending">
-              <p>Дождитесь окончания эксперимента, чтобы открыть разбор.</p>
+              <p>Талдауды ашу үшін тәжірибенің аяқталуын күтіңіз.</p>
             </section>
           )}
 
           {!result && (
             <p className="sim-scroll-placeholder">
-              После запуска здесь появятся показатели. Кнопка «Разбор» откроет пошаговое решение.
+              Тәжірибені іске қосқаннан кейін мұнда көрсеткіштер пайда болады. «Талдау» түймесі қадамдық шешімді ашады.
             </p>
           )}
         </div>
@@ -544,7 +544,7 @@ export function EnergySimulator() {
           className="sim-resizer"
           role="separator"
           aria-orientation="vertical"
-          aria-label="Изменить ширину панели"
+          aria-label="Панель енін өзгерту"
           onPointerDown={handleResizeDown}
           onPointerMove={handleResizeMove}
           onPointerUp={handleResizeUp}
@@ -559,16 +559,16 @@ export function EnergySimulator() {
             className="sim-playground-restore"
             onClick={() => setPlaygroundExpanded(false)}
           >
-            ← Панель управления
+            ← Басқару панелі
           </button>
         )}
 
         {appMode === "game" && challenge && (
           <div className="sim-game-task">
             <div className="sim-game-task-head">
-              <h2>🎯 Угадай величину</h2>
+              <h2>🎯 Шаманы тап</h2>
               <button type="button" className="sim-game-exit-btn" onClick={exitGame}>
-                ← Учебный режим
+                ← Оқу режимі
               </button>
             </div>
             <p className="sim-game-question">{challenge.question}</p>
@@ -609,7 +609,7 @@ export function EnergySimulator() {
               <input
                 type="text"
                 className="sim-game-answer-input"
-                placeholder={`Ответ (${challenge.unit})`}
+                placeholder={`Жауап (${challenge.unit})`}
                 value={answer}
                 onChange={(e) => {
                   setAnswer(e.target.value);
@@ -623,14 +623,14 @@ export function EnergySimulator() {
                 onClick={handleCheckAnswer}
                 disabled={!answer.trim()}
               >
-                Проверить
+                Тексеру
               </button>
             </div>
             {checkResult === "correct" && (
-              <p className="sim-game-feedback sim-game-feedback--ok">✓ Правильно!</p>
+              <p className="sim-game-feedback sim-game-feedback--ok">✓ Дұрыс!</p>
             )}
             {checkResult === "wrong" && (
-              <p className="sim-game-feedback sim-game-feedback--bad">✗ Неправильно. Попробуйте ещё раз.</p>
+              <p className="sim-game-feedback sim-game-feedback--bad">✗ Қате. Қайта көріңіз.</p>
             )}
             <div className="sim-game-actions">
               <button
@@ -639,10 +639,10 @@ export function EnergySimulator() {
                 onClick={() => launch()}
                 disabled={phase === "animating"}
               >
-                {phase === "animating" ? "Эксперимент…" : "Запустить эксперимент"}
+                {phase === "animating" ? "Тәжірибе…" : "Тәжірибені іске қосу"}
               </button>
               <button type="button" className="sim-reset-btn" onClick={newChallenge}>
-                Новая задача
+                Жаңа есеп
               </button>
             </div>
             <p className="sim-game-hint">{getGameHint(challenge)}</p>
@@ -651,23 +651,23 @@ export function EnergySimulator() {
 
         <div className="sim-screen">
         <div className="sim-screen-header">
-          <span>Экран эксперимента</span>
+          <span>Тәжірибе экраны</span>
           <div className="sim-screen-header-actions">
           {viewScale !== 1 && (
             <span className="sim-scale-label">
               {viewScale < 1
                 ? `масштаб ×${(1 / viewScale).toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`
-                : `приближение ×${viewScale.toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`}
+                : `жақындату ×${viewScale.toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`}
             </span>
           )}
-          {showTrajectory && <span className="sim-traj-label">— траектория нарисована</span>}
+          {showTrajectory && <span className="sim-traj-label">— траектория сызылды</span>}
           {phase === "done" && (
             <button
               type="button"
               className="sim-fade-body-btn"
               onClick={() => setBodyFaded((v) => !v)}
             >
-              {bodyFaded ? "Показать куб" : "Скрыть куб"}
+              {bodyFaded ? "Кубты көрсету" : "Кубты жасыру"}
             </button>
           )}
           {appMode === "learn" && (
@@ -676,7 +676,7 @@ export function EnergySimulator() {
               className="sim-expand-btn"
               onClick={() => setPlaygroundExpanded((v) => !v)}
             >
-              {playgroundExpanded ? "Свернуть" : "Развернуть площадку"}
+              {playgroundExpanded ? "Жию" : "Алаңды кеңейту"}
             </button>
           )}
           </div>
@@ -820,7 +820,7 @@ export function EnergySimulator() {
               }
             }}
             role={phase === "done" ? "button" : undefined}
-            aria-label={phase === "done" ? (bodyFaded ? "Показать куб" : "Скрыть куб для просмотра траектории") : undefined}
+            aria-label={phase === "done" ? (bodyFaded ? "Кубты көрсету" : "Траекторияны көру үшін кубты жасыру") : undefined}
             tabIndex={phase === "done" ? 0 : undefined}
             onKeyDown={(e) => {
               if (phase === "done" && (e.key === "Enter" || e.key === " ")) {

@@ -14,7 +14,7 @@ export class CreateGameUseCase {
   async execute(description: string): Promise<Game> {
     const trimmed = description.trim();
     if (!trimmed) {
-      throw new Error("Описание игры не может быть пустым");
+      throw new Error("Ойын сипаты бос болмауы керек");
     }
 
     const files = await this.generator.generate({

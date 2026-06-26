@@ -6,7 +6,7 @@ export function GamePlayer({ launchUrl }: Props) {
   if (!launchUrl) {
     return (
       <div className="player placeholder">
-        <p>Создайте игру — она появится здесь</p>
+        <p>Ойынды жасаңыз — ол осы жерде пайда болады</p>
       </div>
     );
   }
@@ -14,7 +14,7 @@ export function GamePlayer({ launchUrl }: Props) {
   return (
     <div className="player">
       <iframe
-        title="Интерактивная игра"
+        title="Интерактивті ойын"
         src={launchUrl}
         sandbox="allow-scripts allow-same-origin"
       />

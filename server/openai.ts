@@ -29,16 +29,16 @@ export async function generateGameWithOpenAi(
     const raw = getEnv("OPENAI_API_KEY");
     if (raw?.startsWith("key_")) {
       throw new Error(
-        "Вы вставили ID ключа (key_...), а нужен секрет (sk-proj-...). " +
-          "Откройте https://platform.openai.com/api-keys"
+        "Сіз кілт идентификаторын (key_...) енгіздіңіз, ал sk-proj-... секреті керек. " +
+          "https://platform.openai.com/api-keys ашыңыз"
       );
     }
-    throw new Error("OPENAI_API_KEY не задан");
+    throw new Error("OPENAI_API_KEY көрсетілмеген");
   }
 
   if (!isOpenAiKeyFormatValid(apiKey)) {
     throw new Error(
-      "Неверный формат OPENAI_API_KEY. Ключ начинается с sk-proj- или sk-"
+      "OPENAI_API_KEY форматы дұрыс емес. Кілт sk-proj- немесе sk- басталады"
     );
   }
 
@@ -59,7 +59,7 @@ export async function generateGameWithOpenAi(
 
   const content = completion.choices[0]?.message?.content;
   if (!content) {
-    throw new Error("ChatGPT вернул пустой ответ");
+    throw new Error("ChatGPT бос жауап қайтарды");
   }
 
   return content;

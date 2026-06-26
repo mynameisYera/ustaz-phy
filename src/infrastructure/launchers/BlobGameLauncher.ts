@@ -3,7 +3,7 @@ import type { GameLaunch, GameLauncher } from "@/domain/ports/GameLauncher";
 
 function prepareHtml(game: Game): string {
   const html = game.files.find((f) => f.path === "index.html")?.content;
-  if (!html) throw new Error("В игре нет index.html");
+  if (!html) throw new Error("Ойында index.html жоқ");
 
   const hasInlineAssets =
     html.includes("<style") && html.includes("<script");

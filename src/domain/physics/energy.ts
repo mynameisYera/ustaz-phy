@@ -11,7 +11,7 @@ export interface SimObject {
 
 export const STEEL_CUBE: SimObject = {
   id: "cube",
-  name: "Стальной куб",
+  name: "Болат куб",
   mass: 2,
   material: "steel-cube",
   color: "#64748b",
@@ -212,14 +212,14 @@ export function computePhysics(
       workJ: E,
       distanceM: x,
       explanation:
-        `Энергия ${E.toFixed(1)} Дж сжала стальную пружину на ${x.toFixed(2)} м. ` +
-        `Упругая сила F = kx = ${F.toFixed(1)} Н.`,
+        `${E.toFixed(1)} Дж энергия болат серпімділігін ${x.toFixed(2)} м қысқартты. ` +
+        `Серпімді күш F = kx = ${F.toFixed(1)} Н.`,
       solutionSteps: [
-        `Дано: E = ${E} Дж, k = ${object.springK} Н/м, m = ${m} кг`,
+        `Берілген: E = ${E} Дж, k = ${object.springK} Н/м, m = ${m} кг`,
         `½kx² = E  →  x = √(2E/k) = √(2·${E}/${object.springK}) = ${x.toFixed(3)} м`,
         `F = k·x = ${object.springK}·${x.toFixed(3)} = ${F.toFixed(2)} Н`,
         `a = F/m = ${F.toFixed(2)}/${m} = ${a.toFixed(2)} м/с²`,
-        `Ответ: сжатие ${x.toFixed(2)} м, сила ${F.toFixed(1)} Н`,
+        `Жауап: қысқарту ${x.toFixed(2)} м, күш ${F.toFixed(1)} Н`,
       ],
       isSpring: true,
       springCompressionM: x,
@@ -245,15 +245,15 @@ export function computePhysics(
       heightM: h,
       flightTimeS: fallTime,
       explanation:
-        `Объект с высоты ${h.toFixed(2)} м. Потенциальная энергия Ep = mgh = ${E.toFixed(1)} Дж ` +
-        `превратилась в кинетическую. Скорость удара ${vyImpact.toFixed(2)} м/с.`,
+        `Дене ${h.toFixed(2)} м биіктіктен түсті. Потенциалдық энергия Ep = mgh = ${E.toFixed(1)} Дж ` +
+        `кинетикалық энергияға айналды. Соққы жылдамдығы ${vyImpact.toFixed(2)} м/с.`,
       solutionSteps: [
-        `Дано: E = Ep = ${E} Дж, m = ${m} кг, g = ${GRAVITY} м/с²`,
+        `Берілген: E = Ep = ${E} Дж, m = ${m} кг, g = ${GRAVITY} м/с²`,
         `Ep = mgh  →  h = E/(mg) = ${E}/(${m}·${GRAVITY}) = ${h.toFixed(3)} м`,
-        `Свободное падение: h = gt²/2  →  t = √(2h/g) = ${fallTime.toFixed(3)} с`,
+        `Еркін түсу: h = gt²/2  →  t = √(2h/g) = ${fallTime.toFixed(3)} с`,
         `v = gt = ${GRAVITY}·${fallTime.toFixed(3)} = ${vyImpact.toFixed(2)} м/с`,
-        `Проверка: Ek = ½mv² = 0.5·${m}·${vyImpact.toFixed(2)}² ≈ ${E.toFixed(1)} Дж ✓`,
-        `Ответ: высота ${h.toFixed(2)} м, время ${fallTime.toFixed(2)} с, v = ${vyImpact.toFixed(2)} м/с`,
+        `Тексеру: Ek = ½mv² = 0.5·${m}·${vyImpact.toFixed(2)}² ≈ ${E.toFixed(1)} Дж ✓`,
+        `Жауап: биіктік ${h.toFixed(2)} м, уақыт ${fallTime.toFixed(2)} с, v = ${vyImpact.toFixed(2)} м/с`,
       ],
       isSpring: false,
     };
@@ -283,18 +283,18 @@ export function computePhysics(
       angleDeg,
       flightTimeS: flightTime,
       explanation:
-        `Бросок под ${angleDeg}°. v = ${v.toFixed(2)} м/с, дальность ${range.toFixed(2)} м, ` +
-        `макс. высота ${maxH.toFixed(2)} м.`,
+        `${angleDeg}° бұрышпен лақтыру. v = ${v.toFixed(2)} м/с, қашықтық ${range.toFixed(2)} м, ` +
+        `макс. биіктік ${maxH.toFixed(2)} м.`,
       solutionSteps: [
-        `Дано: E = ${E} Дж, m = ${m} кг, θ = ${angleDeg}°, g = ${GRAVITY} м/с²`,
+        `Берілген: E = ${E} Дж, m = ${m} кг, θ = ${angleDeg}°, g = ${GRAVITY} м/с²`,
         `Ek = E:  ½mv² = ${E}  →  v = √(2E/m) = √(2·${E}/${m}) = ${v.toFixed(3)} м/с`,
         `vx = v·cosθ = ${v.toFixed(3)}·cos${angleDeg}° = ${vx.toFixed(3)} м/с`,
         `vy = v·sinθ = ${v.toFixed(3)}·sin${angleDeg}° = ${vy.toFixed(3)} м/с`,
-        `Время полёта: t = 2vy/g = ${flightTime.toFixed(3)} с`,
-        `Дальность: L = vx·t = ${range.toFixed(3)} м`,
-        `Макс. высота: H = vy²/(2g) = ${maxH.toFixed(3)} м`,
-        `Работа: W = F·s = ${force.toFixed(1)}·${APPLY_DISTANCE} ≈ ${E} Дж`,
-        `Ответ: L = ${range.toFixed(2)} м, H = ${maxH.toFixed(2)} м, t = ${flightTime.toFixed(2)} с`,
+        `Ұшу уақыты: t = 2vy/g = ${flightTime.toFixed(3)} с`,
+        `Қашықтық: L = vx·t = ${range.toFixed(3)} м`,
+        `Макс. биіктік: H = vy²/(2g) = ${maxH.toFixed(3)} м`,
+        `Жұмыс: W = F·s = ${force.toFixed(1)}·${APPLY_DISTANCE} ≈ ${E} Дж`,
+        `Жауап: L = ${range.toFixed(2)} м, H = ${maxH.toFixed(2)} м, t = ${flightTime.toFixed(2)} с`,
       ],
       isSpring: false,
     };
@@ -314,14 +314,14 @@ export function computePhysics(
     workJ: E,
     distanceM: distance,
     explanation:
-      `Толчок ${E.toFixed(1)} Дж → v = ${v.toFixed(2)} м/с. Путь до остановки ${distance.toFixed(2)} м.`,
+      `${E.toFixed(1)} Дж итеру → v = ${v.toFixed(2)} м/с. Тоқтауға дейінгі жол ${distance.toFixed(2)} м.`,
     solutionSteps: [
-      `Дано: E = ${E} Дж, m = ${m} кг, μ = ${FRICTION}, g = ${GRAVITY} м/с²`,
+      `Берілген: E = ${E} Дж, m = ${m} кг, μ = ${FRICTION}, g = ${GRAVITY} м/с²`,
       `½mv² = E  →  v = √(2E/m) = ${v.toFixed(3)} м/с`,
       `F = W/s = E/s = ${E}/${APPLY_DISTANCE} = ${force.toFixed(2)} Н`,
       `a = F/m = ${acceleration.toFixed(3)} м/с²`,
-      `Путь до остановки: L = E/(μmg) = ${distance.toFixed(3)} м`,
-      `Ответ: v = ${v.toFixed(2)} м/с, L = ${distance.toFixed(2)} м`,
+      `Тоқтауға дейінгі жол: L = E/(μmg) = ${distance.toFixed(3)} м`,
+      `Жауап: v = ${v.toFixed(2)} м/с, L = ${distance.toFixed(2)} м`,
     ],
     isSpring: false,
   };

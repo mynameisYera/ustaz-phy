@@ -9,7 +9,7 @@ type ChatMsg = {
 
 export function GameStudio() {
   const [input, setInput] = useState(
-    "Викторина по кинематике: скорость, ускорение, графики движения"
+    "Кинематика бойынша викторина: жылдамдық, үдеу, қозғалыс графиктері"
   );
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ export function GameStudio() {
       setMessages((prev) => [
         ...prev,
         result.ok
-          ? { kind: "ai", text: "Игра создана и запущена." }
+          ? { kind: "ai", text: "Ойын жасалып, іске қосылды." }
           : { kind: "ai", text: result.error, isError: true },
       ]);
     } else {
@@ -45,7 +45,7 @@ export function GameStudio() {
       setMessages((prev) => [
         ...prev,
         result.ok
-          ? { kind: "ai", text: `Готово — обновлено до v${result.game.version}.` }
+          ? { kind: "ai", text: `Дайын — v${result.game.version} нұсқасына жаңартылды.` }
           : { kind: "ai", text: result.error, isError: true },
       ]);
     }
@@ -57,17 +57,16 @@ export function GameStudio() {
 
   return (
     <div className="studio">
-      {/* LEFT: Chat panel */}
       <div className="studio-left">
         <header className="studio-header">
           <h1>Game Studio</h1>
-          <p>Генерация учебных игр для уроков через OpenAI — ключ задаётся в .env на сервере.</p>
+          <p>OpenAI арқылы сабаққа оқу ойындарын жасау — кілт сервердегі .env файлына жазылады.</p>
         </header>
 
         <div className="chat-history">
           {messages.length === 0 && (
             <p className="chat-empty">
-              Опишите учебную игру для урока и нажмите «Создать» — здесь появится история.
+              Сабақ ойынын сипаттап, «Жасау» батырмасын басыңыз — мұнда тарих пайда болады.
             </p>
           )}
           {messages.map((msg, i) => (
@@ -80,7 +79,7 @@ export function GameStudio() {
           ))}
           {loading && (
             <div className="chat-msg chat-msg--ai chat-msg--loading">
-              {creating ? "Генерирую игру…" : "Применяю фикс…"}
+              {creating ? "Ойын жасалып жатыр…" : "Түзету қолданылуда…"}
             </div>
           )}
           <div ref={bottomRef} />
@@ -99,8 +98,8 @@ export function GameStudio() {
             }}
             placeholder={
               hasGame
-                ? "Что исправить? (Enter — отправить, Shift+Enter — новая строка)"
-                : "Описание игры…"
+                ? "Не түзету керек? (Enter — жіберу, Shift+Enter — жаңа жол)"
+                : "Ойын сипаты…"
             }
             rows={3}
             disabled={loading}
@@ -113,23 +112,22 @@ export function GameStudio() {
                 onClick={download}
                 disabled={downloading}
               >
-                {downloading ? "Собираем…" : "Скачать ZIP"}
+                {downloading ? "Жинақталып жатыр…" : "ZIP жүктеу"}
               </button>
             )}
             <button type="submit" disabled={loading || !input.trim()}>
               {loading
                 ? creating
-                  ? "Генерирую…"
-                  : "Применяю фикс…"
+                  ? "Жасалып жатыр…"
+                  : "Түзету қолданылуда…"
                 : hasGame
-                ? "Отправить фикс"
-                : "Создать и запустить игру"}
+                ? "Түзетуді жіберу"
+                : "Ойынды жасап іске қосу"}
             </button>
           </div>
         </form>
       </div>
 
-      {/* RIGHT: Preview */}
       <div className="studio-right">
         <GamePlayer launchUrl={launchUrl} />
       </div>

@@ -16,12 +16,12 @@ export class ApplyFixUseCase {
   async execute(gameId: GameId, message: string): Promise<Game> {
     const trimmed = message.trim();
     if (!trimmed) {
-      throw new Error("Запрос на фикс не может быть пустым");
+      throw new Error("Түзету сұрауы бос болмауы керек");
     }
 
     const existing = await this.repository.getById(gameId);
     if (!existing) {
-      throw new Error("Игра не найдена");
+      throw new Error("Ойын табылмады");
     }
 
     const fix: FixRequest = {

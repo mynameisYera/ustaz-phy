@@ -57,7 +57,7 @@ export function TrajectoryOverlay({ points, ppm, arenaHeight, visible }: Props) 
         strokeWidth="3"
         paintOrder="stroke"
       >
-        старт
+        бастау
       </text>
       <text
         x={last.x + 8}
@@ -69,7 +69,7 @@ export function TrajectoryOverlay({ points, ppm, arenaHeight, visible }: Props) 
         strokeWidth="3"
         paintOrder="stroke"
       >
-        финиш
+        аяқтау
       </text>
     </svg>
   );

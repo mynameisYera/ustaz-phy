@@ -15,17 +15,17 @@ function buildQuestions(description: string, fixes: FixRequest[]) {
 
   const base = [
     {
-      q: `Что изучаем в теме «${topic}»?`,
-      options: ["Основные законы и явления", "Историю литературы", "Географию Казахстана"],
+      q: `«${topic}» тақырыбында не үйренеміз?`,
+      options: ["Негізгі заңдар мен құбылыстар", "Әдебиет тарихы", "Қазақстан географиясы"],
       answer: 0,
     },
     {
-      q: "Какой SI-единицы измеряется сила?",
+      q: "Күш қандай SI бірлігімен өлшенеді?",
       options: ["Ньютон (Н)", "Джоуль (Дж)", "Ватт (Вт)"],
       answer: 0,
     },
     {
-      q: "Формула скорости при равномерном движении:",
+      q: "Бірқалыпты қозғалыстағы жылдамдық формуласы:",
       options: ["v = s / t", "F = m · a", "E = m · c²"],
       answer: 0,
     },
@@ -33,8 +33,8 @@ function buildQuestions(description: string, fixes: FixRequest[]) {
 
   if (fixHint) {
     base.push({
-      q: `Уточнение от учителя: «${fixHint.slice(0, 120)}». Что важнее всего учесть?`,
-      options: ["Следовать уточнению в задании", "Игнорировать подсказку", "Ответить наугад"],
+      q: `Мұғалімнің нақтылауы: «${fixHint.slice(0, 120)}». Негізгі ескеру не?`,
+      options: ["Тапсырмадағы нақтылауды орындау", "Кеңесті елемеу", "Кездейсоқ жауап беру"],
       answer: 0,
     });
   }
@@ -50,7 +50,7 @@ function buildIndexHtml(description: string, fixes: FixRequest[]): string {
     .join("");
 
   return `<!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -61,13 +61,13 @@ function buildIndexHtml(description: string, fixes: FixRequest[]): string {
   <main class="game">
     <header>
       <h1>${title}</h1>
-      <p class="subtitle">Интерактивная игра для учеников</p>
-      <p class="score">Счёт: <span id="score">0</span> / <span id="total">${questions.length}</span></p>
+      <p class="subtitle">Оқушыларға арналған интерактивті ойын</p>
+      <p class="score">Есеп: <span id="score">0</span> / <span id="total">${questions.length}</span></p>
     </header>
     <section id="quiz"></section>
     <footer>
-      <button id="restart" type="button" hidden>Играть снова</button>
-      ${fixNotes ? `<details class="fixes"><summary>История фиксов (${fixes.length})</summary><ul>${fixNotes}</ul></details>` : ""}
+      <button id="restart" type="button" hidden>Қайта ойнау</button>
+      ${fixNotes ? `<details class="fixes"><summary>Түзету тарихы (${fixes.length})</summary><ul>${fixNotes}</ul></details>` : ""}
     </footer>
   </main>
   <script>
@@ -138,7 +138,7 @@ const restartBtn = document.getElementById("restart");
 
 function renderQuestion() {
   if (current >= QUESTIONS.length) {
-    quizEl.innerHTML = '<div class="card"><h2>Готово! Результат: ' + score + ' из ' + QUESTIONS.length + '</h2></div>';
+    quizEl.innerHTML = '<div class="card"><h2>Дайын! Нәтиже: ' + score + ' / ' + QUESTIONS.length + '</h2></div>';
     restartBtn.hidden = false;
     return;
   }
@@ -146,7 +146,7 @@ function renderQuestion() {
   const item = QUESTIONS[current];
   const card = document.createElement("div");
   card.className = "card";
-  card.innerHTML = '<h2>Вопрос ' + (current + 1) + '</h2><div class="options"></div>';
+  card.innerHTML = '<h2>Сұрақ ' + (current + 1) + '</h2><div class="options"></div>';
   const optionsEl = card.querySelector(".options");
 
   item.options.forEach((text, index) => {
@@ -193,19 +193,19 @@ renderQuestion();
 `;
 
 function buildReadme(description: string): string {
-  return `# Интерактивная игра
+  return `# Интерактивті ойын
 
-Тема: ${description}
+Тақырып: ${description}
 
-## Как запустить локально
+## Локальды іске қосу
 
-1. Распакуйте архив
-2. Откройте \`index.html\` в браузере (двойной клик или Live Server)
+1. Архивті ашыңыз
+2. \`index.html\` файлын браузерде ашыңыз (қос шерту немесе Live Server)
 
-Файлы:
-- \`index.html\` — страница игры
-- \`style.css\` — стили
-- \`game.js\` — логика викторины
+Файлдар:
+- \`index.html\` — ойын беті
+- \`style.css\` — стильдер
+- \`game.js\` — викторина логикасы
 `;
 }
 

@@ -56,16 +56,16 @@ export function parseGameResponse(raw: string): GameFile[] {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("ИИ вернул невалидный ответ. Ожидается index.html (<!DOCTYPE html>...).");
+    throw new Error("ЖИ жарамсыз жауап қайтарды. index.html күтіледі (<!DOCTYPE html>...).");
   }
 
   if (!parsed || typeof parsed !== "object" || !("files" in parsed)) {
-    throw new Error("ИИ вернул JSON без поля files");
+    throw new Error("ЖИ files өрісі жоқ JSON қайтарды");
   }
 
   const files = (parsed as { files: RawFile[] }).files;
   if (!Array.isArray(files) || files.length === 0) {
-    throw new Error("ИИ не вернул файлы игры");
+    throw new Error("ЖИ ойын файлдарын қайтармады");
   }
 
   const normalized: GameFile[] = files
@@ -74,7 +74,7 @@ export function parseGameResponse(raw: string): GameFile[] {
 
   const index = normalized.find((f) => f.path === "index.html");
   if (!index) {
-    throw new Error("ИИ не сгенерировал index.html");
+    throw new Error("ЖИ index.html жасамады");
   }
 
   if (!index.content.includes("<style") && !index.content.includes("<script")) {

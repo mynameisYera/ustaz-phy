@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     res.status(200).json({ files: result.files });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Внутренняя ошибка сервера";
+    const message = e instanceof Error ? e.message : "Сервердің ішкі қатесі";
     console.error("[api/generate] unhandled:", message);
     res.status(500).json({ error: message });
   }

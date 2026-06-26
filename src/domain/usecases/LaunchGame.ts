@@ -12,7 +12,7 @@ export class LaunchGameUseCase {
   async execute(gameId: GameId): Promise<GameLaunch> {
     const game = await this.repository.getById(gameId);
     if (!game) {
-      throw new Error("Игра не найдена");
+      throw new Error("Ойын табылмады");
     }
     return this.launcher.launch(game);
   }

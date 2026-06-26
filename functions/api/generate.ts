@@ -10,7 +10,7 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
   try {
     body = (await context.request.json()) as Record<string, unknown>;
   } catch {
-    return Response.json({ error: "Некорректный JSON в теле запроса" }, { status: 400 });
+    return Response.json({ error: "Сұрау денесіндегі JSON дұрыс емес" }, { status: 400 });
   }
 
   const result = await handleGenerate({

@@ -21,9 +21,9 @@ export function getAiConfigError(): string | null {
 
   const raw = getEnv("OPENAI_API_KEY");
   if (raw?.startsWith("key_")) {
-    return "Вы вставили ID ключа (key_...). Нужен секрет sk-proj-... → https://platform.openai.com/api-keys";
+    return "Сіз кілт идентификаторын (key_...) енгіздіңіз. sk-proj-... секреті керек → https://platform.openai.com/api-keys";
   }
-  return "OPENAI_API_KEY не задан → проверьте .env в корне проекта и перезапустите npm run dev";
+  return "OPENAI_API_KEY көрсетілмеген → жоба түбіндегі .env тексеріп, npm run dev қайта іске қосыңыз";
 }
 
 export async function generateGame(

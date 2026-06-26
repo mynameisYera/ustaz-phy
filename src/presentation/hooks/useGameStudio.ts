@@ -46,7 +46,7 @@ export function useGameStudio() {
         setLaunchUrl(launch.launchUrl);
         return { ok: true, game: created };
       } catch (e) {
-        const error = e instanceof Error ? e.message : "Ошибка создания";
+        const error = e instanceof Error ? e.message : "Жасау қатесі";
         return { ok: false, error };
       } finally {
         setCreating(false);
@@ -69,7 +69,7 @@ export function useGameStudio() {
 
   const submitFix = useCallback(
     async (message: string): Promise<FixResult> => {
-      if (!game) return { ok: false, error: "Игра не создана" };
+      if (!game) return { ok: false, error: "Ойын жасалмаған" };
       setFixing(true);
       revokeLaunch();
 
@@ -81,7 +81,7 @@ export function useGameStudio() {
         setLaunchUrl(launch.launchUrl);
         return { ok: true, game: updated };
       } catch (e) {
-        const error = e instanceof Error ? e.message : "Ошибка фикса";
+        const error = e instanceof Error ? e.message : "Түзету қатесі";
         return { ok: false, error };
       } finally {
         setFixing(false);

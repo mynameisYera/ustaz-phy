@@ -18,19 +18,19 @@ export function FixRequestForm({ onSubmit, loading, version }: Props) {
 
   return (
     <form className="fix-form" onSubmit={handleSubmit}>
-      <h3>Запрос на фикс (v{version})</h3>
+      <h3>Түзету сұрауы (v{version})</h3>
       <p className="hint">
-        Опишите, что исправить прямо во время игры — игра пересоберётся с новой версией.
+        Ойын кезінде не түзету керектігін сипаттаңыз — ойын жаңа нұсқамен қайта жинақталады.
       </p>
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Например: добавь вопрос про закон Ома, сделай кнопки крупнее"
+        placeholder="Мысалы: Ом заңы туралы сұрақ қос, түймелерді үлкенірек жаса"
         rows={3}
         disabled={loading}
       />
       <button type="submit" disabled={loading || !message.trim()}>
-        {loading ? "Применяем фикс…" : "Отправить фикс"}
+        {loading ? "Түзету қолданылуда…" : "Түзетуді жіберу"}
       </button>
     </form>
   );

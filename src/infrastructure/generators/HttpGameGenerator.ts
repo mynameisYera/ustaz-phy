@@ -28,8 +28,8 @@ async function readJsonResponse(
 
     throw new Error(
       looksLikeHtml
-        ? "API /api/generate недоступен на этом хостинге. Нужен деплой с сервером (npm start) или Vercel/Cloudflare Pages Functions."
-        : `Сервер вернул не JSON: ${preview}`
+        ? "API /api/generate бұл хостингте қолжетімсіз. Сервермен деплой керек (npm start) немесе Vercel/Cloudflare Pages Functions."
+        : `Сервер JSON емес жауап қайтарды: ${preview}`
     );
   }
 }
@@ -51,18 +51,18 @@ export class HttpGameGenerator implements GameGenerator {
       });
     } catch {
       throw new Error(
-        "Не удалось связаться с API. Проверьте деплой: нужен /api/generate на том же домене."
+        "API-мен байланысу сәтсіз аяқталды. Деплойды тексеріңіз: сол доменде /api/generate болуы керек."
       );
     }
 
     const data = await readJsonResponse(response);
 
     if (!response.ok) {
-      throw new Error(data?.error ?? `Ошибка сервера (${response.status})`);
+      throw new Error(data?.error ?? `Сервер қатесі (${response.status})`);
     }
 
     if (!data?.files?.length) {
-      throw new Error("Сервер не вернул файлы игры");
+      throw new Error("Сервер ойын файлдарын қайтармады");
     }
 
     return data.files;

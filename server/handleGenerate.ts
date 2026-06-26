@@ -24,7 +24,7 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
   }
 
   if (!description?.trim()) {
-    return { ok: false, status: 400, error: "description обязателен" };
+    return { ok: false, status: 400, error: "description міндетті" };
   }
 
   try {
@@ -32,7 +32,7 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
     const files = parseGameResponse(content);
     return { ok: true, files };
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Ошибка генерации";
+    const message = e instanceof Error ? e.message : "Генерация қатесі";
     console.error("[generate]", message);
     return { ok: false, status: 502, error: message };
   }

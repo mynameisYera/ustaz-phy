@@ -40,14 +40,14 @@ export function App() {
             className={screen === "simulator" ? "active" : ""}
             onClick={() => setScreen("simulator")}
           >
-            ⚡ Симулятор энергии
+            ⚡ Энергия симуляторы
           </button>
           <button
             type="button"
             className={screen === "studio" ? "active" : ""}
             onClick={() => setScreen("studio")}
           >
-            🎮 Game Studio (ИИ)
+            🎮 Game Studio (ЖИ)
           </button>
         </nav>
 
