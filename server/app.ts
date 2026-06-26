@@ -2,13 +2,11 @@ import "./env.js";
 import cors from "cors";
 import express, { type Express } from "express";
 import {
-  generateGame,
   getActiveModelName,
-  getAiConfigError,
   getAiProvider,
   isAiConfigured,
 } from "./ai";
-import { parseGameResponse } from "./parseGameResponse";
+import { handleGenerate } from "./handleGenerate.js";
 
 export function createApiApp(): Express {
   const app = express();
@@ -28,32 +26,14 @@ export function createApiApp(): Express {
   });
 
   app.post("/api/generate", async (req, res) => {
-    const { description, fixHistory = [], apiKey } = req.body as {
-      description?: string;
-      fixHistory?: { message: string }[];
-      apiKey?: string;
-    };
+    const result = await handleGenerate(req.body ?? {});
 
-    const configError = getAiConfigError(apiKey);
-    if (configError) {
-      res.status(400).json({ error: configError });
+    if (!result.ok) {
+      res.status(result.status).json({ error: result.error });
       return;
     }
 
-    if (!description?.trim()) {
-      res.status(400).json({ error: "description обязателен" });
-      return;
-    }
-
-    try {
-      const content = await generateGame(description.trim(), fixHistory, apiKey);
-      const files = parseGameResponse(content);
-      res.json({ files });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Ошибка генерации";
-      console.error("[generate]", message);
-      res.status(502).json({ error: message });
-    }
+    res.json({ files: result.files });
   });
 
   return app;

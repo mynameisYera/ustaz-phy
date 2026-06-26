@@ -9,8 +9,33 @@ interface ErrorResponse {
   error: string;
 }
 
+function resolveApiUrl(): string {
+  const fromEnv = import.meta.env.VITE_API_URL?.trim();
+  return fromEnv || "/api/generate";
+}
+
+async function readJsonResponse(
+  response: Response
+): Promise<(GenerateResponse & ErrorResponse) | null> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text) as GenerateResponse & ErrorResponse;
+  } catch {
+    const preview = text.replace(/\s+/g, " ").slice(0, 100);
+    const looksLikeHtml = preview.startsWith("<") || preview.startsWith("The page");
+
+    throw new Error(
+      looksLikeHtml
+        ? "API /api/generate недоступен на этом хостинге. Нужен деплой с сервером (npm start) или Vercel/Cloudflare Pages Functions."
+        : `Сервер вернул не JSON: ${preview}`
+    );
+  }
+}
+
 export class HttpGameGenerator implements GameGenerator {
-  constructor(private readonly apiUrl = "/api/generate") {}
+  constructor(private readonly apiUrl = resolveApiUrl()) {}
 
   async generate(input: GenerateGameInput): Promise<GameFile[]> {
     let response: Response;
@@ -27,17 +52,17 @@ export class HttpGameGenerator implements GameGenerator {
       });
     } catch {
       throw new Error(
-        "Не удалось связаться с API. Перезапустите: npm run dev"
+        "Не удалось связаться с API. Проверьте деплой: нужен /api/generate на том же домене."
       );
     }
 
-    const data = (await response.json()) as GenerateResponse & ErrorResponse;
+    const data = await readJsonResponse(response);
 
     if (!response.ok) {
-      throw new Error(data.error ?? `Ошибка сервера (${response.status})`);
+      throw new Error(data?.error ?? `Ошибка сервера (${response.status})`);
     }
 
-    if (!data.files?.length) {
+    if (!data?.files?.length) {
       throw new Error("Сервер не вернул файлы игры");
     }
 
