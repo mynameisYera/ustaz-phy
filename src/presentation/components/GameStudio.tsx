@@ -60,13 +60,13 @@ export function GameStudio() {
       <div className="studio-left">
         <header className="studio-header">
           <h1>Game Studio</h1>
-          <p>OpenAI арқылы сабаққа оқу ойындарын жасау — кілт сервердегі .env файлына жазылады.</p>
+          
         </header>
 
         <div className="chat-history">
           {messages.length === 0 && (
             <p className="chat-empty">
-              Сабақ ойынын сипаттап, «Жасау» батырмасын басыңыз — мұнда тарих пайда болады.
+              Сабақ ойынын сипаттап, «Жасау» батырмасын басыңыз.
             </p>
           )}
           {messages.map((msg, i) => (

@@ -6,7 +6,7 @@ export function GamePlayer({ launchUrl }: Props) {
   if (!launchUrl) {
     return (
       <div className="player placeholder">
-        <p>Ойынды жасаңыз — ол осы жерде пайда болады</p>
+        <p>Ойын алаңы</p>
       </div>
     );
   }
