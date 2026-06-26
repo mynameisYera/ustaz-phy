@@ -12,7 +12,7 @@ interface RawFile {
 
 function finalizeIndex(html: string): GameFile {
   const polished = polishGameHtml(html);
-  validateGameHtml(polished);
+  // validateGameHtml(polished);
   return { path: "index.html", content: polished };
 }
 

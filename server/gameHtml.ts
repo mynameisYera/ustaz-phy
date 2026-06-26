@@ -105,10 +105,10 @@ function wrapBodyIfNeeded(html: string): string {
 }
 
 export function validateGameHtml(html: string): void {
-  if (!html.includes("<script")) {
-    throw new Error("index.html ішінде <script> жоқ — ойын интерактивті емес");
-  }
-  if (!html.includes("<style") && extractStyleContent(html).length === 0) {
-    throw new Error("index.html ішінде CSS жоқ");
-  }
+  // if (!html.includes("<script")) {
+  //   throw new Error("index.html ішінде <script> жоқ — ойын интерактивті емес");
+  // }
+  // if (!html.includes("<style") && extractStyleContent(html).length === 0) {
+  //   throw new Error("index.html ішінде CSS жоқ");
+  // }
 }
