@@ -40,7 +40,7 @@ export function parseGameResponse(raw: string): GameFile[] {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("ИИ вернул невалидный JSON. Ожидается index.html в поле files.");
+    throw new Error("ИИ вернул невалидный ответ. Ожидается index.html (<!DOCTYPE html>...).");
   }
 
   if (!parsed || typeof parsed !== "object" || !("files" in parsed)) {
