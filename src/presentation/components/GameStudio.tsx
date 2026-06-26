@@ -9,7 +9,7 @@ type ChatMsg = {
 
 export function GameStudio() {
   const [input, setInput] = useState(
-    "Викторина по кинематике: скорость, ускорение, графики движения"
+    "Сделай змейку"
   );
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
