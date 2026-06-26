@@ -15,12 +15,10 @@ export function createApiApp(): Express {
   app.use(express.json({ limit: "2mb" }));
 
   app.get("/api/health", (_req, res) => {
-    const provider = getAiProvider();
     res.json({
       ok: true,
-      provider,
+      provider: getAiProvider(),
       aiConfigured: isAiConfigured(),
-      userApiKeySupported: provider === "grok",
       model: getActiveModelName(),
     });
   });

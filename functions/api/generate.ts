@@ -15,7 +15,6 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
 
   const result = await handleGenerate({
     description: typeof body.description === "string" ? body.description : undefined,
-    apiKey: typeof body.apiKey === "string" ? body.apiKey : undefined,
     fixHistory: Array.isArray(body.fixHistory)
       ? body.fixHistory.filter(
           (item): item is { message: string } =>
