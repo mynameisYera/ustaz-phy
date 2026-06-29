@@ -9,7 +9,13 @@ import { ExportGameUseCase } from "@/domain/usecases/ExportGame";
 import { LaunchGameUseCase } from "@/domain/usecases/LaunchGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { GameStudio } from "@/presentation/components/GameStudio";
-import { EnergySimulator } from "@/presentation/components/EnergySimulator";
+import { TopBar, type SimId } from "@/presentation/components/shell/TopBar";
+import { EnergySim } from "@/presentation/components/simulators/EnergySim";
+import { CircuitSim } from "@/presentation/components/simulators/CircuitSim";
+import { LensSim } from "@/presentation/components/simulators/LensSim";
+import { BuoyancySim } from "@/presentation/components/simulators/BuoyancySim";
+import "@/presentation/styles/shell.css";
+import "@/presentation/styles/primitives.css";
 import "@/presentation/styles/studio.css";
 import "@/presentation/styles/simulator.css";
 import "@/presentation/styles/app.css";
@@ -26,33 +32,47 @@ const services = {
   launchGame: new LaunchGameUseCase(gameRepository, gameLauncher),
 };
 
-type Screen = "studio" | "simulator";
+type Screen = "sim" | "studio";
+
+function getHashSim(): SimId {
+  const hash = window.location.hash.slice(2);
+  if (["energy", "circuit", "lens", "buoyancy"].includes(hash)) return hash as SimId;
+  return "energy";
+}
 
 export function App() {
-  const [screen, setScreen] = useState<Screen>("simulator");
+  const [screen, setScreen] = useState<Screen>("sim");
+  const [activeSim, setActiveSim] = useState<SimId>(getHashSim);
+
+  const handleSimChange = (id: SimId) => {
+    window.location.hash = `/${id}`;
+    setActiveSim(id);
+    setScreen("sim");
+  };
+
+  const handleStudioClick = () => setScreen((s) => (s === "studio" ? "sim" : "studio"));
 
   return (
     <ServicesProvider services={services}>
       <div className="app-shell">
-        <nav className="app-nav">
-          <button
-            type="button"
-            className={screen === "simulator" ? "active" : ""}
-            onClick={() => setScreen("simulator")}
-          >
-            ⚡ Энергия симуляторы
-          </button>
-          <button
-            type="button"
-            className={screen === "studio" ? "active" : ""}
-            onClick={() => setScreen("studio")}
-          >
-            🎮 Game Studio (ЖИ)
-          </button>
-        </nav>
+        <TopBar
+          activeSim={activeSim}
+          onSimChange={handleSimChange}
+          onStudioClick={handleStudioClick}
+          studioActive={screen === "studio"}
+        />
 
         <div className="app-main">
-          {screen === "simulator" ? <EnergySimulator /> : <GameStudio />}
+          {screen === "studio" ? (
+            <GameStudio />
+          ) : (
+            <>
+              {activeSim === "energy"   && <EnergySim />}
+              {activeSim === "circuit"  && <CircuitSim />}
+              {activeSim === "lens"     && <LensSim />}
+              {activeSim === "buoyancy" && <BuoyancySim />}
+            </>
+          )}
         </div>
       </div>
     </ServicesProvider>

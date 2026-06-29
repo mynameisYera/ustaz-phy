@@ -1,0 +1,405 @@
+/* ─── Sidebar ──────────────────────────────────── */
+.prim-sidebar {
+  background: #0f1729;
+  border-right: 1px solid #1e293b;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.prim-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Dark-sidebar overrides for legacy .sim-* classes used inside EnergySim */
+.prim-sidebar h1 { color: #e2e8f0; }
+.prim-sidebar h2 { color: #94a3b8; }
+.prim-sidebar p  { color: #64748b; }
+.prim-sidebar .sim-panel-header p { color: #475569; }
+.prim-sidebar .sim-section-last   { border-bottom-color: #1e293b; }
+.prim-sidebar .sim-scroll-placeholder { color: #475569; }
+.prim-sidebar .sim-metrics h2    { color: #94a3b8; }
+
+.prim-sidebar .sim-energy-input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+.prim-sidebar .sim-energy-input:focus {
+  outline: none;
+  border-color: #4263eb;
+}
+.prim-sidebar .sim-expand-panel-btn {
+  background: #1e293b;
+  border-color: #2d3a52;
+  color: #94a3b8;
+}
+.prim-sidebar .sim-expand-panel-btn:hover {
+  background: #263548;
+  color: #e2e8f0;
+  border-color: #4263eb;
+}
+.prim-sidebar .sim-reset-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+.prim-sidebar .sim-reset-btn:hover {
+  background: #263548;
+  color: #e2e8f0;
+}
+.prim-sidebar .sim-metrics dl > div {
+  background: #1a2540;
+  color: #e2e8f0;
+}
+.prim-sidebar .sim-metrics dt { color: #64748b; }
+.prim-sidebar .sim-metrics dd { color: #e2e8f0; }
+.prim-sidebar .sim-breakdown-btn {
+  background: #1a2d1a;
+  border-color: #22c55e;
+  color: #86efac;
+}
+.prim-sidebar .sim-breakdown-btn:hover { background: #1f3d1f; }
+.prim-sidebar .sim-solution {
+  background: #0f2218;
+  border-color: #166534;
+}
+.prim-sidebar .sim-solution h2 { color: #86efac; }
+.prim-sidebar .sim-solution ol { color: #86efac; }
+.prim-sidebar .sim-explanation {
+  background: #1a180a;
+  border-color: #854d0e;
+}
+.prim-sidebar .sim-explanation h2 { color: #fde047; }
+.prim-sidebar .sim-explanation p  { color: #fef9c3; }
+.prim-sidebar .sim-explanation--pending {
+  background: #1e293b;
+  border-color: #334155;
+}
+.prim-sidebar .sim-explanation--pending p { color: #64748b; }
+
+/* ─── SectionLabel ─────────────────────────────── */
+.prim-section-label {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.prim-section-num {
+  color: #4263eb;
+}
+
+/* ─── ModePills ────────────────────────────────── */
+.prim-mode-pills {
+  display: flex;
+  gap: 6px;
+}
+.prim-mode-pill {
+  flex: 1;
+  padding: 9px 4px;
+  background: #1e293b;
+  border: 1px solid #2d3a52;
+  border-radius: 9px;
+  color: #64748b;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.prim-mode-pill:hover:not(.prim-mode-pill--active) {
+  background: #263548;
+  color: #cbd5e1;
+}
+.prim-mode-pill--active {
+  background: #eef0ff;
+  border-color: #4263eb;
+  color: #3b5bdb;
+  font-weight: 600;
+}
+.prim-mode-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─── SliderRow ────────────────────────────────── */
+.prim-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.prim-slider-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+.prim-slider-label strong {
+  color: #e2e8f0;
+}
+.prim-slider-row input[type="range"] {
+  width: 100%;
+  accent-color: #4263eb;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ─── BodyCard ─────────────────────────────────── */
+.prim-body-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  margin-bottom: 12px;
+  background: #1a2540;
+  border: 1px solid #2d3a52;
+  border-radius: 11px;
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: border-color 0.15s;
+}
+.prim-body-card--active {
+  border-color: #4263eb;
+  background: #1e2d50;
+}
+.prim-body-card[tabindex] {
+  cursor: pointer;
+}
+.prim-body-card[tabindex]:hover {
+  border-color: #4f76ff;
+}
+
+/* ─── FormulaChip ──────────────────────────────── */
+.prim-formula-chip {
+  font-family: "Fira Code", "JetBrains Mono", "Cascadia Code", monospace;
+  font-size: 0.8rem;
+  background: rgba(15, 23, 41, 0.85);
+  border: 1px solid #2d3a52;
+  border-radius: 7px;
+  padding: 4px 12px;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+/* ─── GameButton ───────────────────────────────── */
+.prim-game-btn {
+  width: 100%;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, #7048e8 0%, #5f3dc4 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.14s, box-shadow 0.14s;
+}
+.prim-game-btn:hover {
+  opacity: 0.9;
+  box-shadow: 0 4px 16px rgba(112, 72, 232, 0.4);
+}
+
+/* ─── Canvas ───────────────────────────────────── */
+.prim-canvas {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+}
+.prim-canvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+}
+.prim-canvas-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.prim-canvas-header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.prim-canvas-scale {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+.prim-canvas-traj {
+  color: #fbbf24;
+  font-size: 0.78rem;
+}
+.prim-canvas-expand-btn {
+  padding: 4px 10px;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  background: rgba(37, 99, 235, 0.18);
+  color: #bfdbfe;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+  white-space: nowrap;
+}
+.prim-canvas-expand-btn:hover {
+  background: rgba(37, 99, 235, 0.38);
+  border-color: #60a5fa;
+}
+.prim-canvas-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.prim-canvas-formula-bar {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 24px;
+  flex-shrink: 0;
+  background: rgba(15, 23, 41, 0.7);
+  border-top: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+/* ─── TargetChallenge ──────────────────────────── */
+.prim-challenge {
+  flex-shrink: 0;
+  margin: 0 24px 12px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  color: #e2e8f0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.prim-challenge-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.prim-challenge-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fbbf24;
+}
+.prim-challenge-exit {
+  padding: 6px 12px;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  color: #cbd5e1;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+.prim-challenge-exit:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #94a3b8;
+}
+.prim-challenge-question {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+.prim-challenge-answer-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.prim-challenge-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid #475569;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  transition: border-color 0.14s;
+}
+.prim-challenge-input:focus {
+  outline: none;
+  border-color: #fbbf24;
+}
+.prim-challenge-check {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s;
+}
+.prim-challenge-check:not(:disabled):hover { background: #15803d; }
+.prim-challenge-check:disabled { opacity: 0.5; cursor: not-allowed; }
+.prim-challenge-feedback {
+  margin: 0 0 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.prim-challenge-feedback--ok {
+  background: rgba(22, 163, 74, 0.18);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}
+.prim-challenge-feedback--bad {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+.prim-challenge-hint {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* ─── Responsive ───────────────────────────────── */
+@media (max-width: 900px) {
+  .prim-sidebar {
+    width: 100% !important;
+    max-height: 45vh;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+  }
+  .prim-challenge {
+    margin: 0 12px 10px;
+    padding: 14px;
+  }
+  .prim-challenge-answer-row {
+    flex-direction: column;
+  }
+}

@@ -4,8 +4,8 @@
   min-height: 0;
   overflow: hidden;
   font-family: system-ui, sans-serif;
-  color: #0f172a;
-  background: #f1f5f9;
+  color: #e2e8f0;
+  background: #0f1729;
 }
 
 .sim-panel {
@@ -22,14 +22,14 @@
   flex-shrink: 0;
   width: 6px;
   cursor: col-resize;
-  background: #e2e8f0;
+  background: #1e293b;
   transition: background 0.15s;
   touch-action: none;
 }
 
 .sim-resizer:hover,
 .sim-resizer:active {
-  background: #94a3b8;
+  background: #334155;
 }
 
 .sim-playground {
@@ -240,11 +240,16 @@
   width: 100%;
   margin-top: 8px;
   padding: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #334155;
   border-radius: 8px;
-  background: white;
+  background: #1e293b;
+  color: #94a3b8;
   font: inherit;
   cursor: pointer;
+}
+.sim-reset-btn:hover {
+  background: #263548;
+  color: #e2e8f0;
 }
 
 .sim-metrics dl {
@@ -1003,7 +1008,7 @@
     width: 100% !important;
     max-height: 45vh;
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #1e293b;
   }
 
   .sim-resizer {

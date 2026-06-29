@@ -17,33 +17,3 @@ body,
   min-height: 0;
   overflow: hidden;
 }
-
-.app-nav {
-  display: flex;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #0f172a;
-  border-bottom: 1px solid #1e293b;
-  flex-shrink: 0;
-}
-
-.app-nav button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: #94a3b8;
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.app-nav button:hover {
-  background: #1e293b;
-  color: #e2e8f0;
-}
-
-.app-nav button.active {
-  background: #2563eb;
-  color: white;
-}

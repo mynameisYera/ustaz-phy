@@ -1,0 +1,144 @@
+/* ─── Top Bar ──────────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 50;
+}
+
+.top-bar-left {
+  position: relative;
+}
+
+.top-bar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #2d3a52;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+  white-space: nowrap;
+  user-select: none;
+}
+.top-bar-pill--current {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.top-bar-pill:hover:not(.top-bar-pill--current) {
+  background: #263244;
+  color: #e2e8f0;
+}
+.top-bar-pill--current:hover {
+  background: #1d4ed8;
+}
+.top-bar-pill--open:not(.top-bar-pill--current) {
+  background: #263244;
+  color: #e2e8f0;
+}
+.top-bar-pill--current.top-bar-pill--open {
+  background: #1d4ed8;
+}
+
+.top-bar-chevron {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.top-bar-pill--open .top-bar-chevron {
+  transform: rotate(180deg);
+}
+
+/* ─── Dropdown Menu ────────────────────────────── */
+.top-bar-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 240px;
+  background: #1e293b;
+  border: 1px solid #2d3a52;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  z-index: 200;
+  animation: top-bar-menu-in 0.13s ease;
+}
+@keyframes top-bar-menu-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1); }
+}
+
+.top-bar-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+.top-bar-menu-item:hover {
+  background: rgba(148, 163, 184, 0.09);
+  color: #e2e8f0;
+}
+.top-bar-menu-item--active {
+  background: #eef0ff;
+  color: #3b5bdb;
+  font-weight: 600;
+}
+.top-bar-menu-item--active:hover {
+  background: #e6e9ff;
+  color: #3b5bdb;
+}
+.top-bar-menu-icon {
+  font-size: 1.05rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.top-bar-menu-check {
+  margin-left: auto;
+  color: #3b5bdb;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ─── Game Studio Pill ─────────────────────────── */
+.top-bar-studio {
+  padding: 7px 16px;
+  background: #7048e8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, box-shadow 0.14s;
+  white-space: nowrap;
+}
+.top-bar-studio:hover {
+  background: #6438d3;
+}
+.top-bar-studio--active {
+  background: #5f3dc4;
+  box-shadow: 0 0 0 2px rgba(112, 72, 232, 0.4);
+}
