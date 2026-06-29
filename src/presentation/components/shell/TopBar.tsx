@@ -14,9 +14,11 @@ interface TopBarProps {
   onSimChange: (id: SimId) => void;
   onStudioClick: () => void;
   studioActive?: boolean;
+  onRagClick: () => void;
+  ragActive?: boolean;
 }
 
-export function TopBar({ activeSim, onSimChange, onStudioClick, studioActive = false }: TopBarProps) {
+export function TopBar({ activeSim, onSimChange, onStudioClick, studioActive = false, onRagClick, ragActive = false }: TopBarProps) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const active = SIMULATORS.find((s) => s.id === activeSim)!;
@@ -35,7 +37,7 @@ export function TopBar({ activeSim, onSimChange, onStudioClick, studioActive = f
     };
   }, [open]);
 
-  const isSimActive = !studioActive;
+  const isSimActive = !studioActive && !ragActive;
 
   return (
     <nav className="top-bar">
@@ -90,13 +92,22 @@ export function TopBar({ activeSim, onSimChange, onStudioClick, studioActive = f
         )}
       </div>
 
-      <button
-        type="button"
-        className={`top-bar-studio${studioActive ? " top-bar-studio--active" : ""}`}
-        onClick={onStudioClick}
-      >
-        🎮 Game Studio (ЖИ)
-      </button>
+      <div className="top-bar-right">
+        <button
+          type="button"
+          className={`top-bar-studio${studioActive ? " top-bar-studio--active" : ""}`}
+          onClick={onStudioClick}
+        >
+          🎮 Game Studio (ЖИ)
+        </button>
+        <button
+          type="button"
+          className={`top-bar-studio${ragActive ? " top-bar-studio--active" : ""}`}
+          onClick={onRagClick}
+        >
+          📚 RAG
+        </button>
+      </div>
     </nav>
   );
 }

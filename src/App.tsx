@@ -14,6 +14,7 @@ import { EnergySim } from "@/presentation/components/simulators/EnergySim";
 import { CircuitSim } from "@/presentation/components/simulators/CircuitSim";
 import { LensSim } from "@/presentation/components/simulators/LensSim";
 import { BuoyancySim } from "@/presentation/components/simulators/BuoyancySim";
+import { RagPlayground } from "@/presentation/components/RagPlayground";
 import "@/presentation/styles/shell.css";
 import "@/presentation/styles/primitives.css";
 import "@/presentation/styles/studio.css";
@@ -33,7 +34,7 @@ const services = {
   launchGame: new LaunchGameUseCase(gameRepository, gameLauncher),
 };
 
-type Screen = "sim" | "studio";
+type Screen = "sim" | "studio" | "rag";
 
 function getHashSim(): SimId {
   const hash = window.location.hash.slice(2);
@@ -52,6 +53,7 @@ export function App() {
   };
 
   const handleStudioClick = () => setScreen((s) => (s === "studio" ? "sim" : "studio"));
+  const handleRagClick    = () => setScreen((s) => (s === "rag"    ? "sim" : "rag"));
 
   return (
     <ServicesProvider services={services}>
@@ -61,11 +63,15 @@ export function App() {
           onSimChange={handleSimChange}
           onStudioClick={handleStudioClick}
           studioActive={screen === "studio"}
+          onRagClick={handleRagClick}
+          ragActive={screen === "rag"}
         />
 
         <div className="app-main">
           {screen === "studio" ? (
             <GameStudio />
+          ) : screen === "rag" ? (
+            <RagPlayground />
           ) : (
             <>
               {activeSim === "energy"   && <EnergySim />}

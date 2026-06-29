@@ -15,6 +15,12 @@
   position: relative;
 }
 
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .top-bar-pill {
   display: inline-flex;
   align-items: center;
