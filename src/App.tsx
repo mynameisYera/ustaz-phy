@@ -10,8 +10,10 @@ import { LaunchGameUseCase } from "@/domain/usecases/LaunchGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { GameStudio } from "@/presentation/components/GameStudio";
 import { EnergySimulator } from "@/presentation/components/EnergySimulator";
+import { RagPlayground } from "@/presentation/components/RagPlayground";
 import "@/presentation/styles/studio.css";
 import "@/presentation/styles/simulator.css";
+import "@/presentation/styles/rag.css";
 import "@/presentation/styles/app.css";
 
 const gameRepository = new InMemoryGameRepository();
@@ -26,7 +28,7 @@ const services = {
   launchGame: new LaunchGameUseCase(gameRepository, gameLauncher),
 };
 
-type Screen = "studio" | "simulator";
+type Screen = "studio" | "simulator" | "rag";
 
 export function App() {
   const [screen, setScreen] = useState<Screen>("simulator");
@@ -49,10 +51,19 @@ export function App() {
           >
             🎮 Game Studio (ЖИ)
           </button>
+          <button
+            type="button"
+            className={screen === "rag" ? "active" : ""}
+            onClick={() => setScreen("rag")}
+          >
+            📚 RAG Playground
+          </button>
         </nav>
 
         <div className="app-main">
-          {screen === "simulator" ? <EnergySimulator /> : <GameStudio />}
+          {screen === "simulator" && <EnergySimulator />}
+          {screen === "studio" && <GameStudio />}
+          {screen === "rag" && <RagPlayground />}
         </div>
       </div>
     </ServicesProvider>

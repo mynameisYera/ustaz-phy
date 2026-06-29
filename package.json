@@ -9,20 +9,31 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "start": "tsx server/production.ts",
-    "start:server": "tsx server/index.ts"
+    "start:server": "tsx server/index.ts",
+    "rag:upload": "tsx scripts/rag-upload.ts",
+    "rag:ocr": "tsx scripts/rag-ocr.ts",
+    "rag:ocr:batch": "tsx scripts/rag-ocr-batch.ts",
+    "rag:index": "tsx scripts/rag-index.ts",
+    "rag:reset": "tsx scripts/rag-reset.ts"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.68",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jszip": "^3.10.1",
+    "multer": "^2.2.0",
     "openai": "^4.73.0",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.4.296",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/multer": "^2.1.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vercel/node": "^3.2.29",

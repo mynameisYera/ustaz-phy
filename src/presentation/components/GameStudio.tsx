@@ -11,6 +11,7 @@ export function GameStudio() {
   const [input, setInput] = useState(
     "Кинематика бойынша викторина: жылдамдық, үдеу, қозғалыс графиктері"
   );
+  const [useRag, setUseRag] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -33,7 +34,7 @@ export function GameStudio() {
     setMessages((prev) => [...prev, { kind: "user", text }]);
 
     if (!game) {
-      const result = await create(text);
+      const result = await create(text, useRag);
       setMessages((prev) => [
         ...prev,
         result.ok
@@ -41,7 +42,7 @@ export function GameStudio() {
           : { kind: "ai", text: result.error, isError: true },
       ]);
     } else {
-      const result = await submitFix(text);
+      const result = await submitFix(text, useRag);
       setMessages((prev) => [
         ...prev,
         result.ok
@@ -86,6 +87,15 @@ export function GameStudio() {
         </div>
 
         <form className="chat-input-area" onSubmit={handleSubmit}>
+          <label className="rag-toggle">
+            <input
+              type="checkbox"
+              checked={useRag}
+              onChange={(e) => setUseRag(e.target.checked)}
+              disabled={loading}
+            />
+            Мектеп kitaptaryndan (File Search / RAG)
+          </label>
           <textarea
             ref={textareaRef}
             value={input}

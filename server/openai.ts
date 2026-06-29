@@ -1,7 +1,8 @@
 import { getEnv } from "./env.js";
-import OpenAI from "openai";
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
 import type { FixRequestInput } from "./prompts.js";
+import { getOpenAiClient } from "./openaiClient.js";
+import { fetchBookContextForTopic } from "./rag/query.js";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
@@ -20,9 +21,60 @@ export function isOpenAiKeyFormatValid(key: string): boolean {
   return /^sk-(proj|svcacct)-/.test(key) || /^sk-[A-Za-z0-9_-]{20,}$/.test(key);
 }
 
-export async function generateGameWithOpenAi(
+export interface GenerateGameOptions {
+  useRag?: boolean;
+}
+
+async function generateGameWithFileSearch(
   description: string,
   fixHistory: FixRequestInput[]
+): Promise<string> {
+  const bookContext = await fetchBookContextForTopic(description);
+  if (!bookContext) {
+    throw new Error(
+      "Kitaptan контекст табылмады. RAG Playground-та PDF дайын екенін тексеріңіз (status: completed)."
+    );
+  }
+
+  const client = getOpenAiClient();
+  const userPrompt = `${buildUserPrompt(description, fixHistory)}
+
+Мектеп оқулығынан үзінділер (ойын осы материалға сәйкес болуы керек):
+"""
+${bookContext}
+"""`;
+
+  const completion = await client.chat.completions.create({
+    model: getOpenAiModelName(),
+    temperature: 0.7,
+    max_completion_tokens: 16384,
+    messages: [
+      {
+        role: "system",
+        content: `${SYSTEM_PROMPT}\n\nОйын тек жоғарыдағы оқулық үзінділеріне сүйеніп жасалуы керек.`,
+      },
+      { role: "user", content: userPrompt },
+    ],
+  });
+
+  const content = completion.choices[0]?.message?.content?.trim();
+  if (!content) {
+    throw new Error("ЖИ бос жауап қайтарды");
+  }
+
+  if (completion.choices[0]?.finish_reason === "length") {
+    throw new Error(
+      "ЖИ жауабы токен лимитіне жетті — ойын жартылай жасалды. Қайта көріңіз."
+    );
+  }
+
+  return content;
+}
+
+export async function generateGameWithOpenAi(
+  description: string,
+  fixHistory: FixRequestInput[],
+  options: GenerateGameOptions = {}
 ): Promise<string> {
   const apiKey = getOpenAiApiKey();
   if (!apiKey) {
@@ -42,10 +94,11 @@ export async function generateGameWithOpenAi(
     );
   }
 
-  const client = new OpenAI({
-    apiKey,
-    baseURL: getEnv("OPENAI_BASE_URL"),
-  });
+  if (options.useRag) {
+    return generateGameWithFileSearch(description, fixHistory);
+  }
+
+  const client = getOpenAiClient();
 
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
