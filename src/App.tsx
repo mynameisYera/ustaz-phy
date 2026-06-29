@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { InMemoryGameRepository } from "@/infrastructure/repositories/InMemoryGameRepository";
 import { HttpGameGenerator } from "@/infrastructure/generators/HttpGameGenerator";
 import { ZipGameExporter } from "@/infrastructure/exporters/ZipGameExporter";
@@ -8,11 +7,8 @@ import { ApplyFixUseCase } from "@/domain/usecases/ApplyFix";
 import { ExportGameUseCase } from "@/domain/usecases/ExportGame";
 import { LaunchGameUseCase } from "@/domain/usecases/LaunchGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
-import { GameStudio } from "@/presentation/components/GameStudio";
-import { EnergySimulator } from "@/presentation/components/EnergySimulator";
+import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
 import "@/presentation/styles/studio.css";
-import "@/presentation/styles/simulator.css";
-import "@/presentation/styles/app.css";
 
 const gameRepository = new InMemoryGameRepository();
 const gameGenerator = new HttpGameGenerator();
@@ -26,35 +22,10 @@ const services = {
   launchGame: new LaunchGameUseCase(gameRepository, gameLauncher),
 };
 
-type Screen = "studio" | "simulator";
-
 export function App() {
-  const [screen, setScreen] = useState<Screen>("simulator");
-
   return (
     <ServicesProvider services={services}>
-      <div className="app-shell">
-        <nav className="app-nav">
-          <button
-            type="button"
-            className={screen === "simulator" ? "active" : ""}
-            onClick={() => setScreen("simulator")}
-          >
-            ⚡ Энергия симуляторы
-          </button>
-          <button
-            type="button"
-            className={screen === "studio" ? "active" : ""}
-            onClick={() => setScreen("studio")}
-          >
-            🎮 Game Studio (ЖИ)
-          </button>
-        </nav>
-
-        <div className="app-main">
-          {screen === "simulator" ? <EnergySimulator /> : <GameStudio />}
-        </div>
-      </div>
+      <UstazApp />
     </ServicesProvider>
   );
 }

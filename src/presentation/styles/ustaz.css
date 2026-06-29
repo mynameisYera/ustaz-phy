@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes u365blink {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+
+@keyframes u365bar {
+  0% { left: -35%; }
+  100% { left: 100%; }
+}
+
+@keyframes u365pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.u365-root {
+  background: #F7F5EF;
+  color: #1A1A17;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.u365-root * {
+  box-sizing: border-box;
+}
+
+.u365-root ::placeholder {
+  color: #A6A498;
+}
+
+.u365-template-card {
+  background: #FFFFFF;
+  border: 1px solid #E6E2D8;
+  border-radius: 12px;
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.u365-template-card:hover {
+  background: #FBFAF6;
+  border-color: #D8D3C6;
+}
+
+.u365-table-row:hover {
+  background: #FBFAF6;
+}
+
+.u365-gallery-card {
+  background: #FFFFFF;
+  border: 1px solid #E6E2D8;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.u365-gallery-card:hover {
+  background: #FBFAF6;
+  border-color: #D8D3C6;
+}
+
+.u365-studio-full {
+  background: #F7F5EF;
+  color: #1A1A17;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.u365-studio-full * {
+  box-sizing: border-box;
+}
+
+.u365-bar-progress {
+  position: relative;
+  height: 3px;
+  background: #EEEAE0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.u365-bar-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 35%;
+  background: #1E6E5C;
+  animation: u365bar 1.4s ease-in-out infinite;
+}
+
+.u365-dot-1 { animation: u365blink 1.2s infinite; }
+.u365-dot-2 { animation: u365blink 1.2s infinite 0.2s; }
+.u365-dot-3 { animation: u365blink 1.2s infinite 0.4s; }
+
+.u365-skeleton-line { animation: u365pulse 1.6s infinite; }
+.u365-skeleton-line-d1 { animation: u365pulse 1.6s infinite 0.1s; }
+.u365-skeleton-line-d2 { animation: u365pulse 1.6s infinite 0.2s; }
+.u365-skeleton-line-d3 { animation: u365pulse 1.6s infinite 0.3s; }
+.u365-skeleton-line-d4 { animation: u365pulse 1.6s infinite 0.4s; }
