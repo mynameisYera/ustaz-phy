@@ -1,3 +1,4 @@
+import type { CreateGameInput } from "../entities/GameContext";
 import {
   createGameId,
   type Game,
@@ -5,27 +6,59 @@ import {
 import type { GameGenerator } from "../ports/GameGenerator";
 import type { GameRepository } from "../repositories/GameRepository";
 
+function validateInput(input: CreateGameInput): CreateGameInput {
+  const grade = Number(input.grade);
+  const subject = input.subject.trim();
+  const lessonTopic = input.lessonTopic.trim();
+  const description = input.description.trim();
+  const materialText = input.materialText?.trim();
+
+  if (!Number.isInteger(grade) || grade < 1 || grade > 11) {
+    throw new Error("Класс таңдалуы керек (1–11)");
+  }
+  if (!subject) {
+    throw new Error("Пән көрсетілуі керек");
+  }
+  if (!lessonTopic) {
+    throw new Error("Сабақ тақырыбы көрсетілуі керек");
+  }
+  if (!description) {
+    throw new Error("Ойын сипаты бос болмауы керек");
+  }
+
+  return {
+    grade,
+    subject,
+    lessonTopic,
+    description,
+    materialText: materialText || undefined,
+  };
+}
+
 export class CreateGameUseCase {
   constructor(
     private readonly generator: GameGenerator,
     private readonly repository: GameRepository
   ) {}
 
-  async execute(description: string): Promise<Game> {
-    const trimmed = description.trim();
-    if (!trimmed) {
-      throw new Error("Ойын сипаты бос болмауы керек");
-    }
+  async execute(input: CreateGameInput): Promise<Game> {
+    const validated = validateInput(input);
 
     const files = await this.generator.generate({
-      description: trimmed,
+      ...validated,
       fixHistory: [],
     });
 
     const now = new Date();
     const game: Game = {
       id: createGameId(),
-      description: trimmed,
+      description: validated.description,
+      context: {
+        grade: validated.grade,
+        subject: validated.subject,
+        lessonTopic: validated.lessonTopic,
+      },
+      materialText: validated.materialText,
       version: 1,
       files,
       fixHistory: [],

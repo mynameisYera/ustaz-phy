@@ -1,8 +1,8 @@
 import { generateGame, getAiConfigError } from "./ai.js";
 import { parseGameResponse } from "./parseGameResponse.js";
+import type { GameGenerationContext } from "./prompts.js";
 
-export interface GenerateRequestBody {
-  description?: string;
+export interface GenerateRequestBody extends Partial<GameGenerationContext> {
   fixHistory?: { message: string }[];
 }
 
@@ -15,20 +15,48 @@ export type GenerateResult =
   | { ok: true; files: GameFilePayload[] }
   | { ok: false; status: number; error: string };
 
-export async function handleGenerate(body: GenerateRequestBody): Promise<GenerateResult> {
-  const { description, fixHistory = [] } = body;
+function parseGrade(value: unknown): number | null {
+  const grade = Number(value);
+  if (!Number.isInteger(grade) || grade < 1 || grade > 11) return null;
+  return grade;
+}
 
+export async function handleGenerate(body: GenerateRequestBody): Promise<GenerateResult> {
   const configError = getAiConfigError();
   if (configError) {
     return { ok: false, status: 400, error: configError };
   }
 
-  if (!description?.trim()) {
+  const grade = parseGrade(body.grade);
+  const subject = body.subject?.trim();
+  const lessonTopic = body.lessonTopic?.trim();
+  const description = body.description?.trim();
+  const materialText = body.materialText?.trim();
+  const fixHistory = body.fixHistory ?? [];
+
+  if (grade === null) {
+    return { ok: false, status: 400, error: "Класс таңдалуы керек (1–11)" };
+  }
+  if (!subject) {
+    return { ok: false, status: 400, error: "Пән көрсетілуі керек" };
+  }
+  if (!lessonTopic) {
+    return { ok: false, status: 400, error: "Сабақ тақырыбы көрсетілуі керек" };
+  }
+  if (!description) {
     return { ok: false, status: 400, error: "description міндетті" };
   }
 
+  const context: GameGenerationContext = {
+    grade,
+    subject,
+    lessonTopic,
+    description,
+    materialText: materialText || undefined,
+  };
+
   try {
-    const content = await generateGame(description.trim(), fixHistory);
+    const content = await generateGame(context, fixHistory);
     const files = parseGameResponse(content);
     return { ok: true, files };
   } catch (e) {

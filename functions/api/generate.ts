@@ -14,7 +14,11 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
   }
 
   const result = await handleGenerate({
+    grade: typeof body.grade === "number" ? body.grade : Number(body.grade),
+    subject: typeof body.subject === "string" ? body.subject : undefined,
+    lessonTopic: typeof body.lessonTopic === "string" ? body.lessonTopic : undefined,
     description: typeof body.description === "string" ? body.description : undefined,
+    materialText: typeof body.materialText === "string" ? body.materialText : undefined,
     fixHistory: Array.isArray(body.fixHistory)
       ? body.fixHistory.filter(
           (item): item is { message: string } =>

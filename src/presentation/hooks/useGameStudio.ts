@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CreateGameInput } from "@/domain/entities/GameContext";
 import type { Game } from "@/domain/entities/Game";
 import { useServices } from "../context/ServicesContext";
 
@@ -34,12 +35,12 @@ export function useGameStudio() {
   useEffect(() => () => revokeLaunch(), [revokeLaunch]);
 
   const create = useCallback(
-    async (description: string): Promise<CreateResult> => {
+    async (input: CreateGameInput): Promise<CreateResult> => {
       setCreating(true);
       revokeLaunch();
 
       try {
-        const created = await createGame.execute(description);
+        const created = await createGame.execute(input);
         const launch = await launchGame.execute(created.id);
         revokeRef.current = launch.revoke;
         setGame(created);

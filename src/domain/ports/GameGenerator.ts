@@ -1,7 +1,7 @@
+import type { CreateGameInput } from "../entities/GameContext";
 import type { FixRequest, GameFile } from "../entities/Game";
 
-export interface GenerateGameInput {
-  description: string;
+export interface GenerateGameInput extends CreateGameInput {
   fixHistory: FixRequest[];
 }
 

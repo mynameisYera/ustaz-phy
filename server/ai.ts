@@ -27,8 +27,8 @@ export function getAiConfigError(): string | null {
 }
 
 export async function generateGame(
-  description: string,
+  context: import("./prompts.js").GameGenerationContext,
   fixHistory: FixRequestInput[]
 ): Promise<string> {
-  return generateGameWithOpenAi(description, fixHistory);
+  return generateGameWithOpenAi(context, fixHistory);
 }

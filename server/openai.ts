@@ -1,7 +1,7 @@
 import { getEnv } from "./env.js";
 import OpenAI from "openai";
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
-import type { FixRequestInput } from "./prompts.js";
+import type { FixRequestInput, GameGenerationContext } from "./prompts.js";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
@@ -21,7 +21,7 @@ export function isOpenAiKeyFormatValid(key: string): boolean {
 }
 
 export async function generateGameWithOpenAi(
-  description: string,
+  context: GameGenerationContext,
   fixHistory: FixRequestInput[]
 ): Promise<string> {
   const apiKey = getOpenAiApiKey();
@@ -50,10 +50,10 @@ export async function generateGameWithOpenAi(
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
     temperature: 0.7,
-    max_completion_tokens: 16384,
+    max_completion_tokens: 26384,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(description, fixHistory) },
+      { role: "user", content: buildUserPrompt(context, fixHistory) },
     ],
   });
 

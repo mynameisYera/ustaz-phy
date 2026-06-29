@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import type { CreateGameInput } from '@/domain/entities/GameContext';
+import { buildGameTitle } from '@/domain/entities/GameContext';
 import { HomePage } from './HomePage';
 import { StudioPage } from './StudioPage';
 import { TemplatesPage } from './TemplatesPage';
@@ -7,7 +9,7 @@ import '../../styles/ustaz.css';
 
 type Page =
   | { id: 'home' }
-  | { id: 'studio'; title: string }
+  | { id: 'studio'; input: CreateGameInput; title: string }
   | { id: 'templates' }
   | { id: 'viewer'; title: string };
 
@@ -18,6 +20,7 @@ export function UstazApp() {
     return (
       <StudioPage
         title={page.title}
+        input={page.input}
         onBack={() => setPage({ id: 'home' })}
       />
     );
@@ -37,14 +40,31 @@ export function UstazApp() {
       <ViewerPage
         title={page.title}
         onBack={() => setPage({ id: 'templates' })}
-        onUse={(title) => setPage({ id: 'studio', title })}
+        onUse={(title) =>
+          setPage({
+            id: 'studio',
+            title,
+            input: {
+              grade: 5,
+              subject: 'Математика',
+              lessonTopic: title,
+              description: title,
+            },
+          })
+        }
       />
     );
   }
 
   return (
     <HomePage
-      onCreate={(desc) => setPage({ id: 'studio', title: desc })}
+      onCreate={(input) =>
+        setPage({
+          id: 'studio',
+          title: buildGameTitle(input),
+          input,
+        })
+      }
       onTemplates={() => setPage({ id: 'templates' })}
     />
   );
