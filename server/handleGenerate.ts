@@ -4,6 +4,7 @@ import { parseGameResponse } from "./parseGameResponse.js";
 export interface GenerateRequestBody {
   description?: string;
   fixHistory?: { message: string }[];
+  useRag?: boolean;
 }
 
 export interface GameFilePayload {
@@ -16,7 +17,7 @@ export type GenerateResult =
   | { ok: false; status: number; error: string };
 
 export async function handleGenerate(body: GenerateRequestBody): Promise<GenerateResult> {
-  const { description, fixHistory = [] } = body;
+  const { description, fixHistory = [], useRag = false } = body;
 
   const configError = getAiConfigError();
   if (configError) {
@@ -28,7 +29,7 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
   }
 
   try {
-    const content = await generateGame(description.trim(), fixHistory);
+    const content = await generateGame(description.trim(), fixHistory, { useRag });
     const files = parseGameResponse(content);
     return { ok: true, files };
   } catch (e) {

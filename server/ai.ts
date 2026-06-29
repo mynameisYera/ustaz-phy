@@ -28,7 +28,8 @@ export function getAiConfigError(): string | null {
 
 export async function generateGame(
   description: string,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  options?: { useRag?: boolean }
 ): Promise<string> {
-  return generateGameWithOpenAi(description, fixHistory);
+  return generateGameWithOpenAi(description, fixHistory, options);
 }

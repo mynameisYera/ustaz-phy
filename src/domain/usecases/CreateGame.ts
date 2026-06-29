@@ -11,7 +11,7 @@ export class CreateGameUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(description: string): Promise<Game> {
+  async execute(description: string, useRag = false): Promise<Game> {
     const trimmed = description.trim();
     if (!trimmed) {
       throw new Error("Ойын сипаты бос болмауы керек");
@@ -20,6 +20,7 @@ export class CreateGameUseCase {
     const files = await this.generator.generate({
       description: trimmed,
       fixHistory: [],
+      useRag,
     });
 
     const now = new Date();

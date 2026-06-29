@@ -18,6 +18,7 @@ import "@/presentation/styles/shell.css";
 import "@/presentation/styles/primitives.css";
 import "@/presentation/styles/studio.css";
 import "@/presentation/styles/simulator.css";
+import "@/presentation/styles/rag.css";
 import "@/presentation/styles/app.css";
 
 const gameRepository = new InMemoryGameRepository();

@@ -1,0 +1,256 @@
+.rag-playground {
+  height: 100%;
+  overflow: auto;
+  padding: 24px;
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+  color: #e2e8f0;
+}
+
+.rag-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.rag-header h1 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+}
+
+.rag-header p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.rag-error {
+  background: #7f1d1d;
+  color: #fecaca;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.rag-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rag-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.rag-card-wide {
+  grid-column: 1 / -1;
+}
+
+.rag-card h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.rag-hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
+
+.rag-meta {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.rag-meta div {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+}
+
+.rag-meta dt {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.rag-meta dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.rag-meta code {
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.rag-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rag-upload input {
+  display: none;
+}
+
+.rag-btn-primary,
+.rag-btn-ghost,
+.rag-btn-danger {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rag-btn-primary {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+}
+
+.rag-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.rag-btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.rag-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.rag-files li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+}
+
+.rag-files strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.rag-status {
+  font-size: 0.8rem;
+  margin-right: 8px;
+  color: #94a3b8;
+}
+
+.rag-status--completed { color: #86efac; }
+.rag-status--in_progress { color: #fcd34d; }
+.rag-status--failed { color: #fca5a5; }
+
+.rag-bytes {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.rag-chunk-preview {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.rag-chunk-preview summary {
+  cursor: pointer;
+  color: #cbd5e1;
+}
+
+.rag-chunk-preview p {
+  margin: 4px 0;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.rag-file-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #fca5a5;
+  margin-top: 4px;
+}
+
+.rag-chat {
+  min-height: 120px;
+  max-height: 280px;
+  overflow: auto;
+  margin-bottom: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.rag-msg {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.rag-msg--user {
+  background: rgba(37, 99, 235, 0.25);
+  align-self: flex-end;
+  max-width: 85%;
+}
+
+.rag-msg--ai {
+  background: rgba(255, 255, 255, 0.08);
+  align-self: flex-start;
+  max-width: 95%;
+}
+
+.rag-msg--error {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+}
+
+.rag-query-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.rag-query-form textarea {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(0, 0, 0, 0.25);
+  color: #e2e8f0;
+  font: inherit;
+  resize: vertical;
+}
+
+@media (max-width: 800px) {
+  .rag-grid {
+    grid-template-columns: 1fr;
+  }
+}

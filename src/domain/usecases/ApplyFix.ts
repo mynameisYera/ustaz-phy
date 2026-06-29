@@ -13,7 +13,7 @@ export class ApplyFixUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(gameId: GameId, message: string): Promise<Game> {
+  async execute(gameId: GameId, message: string, useRag = false): Promise<Game> {
     const trimmed = message.trim();
     if (!trimmed) {
       throw new Error("Түзету сұрауы бос болмауы керек");
@@ -34,6 +34,7 @@ export class ApplyFixUseCase {
     const files = await this.generator.generate({
       description: existing.description,
       fixHistory,
+      useRag,
     });
 
     const updated: Game = {

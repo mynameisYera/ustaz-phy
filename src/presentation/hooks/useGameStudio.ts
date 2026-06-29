@@ -34,12 +34,12 @@ export function useGameStudio() {
   useEffect(() => () => revokeLaunch(), [revokeLaunch]);
 
   const create = useCallback(
-    async (description: string): Promise<CreateResult> => {
+    async (description: string, useRag = false): Promise<CreateResult> => {
       setCreating(true);
       revokeLaunch();
 
       try {
-        const created = await createGame.execute(description);
+        const created = await createGame.execute(description, useRag);
         const launch = await launchGame.execute(created.id);
         revokeRef.current = launch.revoke;
         setGame(created);
@@ -68,13 +68,13 @@ export function useGameStudio() {
   }, [exportGame, game]);
 
   const submitFix = useCallback(
-    async (message: string): Promise<FixResult> => {
+    async (message: string, useRag = false): Promise<FixResult> => {
       if (!game) return { ok: false, error: "Ойын жасалмаған" };
       setFixing(true);
       revokeLaunch();
 
       try {
-        const updated = await applyFix.execute(game.id, message);
+        const updated = await applyFix.execute(game.id, message, useRag);
         const launch = await launchGame.execute(updated.id);
         revokeRef.current = launch.revoke;
         setGame(updated);

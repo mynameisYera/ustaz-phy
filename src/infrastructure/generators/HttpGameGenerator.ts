@@ -47,6 +47,7 @@ export class HttpGameGenerator implements GameGenerator {
         body: JSON.stringify({
           description: input.description,
           fixHistory: input.fixHistory.map((f) => ({ message: f.message })),
+          useRag: input.useRag ?? false,
         }),
       });
     } catch {
