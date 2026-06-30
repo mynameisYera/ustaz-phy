@@ -9,7 +9,7 @@ import '../../styles/ustaz.css';
 
 type Page =
   | { id: 'home' }
-  | { id: 'studio'; title: string; initialPrompt?: string; initialFiles?: File[] }
+  | { id: 'studio'; title: string; input: CreateGameInput }
   | { id: 'templates' }
   | { id: 'viewer'; title: string };
 
@@ -20,8 +20,7 @@ export function UstazApp() {
     return (
       <StudioPage
         title={page.title}
-        initialPrompt={page.initialPrompt}
-        initialFiles={page.initialFiles}
+        input={page.input}
         onBack={() => setPage({ id: 'home' })}
       />
     );
@@ -59,9 +58,26 @@ export function UstazApp() {
 
   return (
     <HomePage
-      onCreate={(desc, files) => setPage({ id: 'studio', title: desc, initialPrompt: desc, initialFiles: files })}
+      onCreate={(input) =>
+        setPage({
+          id: 'studio',
+          title: buildGameTitle(input),
+          input,
+        })
+      }
       onTemplates={() => setPage({ id: 'templates' })}
-      onBlank={() => setPage({ id: 'studio', title: 'Новая игра' })}
+      onBlank={() =>
+        setPage({
+          id: 'studio',
+          title: 'Новая игра',
+          input: {
+            grade: 7,
+            subject: 'Физика',
+            lessonTopic: 'Кинематика',
+            description: 'Создай интерактивную игру по теме урока',
+          },
+        })
+      }
     />
   );
 }

@@ -2,6 +2,12 @@ import { generateGame, getAiConfigError } from "./ai.js";
 import { parseGameResponse } from "./parseGameResponse.js";
 import type { GameGenerationContext } from "./prompts.js";
 
+export interface ServerAttachment {
+  name: string;
+  mimeType: string;
+  data: string;
+}
+
 export interface GenerateRequestBody extends Partial<GameGenerationContext> {
   fixHistory?: { message: string }[];
   attachments?: ServerAttachment[];
@@ -56,16 +62,8 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
     materialText: materialText || undefined,
   };
 
-  const context: GameGenerationContext = {
-    grade,
-    subject,
-    lessonTopic,
-    description,
-    materialText: materialText || undefined,
-  };
-
   try {
-    const content = await generateGame(context, fixHistory);
+    const content = await generateGame(context, fixHistory, body.attachments ?? []);
     const files = parseGameResponse(content);
     return { ok: true, files };
   } catch (e) {

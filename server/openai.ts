@@ -2,6 +2,7 @@ import { getEnv } from "./env.js";
 import OpenAI from "openai";
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
 import type { FixRequestInput, GameGenerationContext } from "./prompts.js";
+import type { ServerAttachment } from "./handleGenerate.js";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
@@ -22,7 +23,8 @@ export function isOpenAiKeyFormatValid(key: string): boolean {
 
 export async function generateGameWithOpenAi(
   context: GameGenerationContext,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  attachments: ServerAttachment[] = []
 ): Promise<string> {
   const apiKey = getOpenAiApiKey();
   if (!apiKey) {
@@ -51,7 +53,7 @@ export async function generateGameWithOpenAi(
   const textFiles = attachments.filter((a) => a.mimeType.startsWith("text/"));
   const imageFiles = attachments.filter((a) => a.mimeType.startsWith("image/"));
 
-  let userText = buildUserPrompt(description, fixHistory);
+  let userText = buildUserPrompt(context, fixHistory);
   if (textFiles.length > 0) {
     const fileSection = textFiles
       .map((f) => {
@@ -79,7 +81,7 @@ export async function generateGameWithOpenAi(
     max_completion_tokens: 26384,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(context, fixHistory) },
+      { role: "user", content: userContent },
     ],
   });
 

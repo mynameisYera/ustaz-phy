@@ -48,13 +48,13 @@ export function useGameStudio() {
   useEffect(() => () => revokeLaunch(), [revokeLaunch]);
 
   const create = useCallback(
-    async (description: string, files: File[] = []): Promise<CreateResult> => {
+    async (input: CreateGameInput, files: File[] = []): Promise<CreateResult> => {
       setCreating(true);
       revokeLaunch();
 
       try {
         const attachments = files.length > 0 ? await Promise.all(files.map(fileToAttachment)) : undefined;
-        const created = await createGame.execute(description, attachments);
+        const created = await createGame.execute(input, attachments);
         const launch = await launchGame.execute(created.id);
         revokeRef.current = launch.revoke;
         setGame(created);

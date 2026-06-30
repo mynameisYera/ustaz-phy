@@ -29,7 +29,8 @@ export function getAiConfigError(): string | null {
 
 export async function generateGame(
   context: import("./prompts.js").GameGenerationContext,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  attachments: ServerAttachment[] = []
 ): Promise<string> {
-  return generateGameWithOpenAi(context, fixHistory);
+  return generateGameWithOpenAi(context, fixHistory, attachments);
 }

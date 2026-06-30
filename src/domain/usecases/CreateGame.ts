@@ -41,11 +41,8 @@ export class CreateGameUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(description: string): Promise<Game> {
-    const trimmed = description.trim();
-    if (!trimmed) {
-      throw new Error("Ойын сипаты бос болмауы керек");
-    }
+  async execute(input: CreateGameInput, attachments?: Attachment[]): Promise<Game> {
+    const validated = validateInput(input);
 
     const files = await this.generator.generate({
       ...validated,

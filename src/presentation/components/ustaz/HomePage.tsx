@@ -11,7 +11,12 @@ const HOME_TOUR_STEPS: TourStep[] = [
 ];
 
 interface HomePageProps {
-  onCreate: (desc: string, files: File[]) => void;
+  onCreate: (input: {
+    grade: number;
+    subject: string;
+    lessonTopic: string;
+    description: string;
+  }, files: File[]) => void;
   onTemplates: () => void;
   onBlank: () => void;
 }
@@ -35,14 +40,29 @@ const GAMES = [
 
 export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
   const [input, setInput] = useState('');
+  const [grade, setGrade] = useState<number | ''>('');
+  const [subject, setSubject] = useState('');
+  const [lessonTopic, setLessonTopic] = useState('');
   const [tab, setTab] = useState<'games' | 'templates'>('games');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [showTour, setShowTour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chips: string[] = [];
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (input.trim()) onCreate(input.trim(), attachedFiles);
+    if (!input.trim()) return;
+    if (grade === '' || !subject.trim() || !lessonTopic.trim()) return;
+
+    onCreate(
+      {
+        grade,
+        subject: subject.trim(),
+        lessonTopic: lessonTopic.trim(),
+        description: input.trim(),
+      },
+      attachedFiles
+    );
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -79,8 +99,8 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
         <input ref={fileInputRef} type="file" multiple accept="image/*,text/*,.txt,.csv,.md,.json" style={{ display: 'none' }} onChange={handleFileChange} />
         <form data-tour="prompt" onSubmit={handleSubmit} style={{ background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', padding: '20px 20px 14px' }}>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Опишите игру для урока — например: викторина с drag-and-drop по теме урока"
             rows={3}
             style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: '1.55', color: '#1A1A17', background: 'transparent' }}
@@ -99,15 +119,15 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <FilterBtn data-tour="attach" onClick={() => fileInputRef.current?.click()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
-                {materialLoading ? 'Обработка PDF…' : materialFileName ? materialFileName.slice(0, 18) : 'Добавить материал'}
+                Добавить материал
               </FilterBtn>
-
+              
               <FieldSelect
                 label="Класс"
                 value={grade === '' ? '' : String(grade)}
                 onChange={(v) => setGrade(v ? Number(v) : '')}
               >
-                <option value="">Класс</option>
+                {/* <option value="">Класс</option> */}
                 {GRADES.map((g) => (
                   <option key={g} value={g}>{g} класс</option>
                 ))}
@@ -128,21 +148,11 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button type="submit" disabled={materialLoading} style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: materialLoading ? '#A6C8C0' : '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: materialLoading ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
+              <button type="submit" style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 13V3.5M3.5 8 8 3.5 12.5 8"/></svg>
               </button>
             </div>
           </div>
-          {(formError || materialError) && (
-            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#B4533B' }}>
-              {formError || materialError}
-            </p>
-          )}
-          {materialText && !materialLoading && (
-            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#3B5A50' }}>
-              Материал загружен — {materialText.length.toLocaleString()} символов для ИИ
-            </p>
-          )}
         </form>
 
         <p style={{ textAlign: 'center', color: '#6F6E66', fontSize: '14px', margin: '40px 0 18px' }}>
@@ -193,7 +203,17 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
             <div
               key={g.name}
               className="u365-table-row"
-              onClick={() => onCreate(g.name, [])}
+              onClick={() =>
+                onCreate(
+                  {
+                    grade: g.grade,
+                    subject: g.subject,
+                    lessonTopic: g.topic,
+                    description: g.name,
+                  },
+                  []
+                )
+              }
               style={{ display: 'grid', gridTemplateColumns: '1fr 200px 150px 130px', gap: '16px', alignItems: 'center', padding: '14px', borderBottom: i < GAMES.length - 1 ? '1px solid #EEEAE0' : 'none', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
