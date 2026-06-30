@@ -1,7 +1,7 @@
 import type { Game } from "@/domain/entities/Game";
 import type { GameLaunch, GameLauncher } from "@/domain/ports/GameLauncher";
 
-function prepareHtml(game: Game): string {
+export function prepareGameHtml(game: Game): string {
   const html = game.files.find((f) => f.path === "index.html")?.content;
   if (!html) throw new Error("Ойында index.html жоқ");
 
@@ -25,7 +25,7 @@ function prepareHtml(game: Game): string {
 
 export class BlobGameLauncher implements GameLauncher {
   launch(game: Game): GameLaunch {
-    const content = prepareHtml(game);
+    const content = prepareGameHtml(game);
     const blob = new Blob([content], { type: "text/html;charset=utf-8" });
     const launchUrl = URL.createObjectURL(blob);
 

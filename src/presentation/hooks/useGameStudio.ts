@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CreateGameInput } from "@/domain/entities/GameContext";
 import type { Game } from "@/domain/entities/Game";
 import type { Attachment } from "@/domain/ports/GameGenerator";
+import { prepareGameHtml } from "@/infrastructure/launchers/BlobGameLauncher";
 import { useServices } from "../context/ServicesContext";
 
 function fileToAttachment(file: File): Promise<Attachment> {
@@ -82,6 +83,23 @@ export function useGameStudio() {
     }
   }, [exportGame, game]);
 
+  const downloadHtml = useCallback(() => {
+    if (!game) return;
+    setDownloading(true);
+
+    try {
+      const content = prepareGameHtml(game);
+      downloadBlob(
+        new Blob([content], { type: "text/html;charset=utf-8" }),
+        `game-v${game.version}.html`
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDownloading(false);
+    }
+  }, [game]);
+
   const submitFix = useCallback(
     async (message: string, files: File[] = []): Promise<FixResult> => {
       if (!game) return { ok: false, error: "Ойын жасалмаған" };
@@ -114,6 +132,7 @@ export function useGameStudio() {
     downloading,
     create,
     download,
+    downloadHtml,
     submitFix,
   };
 }

@@ -16,6 +16,7 @@ type StudioState = "building" | "ready" | "error";
 const TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="chat"]', icon: "chat", title: "Диалог", body: "Пишите, что изменить в игре, и ассистент пересоберет ее." },
   { target: '[data-tour="canvas"]', icon: "canvas", title: "Предпросмотр", body: "Здесь показывается актуальная версия игры после генерации." },
+  { target: '[data-tour="download"]', icon: "download", title: "Скачать игру", body: "После генерации скачайте игру в HTML или ZIP и откройте на компьютере или проекторе." },
 ];
 
 export function StudioPage({ title, input, onBack }: StudioPageProps) {
@@ -26,7 +27,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
   const startedRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { game, launchUrl, creating, fixing, create, submitFix } = useGameStudio();
+  const { game, launchUrl, creating, fixing, downloading, create, download, downloadHtml, submitFix } = useGameStudio();
   const loading = creating || fixing;
   const chips = formatLessonChips(input);
 
@@ -96,7 +97,29 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
             ))}
           </div>
         </div>
-        <button type="button" onClick={() => setShowTour(true)}>?</button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          {game && (
+            <div data-tour="download" style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                onClick={downloadHtml}
+                disabled={downloading}
+                style={{ height: "34px", padding: "0 14px", border: "1px solid #E6E2D8", borderRadius: "8px", background: "#FFFFFF", color: "#1A1A17", fontFamily: "inherit", fontSize: "13px", cursor: downloading ? "not-allowed" : "pointer" }}
+              >
+                {downloading ? "Подготовка…" : "Скачать HTML"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void download()}
+                disabled={downloading}
+                style={{ height: "34px", padding: "0 14px", border: "none", borderRadius: "8px", background: downloading ? "#A6C8C0" : "#1E6E5C", color: "#fff", fontFamily: "inherit", fontSize: "13px", cursor: downloading ? "not-allowed" : "pointer" }}
+              >
+                {downloading ? "Подготовка…" : "Скачать ZIP"}
+              </button>
+            </div>
+          )}
+          <button type="button" onClick={() => setShowTour(true)}>?</button>
+        </div>
       </header>
 
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
