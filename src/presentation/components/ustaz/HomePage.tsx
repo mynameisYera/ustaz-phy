@@ -5,8 +5,8 @@ import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
 
 const HOME_TOUR_STEPS: TourStep[] = [
-  { target: '[data-tour="prompt"]', icon: 'canvas', title: 'Опишите игру',       body: 'Введите тему, класс и формат — ассистент сгенерирует интерактивный HTML-файл прямо в браузере.' },
-  { target: '[data-tour="attach"]', icon: 'share',  title: 'Прикрепите PDF',     body: 'Загрузите учебный материал в PDF — даже сканированный. Текст будет извлечён и использован при создании игры.' },
+  { target: '[data-tour="prompt"]', icon: 'canvas', title: 'Ойынды сипаттаңыз',  body: 'Тақырыпты, сыныпты және форматты енгізіңіз — көмекші браузерде интерактивті HTML-файл жасайды.' },
+  { target: '[data-tour="attach"]', icon: 'share',  title: 'PDF тіркеңіз',       body: 'Оқулық материалды PDF-пен жүктеңіз — сканерленген болса да. Мәтін шығарылып, ойын жасауда пайдаланылады.' },
 ];
 
 interface HomePageProps {
@@ -81,7 +81,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
 
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: '72px 24px 80px' }}>
         <h1 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '44px', lineHeight: 1.1, letterSpacing: '-0.02em', textAlign: 'center', margin: '0 0 32px' }}>
-          Какую игру создадим сегодня?
+          Бүгін қандай ойын жасаймыз?
         </h1>
 
         <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={handleFileChange} />
@@ -89,7 +89,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Опишите игру для урока — например: викторина с drag-and-drop по теме урока"
+            placeholder="Сабақ үшін ойынды сипаттаңыз — мысалы: drag-and-drop арқылы тақырып бойынша викторина"
             rows={3}
             style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: '1.55', color: '#1A1A17', background: 'transparent' }}
           />
@@ -97,7 +97,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
           {materialFile && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', background: '#EAF1ED', border: '1px solid #C8DDD3', borderRadius: '6px', fontSize: '13px', color: '#3B5A50' }}>
-                {materialLoading ? 'Обработка PDF…' : materialFile.name}
+                {materialLoading ? 'PDF өңделуде…' : materialFile.name}
                 {!materialLoading && (
                   <button type="button" onClick={removeMaterial} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1, color: '#6F9E8A', fontSize: '15px' }}>×</button>
                 )}
@@ -109,31 +109,31 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <FilterBtn data-tour="attach" onClick={() => !materialLoading && fileInputRef.current?.click()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
-                {materialLoading ? 'Обработка PDF…' : materialFile ? 'Заменить PDF' : 'Добавить PDF'}
+                {materialLoading ? 'PDF өңделуде…' : materialFile ? 'PDF ауыстыру' : 'PDF қосу'}
               </FilterBtn>
 
               <FieldSelect
                 value={grade === '' ? '' : String(grade)}
                 onChange={(v) => setGrade(v ? Number(v) : '')}
               >
-                <option value="">Класс</option>
+                <option value="">Сынып</option>
                 {GRADES.map((g) => (
-                  <option key={g} value={g}>{g} класс</option>
+                  <option key={g} value={g}>{g} сынып</option>
                 ))}
               </FieldSelect>
 
               <FieldInput
-                label="Предмет"
+                label="Пән"
                 value={subject}
                 onChange={setSubject}
-                placeholder="Предмет"
+                placeholder="Пән"
               />
 
               <FieldInput
-                label="Тема урока"
+                label="Сабақ тақырыбы"
                 value={lessonTopic}
                 onChange={setLessonTopic}
-                placeholder="Тема урока"
+                placeholder="Сабақ тақырыбы"
               />
             </div>
 
@@ -151,7 +151,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
           )}
           {materialText && !materialLoading && (
             <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#3B5A50' }}>
-              Материал из PDF загружен — {materialText.length.toLocaleString()} символов для ИИ
+              PDF материалы жүктелді — ЖИ үшін {materialText.length.toLocaleString()} таңба
             </p>
           )}
         </form>

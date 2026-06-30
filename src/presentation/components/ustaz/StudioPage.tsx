@@ -17,9 +17,9 @@ type StudioState = "building" | "ready" | "error";
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 const TOUR_STEPS: TourStep[] = [
-  { target: '[data-tour="chat"]', icon: "chat", title: "Диалог", body: "Пишите, что изменить в игре, и ассистент пересоберет ее." },
-  { target: '[data-tour="canvas"]', icon: "canvas", title: "Предпросмотр", body: "Здесь показывается актуальная версия игры после генерации." },
-  { target: '[data-tour="download"]', icon: "download", title: "Скачать игру", body: "После генерации скачайте игру в HTML или ZIP и откройте на компьютере или проекторе." },
+  { target: '[data-tour="chat"]', icon: "chat", title: "Диалог", body: "Ойында не өзгерту керек екенін жазыңыз — көмекші қайта жасайды." },
+  { target: '[data-tour="canvas"]', icon: "canvas", title: "Алдын ала қарау", body: "Жасалғаннан кейін ойынның соңғы нұсқасы осында көрсетіледі." },
+  { target: '[data-tour="download"]', icon: "download", title: "Ойынды жүктеу", body: "Жасалғаннан кейін HTML немесе ZIP форматында жүктеп, компьютерде немесе проекторда ашыңыз." },
 ];
 
 export function StudioPage({ title, input, onBack }: StudioPageProps) {
@@ -48,9 +48,9 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
       {
         kind: "user",
         text: [
-          `${input.grade} класс · ${input.subject} · ${input.lessonTopic}`,
+          `${input.grade} сынып · ${input.subject} · ${input.lessonTopic}`,
           input.description,
-          input.materialText ? `PDF материал: ${input.materialText.length.toLocaleString()} символов` : null,
+          input.materialText ? `PDF материал: ${input.materialText.length.toLocaleString()} таңба` : null,
         ].filter(Boolean).join("\n\n"),
       },
     ]);
@@ -59,7 +59,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
       const result = await create(input);
       if (result.ok) {
         setStudioState("ready");
-        setMessages((prev) => [...prev, { kind: "ai", text: "Готово! Игра создана." }]);
+        setMessages((prev) => [...prev, { kind: "ai", text: "Дайын! Ойын жасалды." }]);
       } else {
         setStudioState("error");
         setMessages((prev) => [...prev, { kind: "ai", text: result.error, isError: true }]);
@@ -79,7 +79,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
     const result = await submitFix(text);
     if (result.ok) {
       setStudioState("ready");
-      setMessages((prev) => [...prev, { kind: "ai", text: `Изменения применены — v${result.game.version}.` }]);
+      setMessages((prev) => [...prev, { kind: "ai", text: `Өзгерістер қолданылды — v${result.game.version}.` }]);
     } else {
       setStudioState("error");
       setMessages((prev) => [...prev, { kind: "ai", text: result.error, isError: true }]);
@@ -105,10 +105,10 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
   }
 
   const saveLabel =
-    saveState === "saving" ? "Сохранение…" :
-    saveState === "saved" ? "Сохранено ✓" :
-    saveState === "error" ? "Ошибка — повторить" :
-    "Сохранить шаблон";
+    saveState === "saving" ? "Сақталуда…" :
+    saveState === "saved" ? "Сақталды ✓" :
+    saveState === "error" ? "Қате — қайталау" :
+    "Үлгі ретінде сақтау";
 
   return (
     <div className="u365-studio-full">
@@ -135,7 +135,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
                 disabled={downloading}
                 style={{ height: "34px", padding: "0 14px", border: "1px solid #E6E2D8", borderRadius: "8px", background: "#FFFFFF", color: "#1A1A17", fontFamily: "inherit", fontSize: "13px", cursor: downloading ? "not-allowed" : "pointer" }}
               >
-                {downloading ? "Подготовка…" : "Скачать HTML"}
+                {downloading ? "Дайындалуда…" : "HTML жүктеу"}
               </button>
               <button
                 type="button"
@@ -143,7 +143,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
                 disabled={downloading}
                 style={{ height: "34px", padding: "0 14px", border: "none", borderRadius: "8px", background: downloading ? "#A6C8C0" : "#1E6E5C", color: "#fff", fontFamily: "inherit", fontSize: "13px", cursor: downloading ? "not-allowed" : "pointer" }}
               >
-                {downloading ? "Подготовка…" : "Скачать ZIP"}
+                {downloading ? "Дайындалуда…" : "ZIP жүктеу"}
               </button>
             </div>
           )}
@@ -152,7 +152,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
               type="button"
               onClick={() => void handleSaveTemplate()}
               disabled={saveState === "saving"}
-              title={saveError ?? "Сохранить эту игру как шаблон"}
+              title={saveError ?? "Бұл ойынды үлгі ретінде сақтау"}
               style={{
                 height: "34px",
                 padding: "0 14px",
@@ -177,10 +177,10 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
           <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
             {messages.map((msg, i) => (
               <div key={i} style={{ marginBottom: "12px", whiteSpace: "pre-wrap", color: msg.isError ? "#B4533B" : "#1A1A17" }}>
-                <b>{msg.kind === "user" ? "Вы" : "Ustaz"}:</b> {msg.text}
+                <b>{msg.kind === "user" ? "Сіз" : "Ustaz"}:</b> {msg.text}
               </div>
             ))}
-            {loading && <div>Генерация...</div>}
+            {loading && <div>Жасалуда...</div>}
             <div ref={bottomRef} />
           </div>
           <form onSubmit={handleSubmit} style={{ borderTop: "1px solid #E6E2D8", padding: "12px" }}>
@@ -189,10 +189,10 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
               onChange={(e) => setInputText(e.target.value)}
               rows={3}
               disabled={loading || !game}
-              placeholder={game ? "Что изменить в игре?" : "Ожидаем создание игры..."}
+              placeholder={game ? "Ойында не өзгерту керек?" : "Ойын жасалуын күтудеміз..."}
               style={{ width: "100%", resize: "vertical" }}
             />
-            <button type="submit" disabled={loading || !game || !inputText.trim()}>Отправить</button>
+            <button type="submit" disabled={loading || !game || !inputText.trim()}>Жіберу</button>
           </form>
         </aside>
 
@@ -206,7 +206,7 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
             />
           ) : (
             <div style={{ height: "100%", display: "grid", placeItems: "center", color: "#6F6E66" }}>
-              {studioState === "error" ? "Ошибка генерации" : "Создаем игру..."}
+              {studioState === "error" ? "Жасау қатесі" : "Ойын жасалуда..."}
             </div>
           )}
         </section>

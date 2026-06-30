@@ -141,7 +141,7 @@ export function Tour({ steps, onClose }: Props) {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: 17, color: '#1A1A17', lineHeight: 1.25 }}>{current?.title}</div>
-            <div style={{ fontSize: 12, color: '#6F6E66', marginTop: 3 }}>Шаг {step + 1} из {steps.length}</div>
+            <div style={{ fontSize: 12, color: '#6F6E66', marginTop: 3 }}>{step + 1} / {steps.length} қадам</div>
           </div>
           <button onClick={onClose} title="Закрыть" style={{ width: 24, height: 24, border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, margin: '-2px -2px 0 0', padding: 0 }}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#A6A498" strokeWidth="1.6" strokeLinecap="round"><path d="M2.5 2.5l9 9M11.5 2.5l-9 9"/></svg>
@@ -154,7 +154,7 @@ export function Tour({ steps, onClose }: Props) {
         {/* Footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <button onClick={prev} style={{ background: 'none', border: 'none', fontFamily: 'inherit', fontSize: 14, color: isFirst ? '#C9C5B8' : '#6F6E66', cursor: isFirst ? 'default' : 'pointer', padding: '6px 2px' }}>
-            Назад
+            Артқа
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
@@ -163,7 +163,7 @@ export function Tour({ steps, onClose }: Props) {
               ))}
             </div>
             <button onClick={next} style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 8, background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              {isLast ? 'Готово' : 'Далее'}
+              {isLast ? 'Дайын' : 'Келесі'}
               {!isLast && <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5"/></svg>}
             </button>
           </div>

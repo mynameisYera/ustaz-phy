@@ -4,7 +4,7 @@ import { Tour, type TourStep } from './Tour';
 import { listTemplates, type TextTemplate } from '@/infrastructure/templates/TemplatesApi';
 
 const TEMPLATES_TOUR_STEPS: TourStep[] = [
-  { target: '[data-tour="grid"]', icon: 'grid', title: 'Каталог шаблонов', body: 'Сохранённые игры хранятся здесь. Нажмите на карточку, чтобы открыть шаблон.' },
+  { target: '[data-tour="grid"]', icon: 'grid', title: 'Үлгілер каталогы', body: 'Сақталған ойындар осында сақталады. Үлгіні ашу үшін картаны басыңыз.' },
 ];
 
 interface TemplatesPageProps {
@@ -28,7 +28,7 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
       setItems(items);
       setStatus('ready');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось загрузить шаблоны');
+      setError(e instanceof Error ? e.message : 'Үлгілерді жүктеу мүмкін болмады');
       setStatus('error');
     }
   }, []);
@@ -43,7 +43,7 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
       <UstazHeader
         onLogoClick={onBack}
         onHelp={() => setShowTour(true)}
-        helpLabel="Подсказки"
+        helpLabel="Нұсқаулар"
         activePage="templates"
         onNavHome={onBack}
         onNavTemplates={() => {}}
@@ -51,10 +51,10 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
 
       <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
         <h1 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '34px', letterSpacing: '-0.01em', margin: '0 0 8px' }}>
-          Библиотека шаблонов
+          Үлгілер кітапханасы
         </h1>
         <p style={{ color: '#6F6E66', fontSize: '15px', margin: '0 0 28px' }}>
-          Сохранённые игры, готовые к запуску. Откройте шаблон, чтобы показать его на уроке.
+          Сақталған ойындар сабақта көрсетуге дайын. Үлгіні ашу үшін басыңыз.
         </p>
 
         {status === 'loading' && <LoadingState />}
@@ -88,9 +88,9 @@ function TemplateCard({ template, onOpen }: { template: TextTemplate; onOpen: ()
         </span>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
           <span style={{ fontSize: '12px', color: '#6F6E66' }}>
-            HTML-шаблон{created ? ` · ${created}` : ''}
+            HTML-үлгі{created ? ` · ${created}` : ''}
           </span>
-          <span style={{ fontSize: '13px', color: '#1E6E5C', fontWeight: 600 }}>Открыть →</span>
+          <span style={{ fontSize: '13px', color: '#1E6E5C', fontWeight: 600 }}>Ашу →</span>
         </div>
       </div>
     </button>
@@ -119,16 +119,16 @@ function LoadingState() {
 function ErrorState({ message, onRetry }: { message: string | null; onRetry: () => void }) {
   return (
     <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', background: '#FFFFFF', padding: '40px', textAlign: 'center' }}>
-      <p style={{ margin: '0 0 6px', fontSize: '16px', color: '#1A1A17' }}>Не удалось загрузить шаблоны</p>
+      <p style={{ margin: '0 0 6px', fontSize: '16px', color: '#1A1A17' }}>Үлгілерді жүктеу мүмкін болмады</p>
       <p style={{ margin: '0 0 18px', fontSize: '13px', color: '#6F6E66' }}>
-        {message ?? 'Проверьте подключение и повторите попытку. Сервер мог «заснуть» — первый запрос бывает дольше.'}
+        {message ?? 'Байланысты тексеріп, қайталаңыз. Сервер «ұйықтап» қалған болуы мүмкін — бірінші сұраныс ұзағырақ болады.'}
       </p>
       <button
         type="button"
         onClick={onRetry}
         style={{ height: '36px', padding: '0 18px', border: 'none', borderRadius: '8px', background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: '14px', cursor: 'pointer' }}
       >
-        Повторить
+        Қайталау
       </button>
     </div>
   );
@@ -137,16 +137,16 @@ function ErrorState({ message, onRetry }: { message: string | null; onRetry: () 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div style={{ border: '1px dashed #D8D3C6', borderRadius: '12px', background: '#FBFAF6', padding: '48px 40px', textAlign: 'center' }}>
-      <p style={{ margin: '0 0 6px', fontSize: '18px', color: '#1A1A17', fontFamily: 'Spectral, serif' }}>Шаблонов пока нет</p>
+      <p style={{ margin: '0 0 6px', fontSize: '18px', color: '#1A1A17', fontFamily: 'Spectral, serif' }}>Үлгілер әлі жоқ</p>
       <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#6F6E66' }}>
-        Создайте игру в студии и сохраните её как шаблон — она появится здесь.
+        Студияда ойын жасап, үлгі ретінде сақтаңыз — ол осында пайда болады.
       </p>
       <button
         type="button"
         onClick={onCreate}
         style={{ height: '36px', padding: '0 18px', border: 'none', borderRadius: '8px', background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: '14px', cursor: 'pointer' }}
       >
-        Создать игру
+        Ойын жасау
       </button>
     </div>
   );
@@ -155,5 +155,5 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 function formatDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('ru');
+  return d.toLocaleDateString('kk');
 }

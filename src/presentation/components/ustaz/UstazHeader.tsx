@@ -17,14 +17,14 @@ export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavH
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
           <span style={{ fontFamily: 'Spectral, serif', fontSize: '22px', fontWeight: 600, letterSpacing: '-0.01em', color: '#1A1A17' }}>Ustaz 365</span>
-          <span style={{ fontSize: '11px', color: '#6F6E66' }}>для школ · beta</span>
+          <span style={{ fontSize: '11px', color: '#6F6E66' }}>мектептер үшін · beta</span>
         </div>
       </button>
 
       {(onNavHome || onNavTemplates) && (
         <nav style={{ display: 'flex', alignItems: 'center', gap: '2px', background: '#F0EDE6', borderRadius: '10px', padding: '3px' }}>
-          <NavTab label="Студия игр" active={activePage === 'home'} onClick={onNavHome} />
-          <NavTab label="Шаблоны" active={activePage === 'templates'} onClick={onNavTemplates} />
+          <NavTab label="Ойын студиясы" active={activePage === 'home'} onClick={onNavHome} />
+          <NavTab label="Үлгілер" active={activePage === 'templates'} onClick={onNavTemplates} />
         </nav>
       )}
 
@@ -32,7 +32,7 @@ export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavH
         {onHelp && (
           <button
             type="button"
-            title="Показать подсказки"
+            title="Нұсқауларды көрсету"
             onClick={onHelp}
             style={helpLabel
               ? { display: 'inline-flex', alignItems: 'center', gap: '7px', height: '34px', padding: '0 13px 0 11px', border: '1px solid #E6E2D8', borderRadius: '8px', background: '#FFFFFF', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }
