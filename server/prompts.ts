@@ -20,10 +20,13 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 - Учти все фиксы от учителя.
 - Не добавляй пояснений вне кода.
 
-Дизайн:
-- Современный UI: градиентный фон, карточка по центру, тени, скругления.
-- CSS компактный, но аккуратный (30–50 строк достаточно).
-- Не дублируй базовые reset-стили — пиши только стили игры.
+Дизайн — ОБЯЗАТЕЛЬНО прописывай все стили явно в <style>:
+- body: градиентный фон (linear-gradient с 2–3 яркими цветами), min-height:100vh, display:flex, align-items:center, justify-content:center.
+- Карточка .game-wrap: background:#fff (или полупрозрачный), border-radius:20px, padding:32px 28px, box-shadow крупный и мягкий, max-width:720px, width:100%.
+- Кнопки: border-radius:12px, padding:12px 24px, gradient background, box-shadow, transition transform+shadow при hover.
+- Заголовок: крупный (28–36px), font-weight:700, margin-bottom.
+- Цветовая схема: яркая, современная — синяя/фиолетовая/зелёная или другая тематическая палитра.
+- Состояния правильно/неправильно: зелёный (#22c55e) и красный (#ef4444).
 
 КРИТИЧНО — формат ответа:
 - Верни ТОЛЬКО сырой HTML, начиная с <!DOCTYPE html>.
@@ -33,7 +36,15 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 Шаблон:
 <!DOCTYPE html>
 <html lang="kk">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>...</title><style>/* стили игры */</style></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>...</title>
+<style>
+body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#6366f1,#8b5cf6,#3b82f6); font-family:"Segoe UI",system-ui,sans-serif; }
+.game-wrap { background:#fff; border-radius:20px; padding:32px 28px; box-shadow:0 24px 60px rgba(0,0,0,.18); max-width:720px; width:100%; }
+h1 { font-size:28px; font-weight:700; color:#1e1b4b; margin:0 0 20px; text-align:center; }
+button { padding:12px 24px; border:none; border-radius:12px; background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff; font:600 16px inherit; cursor:pointer; box-shadow:0 6px 18px rgba(99,102,241,.35); transition:transform .15s,box-shadow .15s; }
+button:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(99,102,241,.45); }
+/* ... остальные стили игры ... */
+</style></head>
 <body><div class="game-wrap">...</div><script>/* логика игры */</script></body>
 </html>`;
 

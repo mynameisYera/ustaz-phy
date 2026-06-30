@@ -1,9 +1,16 @@
 import { generateGame, getAiConfigError } from "./ai.js";
 import { parseGameResponse } from "./parseGameResponse.js";
 
+export interface ServerAttachment {
+  name: string;
+  mimeType: string;
+  data: string; // base64
+}
+
 export interface GenerateRequestBody {
   description?: string;
   fixHistory?: { message: string }[];
+  attachments?: ServerAttachment[];
 }
 
 export interface GameFilePayload {
@@ -16,7 +23,7 @@ export type GenerateResult =
   | { ok: false; status: number; error: string };
 
 export async function handleGenerate(body: GenerateRequestBody): Promise<GenerateResult> {
-  const { description, fixHistory = [] } = body;
+  const { description, fixHistory = [], attachments = [] } = body;
 
   const configError = getAiConfigError();
   if (configError) {
@@ -28,7 +35,7 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
   }
 
   try {
-    const content = await generateGame(description.trim(), fixHistory);
+    const content = await generateGame(description.trim(), fixHistory, attachments);
     const files = parseGameResponse(content);
     return { ok: true, files };
   } catch (e) {

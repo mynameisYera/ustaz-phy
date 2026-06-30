@@ -1,10 +1,19 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import { UstazHeader } from './UstazHeader';
+import { Tour, type TourStep } from './Tour';
 import { QuizIcon, CardsIcon, CrosswordIcon, SortIcon, SimIcon } from './icons';
 
+const HOME_TOUR_STEPS: TourStep[] = [
+  { target: '[data-tour="prompt"]',    icon: 'canvas',   title: 'Опишите игру',         body: 'Введите тему, класс и формат — ассистент сгенерирует интерактивный HTML-файл прямо в браузере.' },
+  { target: '[data-tour="attach"]',    icon: 'share',    title: 'Прикрепите материалы', body: 'Загрузите изображения или текстовые файлы — ассистент учтёт их содержимое при создании игры.' },
+  { target: '[data-tour="templates"]', icon: 'chat',     title: 'Готовые шаблоны',      body: 'Начните с шаблона: викторина, карточки, кроссворд, сортировка или симулятор.' },
+  { target: '[data-tour="library"]',   icon: 'download', title: 'Мои игры',             body: 'Ранее созданные игры хранятся здесь. Нажмите на строку, чтобы открыть игру в студии.' },
+];
+
 interface HomePageProps {
-  onCreate: (desc: string) => void;
+  onCreate: (desc: string, files: File[]) => void;
   onTemplates: () => void;
+  onBlank: () => void;
 }
 
 const TEMPLATE_TYPES = [
@@ -22,18 +31,32 @@ const GAMES = [
   { name: 'Симулятор Солнечной системы', meta: '7 класс · Естествознание', modified: '5 дней назад', access: 'По ссылке', color: '#EAEFF1' },
 ];
 
-export function HomePage({ onCreate, onTemplates }: HomePageProps) {
+export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
   const [input, setInput] = useState('');
   const [tab, setTab] = useState<'games' | 'templates'>('games');
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [showTour, setShowTour] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (input.trim()) onCreate(input.trim());
+    if (input.trim()) onCreate(input.trim(), attachedFiles);
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length) setAttachedFiles((prev) => [...prev, ...picked]);
+    e.target.value = '';
+  }
+
+  function removeFile(index: number) {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
   return (
     <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
-      <UstazHeader />
+      {showTour && <Tour steps={HOME_TOUR_STEPS} onClose={() => setShowTour(false)} />}
+      <UstazHeader onHelp={() => setShowTour(true)} />
 
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: '56px 24px 72px' }}>
         {/* Context chips */}
@@ -50,7 +73,8 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
         </h1>
 
         {/* Prompt card */}
-        <form onSubmit={handleSubmit} style={{ background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', padding: '20px 20px 14px' }}>
+        <input ref={fileInputRef} type="file" multiple accept="image/*,text/*,.txt,.csv,.md,.json" style={{ display: 'none' }} onChange={handleFileChange} />
+        <form data-tour="prompt" onSubmit={handleSubmit} style={{ background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', padding: '20px 20px 14px' }}>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -58,9 +82,19 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
             rows={3}
             style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: '1.55', color: '#1A1A17', background: 'transparent' }}
           />
+          {attachedFiles.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+              {attachedFiles.map((f, i) => (
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', background: '#EAF1ED', border: '1px solid #C8DDD3', borderRadius: '6px', fontSize: '13px', color: '#3B5A50' }}>
+                  {f.name}
+                  <button type="button" onClick={() => removeFile(i)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1, color: '#6F9E8A', fontSize: '15px' }}>×</button>
+                </span>
+              ))}
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <FilterBtn>
+              <FilterBtn data-tour="attach" onClick={() => fileInputRef.current?.click()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
                 Добавить материал
               </FilterBtn>
@@ -80,9 +114,9 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
 
         {/* Template shortcuts */}
         <p style={{ textAlign: 'center', color: '#6F6E66', fontSize: '14px', margin: '40px 0 18px' }}>
-          Или начните с шаблона…
+          Начните с шаблона…
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+        <div data-tour="templates" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
           {TEMPLATE_TYPES.map((t) => (
             <button key={t.label} type="button" onClick={onTemplates} className="u365-template-card">
               {t.icon}
@@ -91,14 +125,14 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
           ))}
         </div>
         <p style={{ textAlign: 'center', margin: '18px 0 0' }}>
-          <button type="button" onClick={onTemplates} style={{ background: 'none', border: 'none', color: '#1E6E5C', fontSize: '14px', cursor: 'pointer', padding: 0 }}>
+          <button type="button" onClick={onBlank} style={{ background: 'none', border: 'none', color: '#1E6E5C', fontSize: '14px', cursor: 'pointer', padding: 0 }}>
             …или начните с чистого листа →
           </button>
         </p>
       </main>
 
       {/* Library */}
-      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <section data-tour="library" style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
         {/* Tab bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E6E2D8', marginBottom: '20px' }}>
           <div style={{ display: 'flex', gap: '24px' }}>
@@ -143,7 +177,7 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
             <div
               key={g.name}
               className="u365-table-row"
-              onClick={() => onCreate(g.name)}
+              onClick={() => onCreate(g.name, [])}
               style={{ display: 'grid', gridTemplateColumns: '1fr 200px 150px 130px', gap: '16px', alignItems: 'center', padding: '14px', borderBottom: i < GAMES.length - 1 ? '1px solid #EEEAE0' : 'none', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -161,9 +195,9 @@ export function HomePage({ onCreate, onTemplates }: HomePageProps) {
   );
 }
 
-function FilterBtn({ children }: { children: React.ReactNode }) {
+function FilterBtn({ children, onClick, 'data-tour': dataTour }: { children: React.ReactNode; onClick?: () => void; 'data-tour'?: string }) {
   return (
-    <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}>
+    <button type="button" onClick={onClick} data-tour={dataTour} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}>
       {children}
     </button>
   );

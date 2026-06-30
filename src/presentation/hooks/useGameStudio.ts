@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Game } from "@/domain/entities/Game";
+import type { Attachment } from "@/domain/ports/GameGenerator";
 import { useServices } from "../context/ServicesContext";
+
+function fileToAttachment(file: File): Promise<Attachment> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve({ name: file.name, mimeType: file.type || "application/octet-stream", data: result.split(",")[1] });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 type CreateResult = { ok: true; game: Game } | { ok: false; error: string };
 type FixResult = { ok: true; game: Game } | { ok: false; error: string };
@@ -34,12 +47,13 @@ export function useGameStudio() {
   useEffect(() => () => revokeLaunch(), [revokeLaunch]);
 
   const create = useCallback(
-    async (description: string): Promise<CreateResult> => {
+    async (description: string, files: File[] = []): Promise<CreateResult> => {
       setCreating(true);
       revokeLaunch();
 
       try {
-        const created = await createGame.execute(description);
+        const attachments = files.length > 0 ? await Promise.all(files.map(fileToAttachment)) : undefined;
+        const created = await createGame.execute(description, attachments);
         const launch = await launchGame.execute(created.id);
         revokeRef.current = launch.revoke;
         setGame(created);
@@ -68,13 +82,14 @@ export function useGameStudio() {
   }, [exportGame, game]);
 
   const submitFix = useCallback(
-    async (message: string): Promise<FixResult> => {
+    async (message: string, files: File[] = []): Promise<FixResult> => {
       if (!game) return { ok: false, error: "Ойын жасалмаған" };
       setFixing(true);
       revokeLaunch();
 
       try {
-        const updated = await applyFix.execute(game.id, message);
+        const attachments = files.length > 0 ? await Promise.all(files.map(fileToAttachment)) : undefined;
+        const updated = await applyFix.execute(game.id, message, attachments);
         const launch = await launchGame.execute(updated.id);
         revokeRef.current = launch.revoke;
         setGame(updated);

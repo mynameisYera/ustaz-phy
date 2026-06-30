@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Tour, type TourStep } from './Tour';
 
 type ViewerState = 'loading' | 'success' | 'error';
 
@@ -8,11 +9,19 @@ interface ViewerPageProps {
   onUse: (title: string) => void;
 }
 
+const VIEWER_TOUR_STEPS: TourStep[] = [
+  { target: '[data-tour="frame"]', icon: 'open', title: 'Просмотр шаблона', body: 'Игра открывается прямо здесь — попробуйте её так, как увидят ученики, перед тем как взять за основу.' },
+  { target: '[data-tour="use"]',   icon: 'edit', title: 'Используйте как основу', body: 'Понравился шаблон? Откройте его в Студии и адаптируйте под свой урок с помощью ассистента.' },
+];
+
 export function ViewerPage({ title, onBack, onUse }: ViewerPageProps) {
   const [state] = useState<ViewerState>('success');
+  const [showTour, setShowTour] = useState(false);
 
   return (
     <div className="u365-studio-full">
+      {showTour && <Tour steps={VIEWER_TOUR_STEPS} onClose={() => setShowTour(false)} />}
+
       {/* Navbar */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', padding: '13px 28px', borderBottom: '1px solid #E6E2D8', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
@@ -29,17 +38,28 @@ export function ViewerPage({ title, onBack, onUse }: ViewerPageProps) {
             {title}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => onUse(title)}
-          style={{ height: '34px', padding: '0 16px', border: 'none', borderRadius: '8px', background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: '14px', cursor: 'pointer', flexShrink: 0 }}
-        >
-          Использовать как основу
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <button
+            type="button"
+            title="Показать подсказки"
+            onClick={() => setShowTour(true)}
+            style={{ width: '34px', height: '34px', border: '1px solid #E6E2D8', borderRadius: '8px', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E6E5C" strokeWidth="1.7" strokeLinecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.7-2 2.1-2 3.4M12 17.2h0"/></svg>
+          </button>
+          <button
+            data-tour="use"
+            type="button"
+            onClick={() => onUse(title)}
+            style={{ height: '34px', padding: '0 16px', border: 'none', borderRadius: '8px', background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: '14px', cursor: 'pointer' }}
+          >
+            Использовать как основу
+          </button>
+        </div>
       </header>
 
       {/* Framed game area */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px', minHeight: 0 }}>
+      <div data-tour="frame" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px', minHeight: 0 }}>
         <div style={{ width: '100%', maxWidth: '760px', height: '100%', maxHeight: '520px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
           {/* LOADING */}

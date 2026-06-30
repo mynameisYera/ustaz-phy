@@ -1,6 +1,7 @@
 import { getEnv } from "./env.js";
 import { generateGameWithOpenAi, getOpenAiApiKey, getOpenAiModelName } from "./openai.js";
 import type { FixRequestInput } from "./prompts.js";
+import type { ServerAttachment } from "./handleGenerate.js";
 
 export type AiProvider = "openai";
 
@@ -28,7 +29,8 @@ export function getAiConfigError(): string | null {
 
 export async function generateGame(
   description: string,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  attachments: ServerAttachment[] = []
 ): Promise<string> {
-  return generateGameWithOpenAi(description, fixHistory);
+  return generateGameWithOpenAi(description, fixHistory, attachments);
 }

@@ -64,9 +64,6 @@ export function polishGameHtml(html: string): string {
     result = `<!DOCTYPE html>\n${result}`;
   }
 
-  const styleContent = extractStyleContent(result);
-  const needsBase = styleContent.length < 120 && !/<style[^>]*>[\s\S]{200,}/i.test(result);
-
   if (!/<style/i.test(result)) {
     if (result.includes("</head>")) {
       result = result.replace("</head>", `<style>${BASE_GAME_CSS}</style></head>`);
@@ -75,14 +72,9 @@ export function polishGameHtml(html: string): string {
     } else {
       result = `<style>${BASE_GAME_CSS}</style>\n${result}`;
     }
-    return wrapBodyIfNeeded(result);
-  }
-
-  if (needsBase) {
-    result = result.replace(
-      /<style([^>]*)>/i,
-      `<style$1>${BASE_GAME_CSS}\n`
-    );
+  } else {
+    // Always prepend base CSS — AI game styles that follow will override where needed
+    result = result.replace(/<style([^>]*)>/i, `<style$1>${BASE_GAME_CSS}\n`);
   }
 
   return wrapBodyIfNeeded(result);

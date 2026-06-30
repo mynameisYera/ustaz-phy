@@ -4,7 +4,7 @@ import {
   type Game,
   type GameId,
 } from "../entities/Game";
-import type { GameGenerator } from "../ports/GameGenerator";
+import type { Attachment, GameGenerator } from "../ports/GameGenerator";
 import type { GameRepository } from "../repositories/GameRepository";
 
 export class ApplyFixUseCase {
@@ -13,7 +13,7 @@ export class ApplyFixUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(gameId: GameId, message: string): Promise<Game> {
+  async execute(gameId: GameId, message: string, attachments?: Attachment[]): Promise<Game> {
     const trimmed = message.trim();
     if (!trimmed) {
       throw new Error("Түзету сұрауы бос болмауы керек");
@@ -34,6 +34,7 @@ export class ApplyFixUseCase {
     const files = await this.generator.generate({
       description: existing.description,
       fixHistory,
+      attachments,
     });
 
     const updated: Game = {

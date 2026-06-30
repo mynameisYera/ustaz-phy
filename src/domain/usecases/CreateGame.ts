@@ -2,7 +2,7 @@ import {
   createGameId,
   type Game,
 } from "../entities/Game";
-import type { GameGenerator } from "../ports/GameGenerator";
+import type { Attachment, GameGenerator } from "../ports/GameGenerator";
 import type { GameRepository } from "../repositories/GameRepository";
 
 export class CreateGameUseCase {
@@ -11,7 +11,7 @@ export class CreateGameUseCase {
     private readonly repository: GameRepository
   ) {}
 
-  async execute(description: string): Promise<Game> {
+  async execute(description: string, attachments?: Attachment[]): Promise<Game> {
     const trimmed = description.trim();
     if (!trimmed) {
       throw new Error("Ойын сипаты бос болмауы керек");
@@ -20,6 +20,7 @@ export class CreateGameUseCase {
     const files = await this.generator.generate({
       description: trimmed,
       fixHistory: [],
+      attachments,
     });
 
     const now = new Date();

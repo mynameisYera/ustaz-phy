@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { UstazHeader } from './UstazHeader';
+import { Tour, type TourStep } from './Tour';
 import { IconQuizSmall } from './icons';
+
+const TEMPLATES_TOUR_STEPS: TourStep[] = [
+  { target: '[data-tour="filters"]', icon: 'filter', title: 'Найдите нужный шаблон', body: 'Отфильтруйте библиотеку по предмету, классу и типу игры или воспользуйтесь поиском.' },
+  { target: '[data-tour="grid"]',    icon: 'grid',   title: 'Каталог шаблонов',      body: 'Готовые игры с мини-превью. Нажмите «Открыть», чтобы посмотреть шаблон целиком.' },
+];
 
 interface TemplatesPageProps {
   onBack: () => void;
@@ -20,6 +26,7 @@ const ALL_TEMPLATES = [
 
 export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
   const [search, setSearch] = useState('');
+  const [showTour, setShowTour] = useState(false);
 
   const filtered = search.trim()
     ? ALL_TEMPLATES.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()) || t.meta.toLowerCase().includes(search.toLowerCase()))
@@ -29,7 +36,8 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
 
   return (
     <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
-      <UstazHeader onLogoClick={onBack} />
+      {showTour && <Tour steps={TEMPLATES_TOUR_STEPS} onClose={() => setShowTour(false)} />}
+      <UstazHeader onLogoClick={onBack} onHelp={() => setShowTour(true)} helpLabel="Подсказки" />
 
       <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
         <h1 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '34px', letterSpacing: '-0.01em', margin: '0 0 8px' }}>
@@ -40,7 +48,7 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
         </p>
 
         {/* Filters */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '30px', flexWrap: 'wrap' }}>
+        <div data-tour="filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '30px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {['Предмет', 'Класс', 'Тип игры'].map((label) => (
               <button key={label} type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}>
@@ -62,7 +70,7 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
 
         {/* Grid */}
         {!isEmpty && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+          <div data-tour="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
             {filtered.map((t) => (
               <button key={t.title} type="button" className="u365-gallery-card" onClick={() => onOpen(t.title)} style={{ textAlign: 'left' }}>
                 <div style={{ height: '120px', background: t.tint, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #EEEAE0' }}>

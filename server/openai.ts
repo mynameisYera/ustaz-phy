@@ -2,6 +2,7 @@ import { getEnv } from "./env.js";
 import OpenAI from "openai";
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
 import type { FixRequestInput } from "./prompts.js";
+import type { ServerAttachment } from "./handleGenerate.js";
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
@@ -22,7 +23,8 @@ export function isOpenAiKeyFormatValid(key: string): boolean {
 
 export async function generateGameWithOpenAi(
   description: string,
-  fixHistory: FixRequestInput[]
+  fixHistory: FixRequestInput[],
+  attachments: ServerAttachment[] = []
 ): Promise<string> {
   const apiKey = getOpenAiApiKey();
   if (!apiKey) {
@@ -47,13 +49,42 @@ export async function generateGameWithOpenAi(
     baseURL: getEnv("OPENAI_BASE_URL"),
   });
 
+  // Build text for the user prompt, including any attached text files
+  const textFiles = attachments.filter((a) => a.mimeType.startsWith("text/"));
+  const imageFiles = attachments.filter((a) => a.mimeType.startsWith("image/"));
+
+  let userText = buildUserPrompt(description, fixHistory);
+  if (textFiles.length > 0) {
+    const fileSection = textFiles
+      .map((f) => {
+        const content = Buffer.from(f.data, "base64").toString("utf-8");
+        return `[Прикреплённый файл: ${f.name}]\n${content}`;
+      })
+      .join("\n\n");
+    userText += `\n\nПрикреплённые материалы учителя:\n"""\n${fileSection}\n"""`;
+  }
+
+  // Build message content — array when images are present, plain string otherwise
+  const userContent: OpenAI.Chat.ChatCompletionContentPart[] = [
+    { type: "text", text: userText },
+    ...imageFiles.map(
+      (img): OpenAI.Chat.ChatCompletionContentPartImage => ({
+        type: "image_url",
+        image_url: { url: `data:${img.mimeType};base64,${img.data}` },
+      })
+    ),
+  ];
+
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
     temperature: 0.7,
     max_completion_tokens: 16384,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(description, fixHistory) },
+      {
+        role: "user",
+        content: imageFiles.length === 0 ? userText : userContent,
+      },
     ],
   });
 
