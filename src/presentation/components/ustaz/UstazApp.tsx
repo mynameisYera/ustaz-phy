@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import type { CreateGameInput } from '@/domain/entities/GameContext';
 import { buildGameTitle } from '@/domain/entities/GameContext';
+import type { TextTemplate } from '@/infrastructure/templates/TemplatesApi';
 import { HomePage } from './HomePage';
 import { StudioPage } from './StudioPage';
 import { TemplatesPage } from './TemplatesPage';
-import { ViewerPage } from './ViewerPage';
+import { TemplateViewerPage } from './TemplateViewerPage';
 import '../../styles/ustaz.css';
 
 type Page =
   | { id: 'home' }
   | { id: 'studio'; title: string; input: CreateGameInput }
   | { id: 'templates' }
-  | { id: 'viewer'; title: string };
+  | { id: 'viewer'; template: TextTemplate };
 
 export function UstazApp() {
   const [page, setPage] = useState<Page>({ id: 'home' });
@@ -30,28 +31,16 @@ export function UstazApp() {
     return (
       <TemplatesPage
         onBack={() => setPage({ id: 'home' })}
-        onOpen={(title) => setPage({ id: 'viewer', title })}
+        onOpen={(template) => setPage({ id: 'viewer', template })}
       />
     );
   }
 
   if (page.id === 'viewer') {
     return (
-      <ViewerPage
-        title={page.title}
+      <TemplateViewerPage
+        template={page.template}
         onBack={() => setPage({ id: 'templates' })}
-        onUse={(title) =>
-          setPage({
-            id: 'studio',
-            title,
-            input: {
-              grade: 5,
-              subject: 'Математика',
-              lessonTopic: title,
-              description: title,
-            },
-          })
-        }
       />
     );
   }
@@ -65,19 +54,7 @@ export function UstazApp() {
           input,
         })
       }
-      onTemplates={() => setPage({ id: 'templates' })}
-      onBlank={() =>
-        setPage({
-          id: 'studio',
-          title: 'Новая игра',
-          input: {
-            grade: 7,
-            subject: 'Физика',
-            lessonTopic: 'Кинематика',
-            description: 'Создай интерактивную игру по теме урока',
-          },
-        })
-      }
+      onNavTemplates={() => setPage({ id: 'templates' })}
     />
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { CreateGameInput } from "@/domain/entities/GameContext";
 import { formatLessonChips } from "@/domain/entities/GameContext";
+import { prepareGameHtml } from "@/infrastructure/launchers/BlobGameLauncher";
+import { createTemplate } from "@/infrastructure/templates/TemplatesApi";
 import { useGameStudio } from "../../hooks/useGameStudio";
 import { Tour, type TourStep } from "./Tour";
 
@@ -12,6 +14,7 @@ interface StudioPageProps {
 
 type ChatMsg = { kind: "user" | "ai"; text: string; isError?: boolean };
 type StudioState = "building" | "ready" | "error";
+type SaveState = "idle" | "saving" | "saved" | "error";
 
 const TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="chat"]', icon: "chat", title: "Диалог", body: "Пишите, что изменить в игре, и ассистент пересоберет ее." },
@@ -23,6 +26,8 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [studioState, setStudioState] = useState<StudioState>("building");
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showTour, setShowTour] = useState(false);
   const startedRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -81,6 +86,30 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
     }
   }
 
+  async function handleSaveTemplate() {
+    if (!game || saveState === "saving") return;
+
+    setSaveState("saving");
+    setSaveError(null);
+
+    try {
+      const content = prepareGameHtml(game);
+      await createTemplate(title || "Игра", content);
+      setSaveState("saved");
+      setTimeout(() => setSaveState("idle"), 2500);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Не удалось сохранить шаблон");
+      setSaveState("error");
+      setTimeout(() => setSaveState("idle"), 4000);
+    }
+  }
+
+  const saveLabel =
+    saveState === "saving" ? "Сохранение…" :
+    saveState === "saved" ? "Сохранено ✓" :
+    saveState === "error" ? "Ошибка — повторить" :
+    "Сохранить шаблон";
+
   return (
     <div className="u365-studio-full">
       {showTour && <Tour steps={TOUR_STEPS} onClose={() => setShowTour(false)} />}
@@ -117,6 +146,27 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
                 {downloading ? "Подготовка…" : "Скачать ZIP"}
               </button>
             </div>
+          )}
+          {game && (
+            <button
+              type="button"
+              onClick={() => void handleSaveTemplate()}
+              disabled={saveState === "saving"}
+              title={saveError ?? "Сохранить эту игру как шаблон"}
+              style={{
+                height: "34px",
+                padding: "0 14px",
+                border: "1px solid #E6E2D8",
+                borderRadius: "8px",
+                background: saveState === "saved" ? "#E4EFEA" : "#FFFFFF",
+                color: saveState === "error" ? "#B4533B" : saveState === "saved" ? "#1E6E5C" : "#1A1A17",
+                fontFamily: "inherit",
+                fontSize: "13px",
+                cursor: saveState === "saving" ? "not-allowed" : "pointer",
+              }}
+            >
+              {saveLabel}
+            </button>
           )}
           <button type="button" onClick={() => setShowTour(true)}>?</button>
         </div>

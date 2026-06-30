@@ -34,13 +34,36 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 - Учти все фиксы от учителя.
 - Не добавляй пояснений вне кода.
 
-Дизайн — ОБЯЗАТЕЛЬНО прописывай все стили явно в <style>:
-- body: градиентный фон (linear-gradient с 2–3 яркими цветами), min-height:100vh, display:flex, align-items:center, justify-content:center.
-- Карточка .game-wrap: background:#fff (или полупрозрачный), border-radius:20px, padding:32px 28px, box-shadow крупный и мягкий, max-width:720px, width:100%.
-- Кнопки: border-radius:12px, padding:12px 24px, gradient background, box-shadow, transition transform+shadow при hover.
-- Заголовок: крупный (28–36px), font-weight:700, margin-bottom.
-- Цветовая схема: яркая, современная — синяя/фиолетовая/зелёная или другая тематическая палитра.
-- Состояния правильно/неправильно: зелёный (#22c55e) и красный (#ef4444).
+Дизайн — СТРОГО следуй этой палитре, прописывай все стили в <style>:
+
+Цвета (только эти значения, никаких ярких градиентов):
+- Фон страницы: #F7F5EF
+- Основной текст: #1A1A17
+- Вторичный текст: #6F6E66
+- Рамки: #E6E2D8
+- Кнопки / акцент: #1E6E5C (тёмно-зелёный)
+- Кнопка hover: #175f4f
+- Светло-зелёный фон (чипы, выделение): #E4EFEA
+- Карточки: #FFFFFF
+- Правильный ответ: цвет #1E6E5C, фон #E4EFEA
+- Неправильный ответ: цвет #B4533B, фон #FDECEA
+
+Шрифты:
+- Подключи: <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+- Заголовки h1/h2: font-family:'Spectral',serif; font-weight:500
+- Весь остальной текст: font-family:'Inter',system-ui,sans-serif; font-size:15px; line-height:1.5
+
+Компоненты:
+- body: margin:0; background:#F7F5EF; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:'Inter',system-ui,sans-serif; color:#1A1A17
+- .game-wrap: background:#FFFFFF; border:1px solid #E6E2D8; border-radius:16px; padding:32px 28px; max-width:720px; width:100%; box-shadow:0 4px 20px rgba(0,0,0,.06)
+- h1: font-family:'Spectral',serif; font-size:28px; font-weight:500; color:#1A1A17; margin:0 0 24px; text-align:center
+- button (основная): background:#1E6E5C; color:#fff; border:none; border-radius:8px; padding:10px 20px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; transition:background .15s
+- button:hover: background:#175f4f
+- button (вторичная): background:#FFFFFF; border:1px solid #E6E2D8; color:#1A1A17; border-radius:8px; padding:10px 20px
+- Карточки вариантов ответа: border:1px solid #E6E2D8; border-radius:12px; padding:14px 18px; background:#FFFFFF; cursor:pointer
+- Карточка hover: background:#FBFAF6; border-color:#D8D3C6
+
+ЗАПРЕЩЕНО: яркие градиенты, синие/фиолетовые/кислотные цвета, font-weight:700, border-radius больше 16px у карточек.
 
 КРИТИЧНО — формат ответа:
 - Верни ТОЛЬКО сырой HTML, начиная с <!DOCTYPE html>.
@@ -51,15 +74,17 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 <!DOCTYPE html>
 <html lang="kk">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>...</title>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#6366f1,#8b5cf6,#3b82f6); font-family:"Segoe UI",system-ui,sans-serif; }
-.game-wrap { background:#fff; border-radius:20px; padding:32px 28px; box-shadow:0 24px 60px rgba(0,0,0,.18); max-width:720px; width:100%; }
-h1 { font-size:28px; font-weight:700; color:#1e1b4b; margin:0 0 20px; text-align:center; }
-button { padding:12px 24px; border:none; border-radius:12px; background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff; font:600 16px inherit; cursor:pointer; box-shadow:0 6px 18px rgba(99,102,241,.35); transition:transform .15s,box-shadow .15s; }
-button:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(99,102,241,.45); }
-/* ... остальные стили игры ... */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F7F5EF;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;color:#1A1A17;font-size:15px;line-height:1.5}
+.game-wrap{background:#fff;border:1px solid #E6E2D8;border-radius:16px;padding:32px 28px;max-width:720px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+h1{font-family:'Spectral',serif;font-size:28px;font-weight:500;color:#1A1A17;margin:0 0 24px;text-align:center}
+button{background:#1E6E5C;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
+button:hover{background:#175f4f}
+/* остальные стили */
 </style></head>
-<body><div class="game-wrap">...</div><script>/* логика игры */</script></body>
+<body><div class="game-wrap">...</div><script>/* логика */</script></body>
 </html>`;
 
 const MATERIAL_CHAR_LIMIT = 12000;
