@@ -1,22 +1,19 @@
 import { useState, useRef, type FormEvent } from 'react';
+import type { CreateGameInput } from '@/domain/entities/GameContext';
+import { extractPdfMaterial } from '@/infrastructure/pdf/extractPdfMaterial';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
 import { QuizIcon, CardsIcon, CrosswordIcon, SortIcon, SimIcon } from './icons';
 
 const HOME_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="prompt"]',    icon: 'canvas',   title: 'Опишите игру',         body: 'Введите тему, класс и формат — ассистент сгенерирует интерактивный HTML-файл прямо в браузере.' },
-  { target: '[data-tour="attach"]',    icon: 'share',    title: 'Прикрепите материалы', body: 'Загрузите изображения или текстовые файлы — ассистент учтёт их содержимое при создании игры.' },
+  { target: '[data-tour="attach"]',    icon: 'share',    title: 'Прикрепите PDF', body: 'Загрузите учебный материал в PDF — даже сканированный. Текст будет извлечён и использован при создании игры.' },
   { target: '[data-tour="templates"]', icon: 'chat',     title: 'Готовые шаблоны',      body: 'Начните с шаблона: викторина, карточки, кроссворд, сортировка или симулятор.' },
   { target: '[data-tour="library"]',   icon: 'download', title: 'Мои игры',             body: 'Ранее созданные игры хранятся здесь. Нажмите на строку, чтобы открыть игру в студии.' },
 ];
 
 interface HomePageProps {
-  onCreate: (input: {
-    grade: number;
-    subject: string;
-    lessonTopic: string;
-    description: string;
-  }, files: File[]) => void;
+  onCreate: (input: CreateGameInput) => void;
   onTemplates: () => void;
   onBlank: () => void;
 }
@@ -44,35 +41,53 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
   const [subject, setSubject] = useState('');
   const [lessonTopic, setLessonTopic] = useState('');
   const [tab, setTab] = useState<'games' | 'templates'>('games');
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [materialFile, setMaterialFile] = useState<File | null>(null);
+  const [materialText, setMaterialText] = useState<string | undefined>();
+  const [materialLoading, setMaterialLoading] = useState(false);
+  const [materialError, setMaterialError] = useState<string | null>(null);
   const [showTour, setShowTour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chips: string[] = [];
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || materialLoading) return;
     if (grade === '' || !subject.trim() || !lessonTopic.trim()) return;
 
-    onCreate(
-      {
-        grade,
-        subject: subject.trim(),
-        lessonTopic: lessonTopic.trim(),
-        description: input.trim(),
-      },
-      attachedFiles
-    );
+    onCreate({
+      grade,
+      subject: subject.trim(),
+      lessonTopic: lessonTopic.trim(),
+      description: input.trim(),
+      materialText,
+    });
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(e.target.files ?? []);
-    if (picked.length) setAttachedFiles((prev) => [...prev, ...picked]);
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
     e.target.value = '';
+    if (!file) return;
+
+    setMaterialFile(file);
+    setMaterialText(undefined);
+    setMaterialError(null);
+    setMaterialLoading(true);
+
+    try {
+      const text = await extractPdfMaterial(file);
+      setMaterialText(text);
+    } catch (err) {
+      setMaterialFile(null);
+      setMaterialError(err instanceof Error ? err.message : 'Не удалось прочитать PDF');
+    } finally {
+      setMaterialLoading(false);
+    }
   }
 
-  function removeFile(index: number) {
-    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  function removeMaterial() {
+    setMaterialFile(null);
+    setMaterialText(undefined);
+    setMaterialError(null);
   }
 
   return (
@@ -96,7 +111,7 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
         </h1>
 
         {/* Prompt card */}
-        <input ref={fileInputRef} type="file" multiple accept="image/*,text/*,.txt,.csv,.md,.json" style={{ display: 'none' }} onChange={handleFileChange} />
+        <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={handleFileChange} />
         <form data-tour="prompt" onSubmit={handleSubmit} style={{ background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', padding: '20px 20px 14px' }}>
           <textarea
             value={input}
@@ -105,25 +120,25 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
             rows={3}
             style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: '1.55', color: '#1A1A17', background: 'transparent' }}
           />
-          {attachedFiles.length > 0 && (
+          {materialFile && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
-              {attachedFiles.map((f, i) => (
-                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', background: '#EAF1ED', border: '1px solid #C8DDD3', borderRadius: '6px', fontSize: '13px', color: '#3B5A50' }}>
-                  {f.name}
-                  <button type="button" onClick={() => removeFile(i)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1, color: '#6F9E8A', fontSize: '15px' }}>×</button>
-                </span>
-              ))}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', background: '#EAF1ED', border: '1px solid #C8DDD3', borderRadius: '6px', fontSize: '13px', color: '#3B5A50' }}>
+                {materialLoading ? 'Обработка PDF…' : materialFile.name}
+                {!materialLoading && (
+                  <button type="button" onClick={removeMaterial} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1, color: '#6F9E8A', fontSize: '15px' }}>×</button>
+                )}
+              </span>
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <FilterBtn data-tour="attach" onClick={() => fileInputRef.current?.click()}>
+              <FilterBtn data-tour="attach" onClick={() => !materialLoading && fileInputRef.current?.click()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
-                Добавить материал
+                {materialLoading ? 'Обработка PDF…' : materialFile ? 'Заменить PDF' : 'Добавить PDF'}
               </FilterBtn>
               
               <FieldSelect
-                label="Класс"
+                label=""
                 value={grade === '' ? '' : String(grade)}
                 onChange={(v) => setGrade(v ? Number(v) : '')}
               >
@@ -148,11 +163,19 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button type="submit" style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+              <button type="submit" disabled={materialLoading} style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: materialLoading ? '#A6C8C0' : '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: materialLoading ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 13V3.5M3.5 8 8 3.5 12.5 8"/></svg>
               </button>
             </div>
           </div>
+          {materialError && (
+            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#B4533B' }}>{materialError}</p>
+          )}
+          {materialText && !materialLoading && (
+            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#3B5A50' }}>
+              Материал из PDF загружен — {materialText.length.toLocaleString()} символов для ИИ
+            </p>
+          )}
         </form>
 
         <p style={{ textAlign: 'center', color: '#6F6E66', fontSize: '14px', margin: '40px 0 18px' }}>
@@ -204,15 +227,12 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
               key={g.name}
               className="u365-table-row"
               onClick={() =>
-                onCreate(
-                  {
-                    grade: g.grade,
-                    subject: g.subject,
-                    lessonTopic: g.topic,
-                    description: g.name,
-                  },
-                  []
-                )
+                onCreate({
+                  grade: g.grade,
+                  subject: g.subject,
+                  lessonTopic: g.topic,
+                  description: g.name,
+                })
               }
               style={{ display: 'grid', gridTemplateColumns: '1fr 200px 150px 130px', gap: '16px', alignItems: 'center', padding: '14px', borderBottom: i < GAMES.length - 1 ? '1px solid #EEEAE0' : 'none', cursor: 'pointer' }}
             >

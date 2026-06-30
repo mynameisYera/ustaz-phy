@@ -41,7 +41,11 @@ export function StudioPage({ title, input, onBack }: StudioPageProps) {
     setMessages([
       {
         kind: "user",
-        text: `${input.grade} класс · ${input.subject} · ${input.lessonTopic}\n\n${input.description}`,
+        text: [
+          `${input.grade} класс · ${input.subject} · ${input.lessonTopic}`,
+          input.description,
+          input.materialText ? `PDF материал: ${input.materialText.length.toLocaleString()} символов` : null,
+        ].filter(Boolean).join("\n\n"),
       },
     ]);
 
