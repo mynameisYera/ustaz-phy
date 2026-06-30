@@ -16,6 +16,8 @@ interface HomePageProps {
   onBlank: () => void;
 }
 
+const GRADES = Array.from({ length: 11 }, (_, i) => i + 1);
+
 const TEMPLATE_TYPES = [
   { label: 'Викторина', icon: <QuizIcon /> },
   { label: 'Карточки', icon: <CardsIcon /> },
@@ -25,10 +27,10 @@ const TEMPLATE_TYPES = [
 ];
 
 const GAMES = [
-  { name: 'Викторина: сравнение дробей', meta: '5 класс · Математика', modified: '6 часов назад', access: 'Открыт классу', color: '#EAF1ED' },
-  { name: 'Исторические даты: карточки', meta: '8 класс · История', modified: 'Вчера', access: 'Личный', color: '#F1ECE2' },
-  { name: 'Казахский язык: части речи', meta: '6 класс · Казахский язык', modified: '2 дня назад', access: 'Открыт классу', color: '#EDEAF1' },
-  { name: 'Симулятор Солнечной системы', meta: '7 класс · Естествознание', modified: '5 дней назад', access: 'По ссылке', color: '#EAEFF1' },
+  { name: 'Викторина: сравнение дробей', grade: 5, subject: 'Математика', topic: 'Дроби', modified: '6 часов назад', access: 'Открыт классу', color: '#EAF1ED' },
+  { name: 'Исторические даты: карточки', grade: 8, subject: 'История', topic: 'Даты', modified: 'Вчера', access: 'Личный', color: '#F1ECE2' },
+  { name: 'Казахский язык: части речи', grade: 6, subject: 'Казахский язык', topic: 'Части речи', modified: '2 дня назад', access: 'Открыт классу', color: '#EDEAF1' },
+  { name: 'Симулятор Солнечной системы', grade: 7, subject: 'Естествознание', topic: 'Солнечная система', modified: '5 дней назад', access: 'По ссылке', color: '#EAEFF1' },
 ];
 
 export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
@@ -59,14 +61,15 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
       <UstazHeader onHelp={() => setShowTour(true)} />
 
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: '56px 24px 72px' }}>
-        {/* Context chips */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '40px' }}>
-          {['5 класс', 'Математика', 'Урок 12 · Дроби'].map((chip) => (
-            <span key={chip} style={{ display: 'inline-flex', alignItems: 'center', padding: '5px 11px', background: '#E4EFEA', color: '#3B5A50', borderRadius: '8px', fontSize: '13px' }}>
-              {chip}
-            </span>
-          ))}
-        </div>
+        {chips.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '40px', flexWrap: 'wrap' }}>
+            {chips.map((chip) => (
+              <span key={chip} style={{ display: 'inline-flex', alignItems: 'center', padding: '5px 11px', background: '#E4EFEA', color: '#3B5A50', borderRadius: '8px', fontSize: '13px' }}>
+                {chip}
+              </span>
+            ))}
+          </div>
+        )}
 
         <h1 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '44px', lineHeight: 1.1, letterSpacing: '-0.02em', textAlign: 'center', margin: '0 0 32px' }}>
           Какую игру создадим сегодня?
@@ -76,9 +79,9 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
         <input ref={fileInputRef} type="file" multiple accept="image/*,text/*,.txt,.csv,.md,.json" style={{ display: 'none' }} onChange={handleFileChange} />
         <form data-tour="prompt" onSubmit={handleSubmit} style={{ background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '12px', padding: '20px 20px 14px' }}>
           <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Опишите игру для урока — например: викторина по дробям для 5 класса"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Опишите игру для урока — например: викторина с drag-and-drop по теме урока"
             rows={3}
             style={{ width: '100%', border: 'none', outline: 'none', resize: 'none', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', lineHeight: '1.55', color: '#1A1A17', background: 'transparent' }}
           />
@@ -96,23 +99,52 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <FilterBtn data-tour="attach" onClick={() => fileInputRef.current?.click()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
-                Добавить материал
+                {materialLoading ? 'Обработка PDF…' : materialFileName ? materialFileName.slice(0, 18) : 'Добавить материал'}
               </FilterBtn>
-              {['Предмет', 'Класс', 'Тема урока'].map((label) => (
-                <FilterBtn key={label}>
-                  {label} <ChevronDown />
-                </FilterBtn>
-              ))}
+
+              <FieldSelect
+                label="Класс"
+                value={grade === '' ? '' : String(grade)}
+                onChange={(v) => setGrade(v ? Number(v) : '')}
+              >
+                <option value="">Класс</option>
+                {GRADES.map((g) => (
+                  <option key={g} value={g}>{g} класс</option>
+                ))}
+              </FieldSelect>
+
+              <FieldInput
+                label="Предмет"
+                value={subject}
+                onChange={setSubject}
+                placeholder="Предмет"
+              />
+
+              <FieldInput
+                label="Тема урока"
+                value={lessonTopic}
+                onChange={setLessonTopic}
+                placeholder="Тема урока"
+              />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button type="submit" style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+              <button type="submit" disabled={materialLoading} style={{ width: '36px', height: '36px', border: 'none', borderRadius: '8px', background: materialLoading ? '#A6C8C0' : '#1E6E5C', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: materialLoading ? 'not-allowed' : 'pointer', flexShrink: 0 }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M8 13V3.5M3.5 8 8 3.5 12.5 8"/></svg>
               </button>
             </div>
           </div>
+          {(formError || materialError) && (
+            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#B4533B' }}>
+              {formError || materialError}
+            </p>
+          )}
+          {materialText && !materialLoading && (
+            <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#3B5A50' }}>
+              Материал загружен — {materialText.length.toLocaleString()} символов для ИИ
+            </p>
+          )}
         </form>
 
-        {/* Template shortcuts */}
         <p style={{ textAlign: 'center', color: '#6F6E66', fontSize: '14px', margin: '40px 0 18px' }}>
           Начните с шаблона…
         </p>
@@ -147,23 +179,8 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', width: '220px' }}>
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#A6A498" strokeWidth="1.5"><circle cx="7" cy="7" r="4.5"/><path d="m11 11 3 3" strokeLinecap="round"/></svg>
-              <span style={{ color: '#A6A498', fontSize: '14px' }}>Поиск…</span>
-            </div>
-            <div style={{ display: 'flex', border: '1px solid #E6E2D8', borderRadius: '8px', overflow: 'hidden' }}>
-              <button type="button" style={{ width: '34px', height: '34px', background: '#F7F5EF', border: 'none', borderRight: '1px solid #E6E2D8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#1A1A17" strokeWidth="1.4" strokeLinecap="round"><path d="M2 3.5h10M2 7h10M2 10.5h10"/></svg>
-              </button>
-              <button type="button" style={{ width: '34px', height: '34px', background: '#FFFFFF', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#A6A498" strokeWidth="1.4"><rect x="2" y="2" width="4" height="4" rx="1"/><rect x="8" y="2" width="4" height="4" rx="1"/><rect x="2" y="8" width="4" height="4" rx="1"/><rect x="8" y="8" width="4" height="4" rx="1"/></svg>
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Table header */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px 150px 130px', gap: '16px', padding: '0 14px 10px', fontSize: '12px', color: '#6F6E66' }}>
           <span>Название</span>
           <span>Класс · Предмет</span>
@@ -171,7 +188,6 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
           <span>Доступ</span>
         </div>
 
-        {/* Rows */}
         <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', overflow: 'hidden', background: '#FFFFFF' }}>
           {GAMES.map((g, i) => (
             <div
@@ -184,7 +200,7 @@ export function HomePage({ onCreate, onTemplates, onBlank }: HomePageProps) {
                 <div style={{ width: '64px', height: '42px', borderRadius: '6px', border: '1px solid #E6E2D8', background: g.color, flexShrink: 0 }} />
                 <span style={{ fontSize: '14px' }}>{g.name}</span>
               </div>
-              <span style={{ fontSize: '13px', color: '#6F6E66' }}>{g.meta}</span>
+              <span style={{ fontSize: '13px', color: '#6F6E66' }}>{g.grade} класс · {g.subject}</span>
               <span style={{ fontSize: '13px', color: '#6F6E66' }}>{g.modified}</span>
               <span style={{ fontSize: '13px', color: '#6F6E66' }}>{g.access}</span>
             </div>
@@ -200,6 +216,78 @@ function FilterBtn({ children, onClick, 'data-tour': dataTour }: { children: Rea
     <button type="button" onClick={onClick} data-tour={dataTour} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}>
       {children}
     </button>
+  );
+}
+
+function FieldSelect({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label style={{ position: 'relative', display: 'inline-flex' }}>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          height: '34px',
+          padding: '0 28px 0 12px',
+          background: value ? '#E4EFEA' : '#FFFFFF',
+          border: '1px solid #E6E2D8',
+          borderRadius: '8px',
+          color: '#1A1A17',
+          fontFamily: 'inherit',
+          fontSize: '13px',
+          cursor: 'pointer',
+          appearance: 'none',
+        }}
+      >
+        {children}
+      </select>
+      <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+        <ChevronDown />
+      </span>
+      <span className="sr-only">{label}</span>
+    </label>
+  );
+}
+
+function FieldInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      aria-label={label}
+      style={{
+        height: '34px',
+        width: '130px',
+        padding: '0 12px',
+        background: value.trim() ? '#E4EFEA' : '#FFFFFF',
+        border: '1px solid #E6E2D8',
+        borderRadius: '8px',
+        color: '#1A1A17',
+        fontFamily: 'inherit',
+        fontSize: '13px',
+      }}
+    />
   );
 }
 

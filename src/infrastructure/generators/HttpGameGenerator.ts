@@ -1,3 +1,4 @@
+import type { CreateGameInput } from "@/domain/entities/GameContext";
 import type { GameFile } from "@/domain/entities/Game";
 import type { GenerateGameInput, GameGenerator } from "@/domain/ports/GameGenerator";
 
@@ -45,7 +46,11 @@ export class HttpGameGenerator implements GameGenerator {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          grade: input.grade,
+          subject: input.subject,
+          lessonTopic: input.lessonTopic,
           description: input.description,
+          materialText: input.materialText,
           fixHistory: input.fixHistory.map((f) => ({ message: f.message })),
           attachments: input.attachments ?? [],
         }),
@@ -69,3 +74,5 @@ export class HttpGameGenerator implements GameGenerator {
     return data.files;
   }
 }
+
+export type { CreateGameInput };

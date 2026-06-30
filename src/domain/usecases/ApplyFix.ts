@@ -32,7 +32,11 @@ export class ApplyFixUseCase {
 
     const fixHistory = [...existing.fixHistory, fix];
     const files = await this.generator.generate({
+      grade: existing.context.grade,
+      subject: existing.context.subject,
+      lessonTopic: existing.context.lessonTopic,
       description: existing.description,
+      materialText: existing.materialText,
       fixHistory,
       attachments,
     });

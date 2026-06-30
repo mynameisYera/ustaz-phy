@@ -1,3 +1,5 @@
+import type { GameLessonContext } from "./GameContext";
+
 export type GameId = string;
 
 export interface GameFile {
@@ -14,6 +16,8 @@ export interface FixRequest {
 export interface Game {
   id: GameId;
   description: string;
+  context: GameLessonContext;
+  materialText?: string;
   version: number;
   files: GameFile[];
   fixHistory: FixRequest[];

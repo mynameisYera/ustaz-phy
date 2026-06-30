@@ -33,7 +33,12 @@ export function GameStudio() {
     setMessages((prev) => [...prev, { kind: "user", text }]);
 
     if (!game) {
-      const result = await create(text);
+      const result = await create({
+        grade: 9,
+        subject: "Физика",
+        lessonTopic: "Кинематика",
+        description: text,
+      });
       setMessages((prev) => [
         ...prev,
         result.ok

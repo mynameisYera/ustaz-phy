@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CreateGameInput } from "@/domain/entities/GameContext";
 import type { Game } from "@/domain/entities/Game";
 import type { Attachment } from "@/domain/ports/GameGenerator";
 import { useServices } from "../context/ServicesContext";
