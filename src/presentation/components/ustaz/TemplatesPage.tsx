@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
 import { listTemplates, type TextTemplate } from '@/infrastructure/templates/TemplatesApi';
+import { SUBJECTS, GRADES } from '@/domain/entities/Subjects';
 
 const TEMPLATES_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="grid"]', icon: 'grid', title: 'Үлгілер каталогы', body: 'Сақталған ойындар осында сақталады. Үлгіні ашу үшін картаны басыңыз.' },
@@ -56,6 +57,24 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
         <p style={{ color: '#6F6E66', fontSize: '15px', margin: '0 0 28px' }}>
           Сақталған ойындар сабақта көрсетуге дайын. Үлгіні ашу үшін басыңыз.
         </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', margin: '0 0 24px' }}>
+          <FilterSelect label="Пән">
+            <option value="">Пән</option>
+            {SUBJECTS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </FilterSelect>
+          <FilterSelect label="Сынып">
+            <option value="">Сынып</option>
+            {GRADES.map((g) => (
+              <option key={g} value={g}>{g} сынып</option>
+            ))}
+          </FilterSelect>
+          <FilterSelect label="Ойын түрі">
+            <option value="">Ойын түрі</option>
+          </FilterSelect>
+        </div>
 
         {status === 'loading' && <LoadingState />}
         {status === 'error' && <ErrorState message={error} onRetry={() => void load()} />}
@@ -149,6 +168,42 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
         Ойын жасау
       </button>
     </div>
+  );
+}
+
+function FilterSelect({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label style={{ position: 'relative', display: 'inline-flex' }}>
+      <select
+        defaultValue=""
+        aria-label={label}
+        style={{
+          height: '38px',
+          padding: '0 32px 0 16px',
+          background: '#FFFFFF',
+          border: '1px solid #E6E2D8',
+          borderRadius: '19px',
+          color: '#1A1A17',
+          fontFamily: 'inherit',
+          fontSize: '14px',
+          cursor: 'pointer',
+          appearance: 'none',
+        }}
+      >
+        {children}
+      </select>
+      <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+        <ChevronDown />
+      </span>
+    </label>
+  );
+}
+
+function ChevronDown() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 4.5 6 7.5 9 4.5"/>
+    </svg>
   );
 }
 

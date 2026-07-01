@@ -3,12 +3,16 @@ import type { CreateGameUseCase } from "@/domain/usecases/CreateGame";
 import type { ApplyFixUseCase } from "@/domain/usecases/ApplyFix";
 import type { ExportGameUseCase } from "@/domain/usecases/ExportGame";
 import type { LaunchGameUseCase } from "@/domain/usecases/LaunchGame";
+import type { ListRecentGamesUseCase } from "@/domain/usecases/ListRecentGames";
+import type { GetGameUseCase } from "@/domain/usecases/GetGame";
 
 export interface AppServices {
   createGame: CreateGameUseCase;
   applyFix: ApplyFixUseCase;
   exportGame: ExportGameUseCase;
   launchGame: LaunchGameUseCase;
+  listRecentGames: ListRecentGamesUseCase;
+  getGame: GetGameUseCase;
 }
 
 const ServicesContext = createContext<AppServices | null>(null);

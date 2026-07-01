@@ -31,9 +31,11 @@ function getReactSource(): { react: string; reactDom: string } {
 
 const REACT_GAME_CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#F7F5EF;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;color:#1A1A17;font-size:15px;line-height:1.5;padding:24px 16px}
-#root{width:100%;display:flex;justify-content:center}
-.game-wrap{background:#fff;border:1px solid #E6E2D8;border-radius:16px;padding:32px 28px;max-width:720px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+html,body{height:100%}
+body{background:#F7F5EF;min-height:100vh;width:100%;font-family:'Inter',system-ui,sans-serif;color:#1A1A17;font-size:15px;line-height:1.5}
+#root{min-height:100vh;width:100%;display:flex;flex-direction:column}
+.game-wrap{background:#fff;min-height:100vh;width:100%;flex:1;padding:32px clamp(20px,5vw,64px)}
+.content{max-width:900px;margin:0 auto}
 h1,h2{font-family:'Spectral',serif;font-weight:500;color:#1A1A17}
 h1{font-size:28px;margin:0 0 24px;text-align:center}
 button{background:#1E6E5C;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}

@@ -3,15 +3,10 @@ const BASE_GAME_CSS = `
 html, body {
   margin: 0;
   min-height: 100vh;
+  width: 100%;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   color: #0f172a;
   background: linear-gradient(160deg, #e0e7ff 0%, #f8fafc 45%, #dbeafe 100%);
-}
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
 }
 h1, h2, h3 { margin: 0 0 12px; line-height: 1.25; }
 p { margin: 0 0 12px; line-height: 1.5; color: #334155; }
@@ -37,12 +32,11 @@ button:hover, .btn:hover {
 }
 button:active { transform: translateY(0); }
 .game-wrap, .container, main, #app, .app {
-  width: min(760px, 100%);
+  width: 100%;
+  min-height: 100vh;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 20px;
   padding: 28px 24px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  box-sizing: border-box;
 }
 [draggable="true"], .draggable, .gene, .item {
   cursor: grab;

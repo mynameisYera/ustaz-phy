@@ -119,3 +119,18 @@ html, body, #root {
 .u365-skeleton-line-d2 { animation: u365pulse 1.6s infinite 0.2s; }
 .u365-skeleton-line-d3 { animation: u365pulse 1.6s infinite 0.3s; }
 .u365-skeleton-line-d4 { animation: u365pulse 1.6s infinite 0.4s; }
+
+.u365-field-select {
+  accent-color: #1E6E5C;
+  color-scheme: light;
+}
+
+.u365-field-select option {
+  background: #FFFFFF;
+  color: #1A1A17;
+}
+
+.u365-field-select option:checked {
+  background: #1E6E5C;
+  color: #FFFFFF;
+}

@@ -6,6 +6,8 @@ import { CreateGameUseCase } from "@/domain/usecases/CreateGame";
 import { ApplyFixUseCase } from "@/domain/usecases/ApplyFix";
 import { ExportGameUseCase } from "@/domain/usecases/ExportGame";
 import { LaunchGameUseCase } from "@/domain/usecases/LaunchGame";
+import { ListRecentGamesUseCase } from "@/domain/usecases/ListRecentGames";
+import { GetGameUseCase } from "@/domain/usecases/GetGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
 import "@/presentation/styles/studio.css";
@@ -20,6 +22,8 @@ const services = {
   applyFix: new ApplyFixUseCase(gameGenerator, gameRepository),
   exportGame: new ExportGameUseCase(gameRepository, gameExporter),
   launchGame: new LaunchGameUseCase(gameRepository, gameLauncher),
+  listRecentGames: new ListRecentGamesUseCase(gameRepository),
+  getGame: new GetGameUseCase(gameRepository),
 };
 
 export function App() {

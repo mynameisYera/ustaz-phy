@@ -11,4 +11,10 @@ export class InMemoryGameRepository implements GameRepository {
   async getById(id: GameId): Promise<Game | null> {
     return this.store.get(id) ?? null;
   }
+
+  async listAll(): Promise<Game[]> {
+    return Array.from(this.store.values()).sort(
+      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+    );
+  }
 }

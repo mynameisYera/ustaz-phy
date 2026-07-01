@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CreateGameInput } from "@/domain/entities/GameContext";
-import type { Game } from "@/domain/entities/Game";
+import type { Game, GameId } from "@/domain/entities/Game";
 import type { Attachment } from "@/domain/ports/GameGenerator";
 import { prepareGameHtml } from "@/infrastructure/launchers/BlobGameLauncher";
 import { useServices } from "../context/ServicesContext";
@@ -19,6 +19,7 @@ function fileToAttachment(file: File): Promise<Attachment> {
 
 type CreateResult = { ok: true; game: Game } | { ok: false; error: string };
 type FixResult = { ok: true; game: Game } | { ok: false; error: string };
+type ResumeResult = { ok: true; game: Game } | { ok: false; error: string };
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -30,7 +31,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function useGameStudio() {
-  const { createGame, launchGame, exportGame, applyFix } = useServices();
+  const { createGame, launchGame, exportGame, applyFix, getGame } = useServices();
 
   const [game, setGame] = useState<Game | null>(null);
   const [launchUrl, setLaunchUrl] = useState<string | null>(null);
@@ -69,6 +70,28 @@ export function useGameStudio() {
       }
     },
     [createGame, launchGame, revokeLaunch]
+  );
+
+  const resume = useCallback(
+    async (gameId: GameId): Promise<ResumeResult> => {
+      setCreating(true);
+      revokeLaunch();
+
+      try {
+        const existing = await getGame.execute(gameId);
+        const launch = await launchGame.execute(existing.id);
+        revokeRef.current = launch.revoke;
+        setGame(existing);
+        setLaunchUrl(launch.launchUrl);
+        return { ok: true, game: existing };
+      } catch (e) {
+        const error = e instanceof Error ? e.message : "Ойынды ашу қатесі";
+        return { ok: false, error };
+      } finally {
+        setCreating(false);
+      }
+    },
+    [getGame, launchGame, revokeLaunch]
   );
 
   const download = useCallback(async () => {
@@ -131,6 +154,7 @@ export function useGameStudio() {
     fixing,
     downloading,
     create,
+    resume,
     download,
     downloadHtml,
     submitFix,

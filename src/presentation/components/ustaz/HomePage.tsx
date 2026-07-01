@@ -1,22 +1,26 @@
-import { useState, useRef, type FormEvent } from 'react';
+import { useEffect, useState, useRef, type FormEvent } from 'react';
 import type { CreateGameInput, OutputFormat } from '@/domain/entities/GameContext';
+import { formatLessonChips } from '@/domain/entities/GameContext';
+import type { Game, GameId } from '@/domain/entities/Game';
+import { SUBJECTS, GRADES } from '@/domain/entities/Subjects';
 import { extractPdfMaterial } from '@/infrastructure/pdf/extractPdfMaterial';
+import { useServices } from '../../context/ServicesContext';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
 
 const HOME_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="prompt"]', icon: 'canvas', title: 'Ойынды сипаттаңыз',  body: 'Тақырыпты, сыныпты және форматты енгізіңіз — көмекші браузерде интерактивті HTML-файл жасайды.' },
   { target: '[data-tour="attach"]', icon: 'share',  title: 'PDF тіркеңіз',       body: 'Оқулық материалды PDF-пен жүктеңіз — сканерленген болса да. Мәтін шығарылып, ойын жасауда пайдаланылады.' },
+  { target: '[data-tour="library"]', icon: 'grid',  title: 'Соңғы ойындар',      body: 'Осында бұрын жасалған ойындарыңыз сақталады — қайта ашу үшін жолды басыңыз.' },
 ];
 
 interface HomePageProps {
   onCreate: (input: CreateGameInput) => void;
+  onOpenGame: (gameId: GameId) => void;
   onNavTemplates: () => void;
 }
 
-const GRADES = Array.from({ length: 11 }, (_, i) => i + 1);
-
-export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
+export function HomePage({ onCreate, onOpenGame, onNavTemplates }: HomePageProps) {
   const [input, setInput] = useState('');
   const [grade, setGrade] = useState<number | ''>('');
   const [subject, setSubject] = useState('');
@@ -28,6 +32,24 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('html');
   const [showTour, setShowTour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { listRecentGames } = useServices();
+  const [recentGames, setRecentGames] = useState<Game[]>([]);
+  const [gamesLoading, setGamesLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const games = await listRecentGames.execute();
+      if (!cancelled) {
+        setRecentGames(games);
+        setGamesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [listRecentGames]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -107,39 +129,39 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <FilterBtn data-tour="attach" onClick={() => !materialLoading && fileInputRef.current?.click()}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
-                {materialLoading ? 'PDF өңделуде…' : materialFile ? 'PDF ауыстыру' : 'PDF қосу'}
-              </FilterBtn>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <FilterBtn data-tour="attach" onClick={() => !materialLoading && fileInputRef.current?.click()}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round"><path d="M7 2.5v9M2.5 7h9"/></svg>
+              {materialLoading ? 'PDF өңделуде…' : materialFile ? 'PDF ауыстыру' : 'PDF қосу'}
+            </FilterBtn>
 
-              <FieldSelect
-                value={grade === '' ? '' : String(grade)}
-                onChange={(v) => setGrade(v ? Number(v) : '')}
-              >
-                <option value="">Сынып</option>
-                {GRADES.map((g) => (
-                  <option key={g} value={g}>{g} сынып</option>
-                ))}
-              </FieldSelect>
+            <FieldSelect
+              value={grade === '' ? '' : String(grade)}
+              onChange={(v) => setGrade(v ? Number(v) : '')}
+            >
+              <option value="">Сынып</option>
+              {GRADES.map((g) => (
+                <option key={g} value={g}>{g} сынып</option>
+              ))}
+            </FieldSelect>
 
-              <FieldInput
-                label="Пән"
-                value={subject}
-                onChange={setSubject}
-                placeholder="Пән"
-              />
+            <FieldSelect value={subject} onChange={setSubject}>
+              <option value="">Пән</option>
+              {SUBJECTS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </FieldSelect>
 
-              <FieldInput
-                label="Сабақ тақырыбы"
-                value={lessonTopic}
-                onChange={setLessonTopic}
-                placeholder="Сабақ тақырыбы"
-              />
+            <FieldInput
+              label="Сабақ тақырыбы"
+              value={lessonTopic}
+              onChange={setLessonTopic}
+              placeholder="Сабақ тақырыбы"
+            />
+          </div>
 
-              <FormatToggle value={outputFormat} onChange={setOutputFormat} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginTop: '10px' }}>
+            <FormatToggle value={outputFormat} onChange={setOutputFormat} />
 
             <button
               type="submit"
@@ -160,8 +182,92 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
           )}
         </form>
       </main>
+
+      <section style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px 80px' }}>
+        <div data-tour="library" style={{ display: 'flex', alignItems: 'baseline', gap: '12px', borderBottom: '1px solid #E6E2D8', paddingBottom: '12px', marginBottom: '20px' }}>
+          <h2 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '20px', margin: 0, color: '#1A1A17' }}>Менің ойындарым</h2>
+          <span style={{ fontSize: '13px', color: '#6F6E66' }}>соңғылар</span>
+        </div>
+
+        {gamesLoading && (
+          <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', overflow: 'hidden', background: '#FFFFFF' }}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px', borderBottom: i < 2 ? '1px solid #EEEAE0' : 'none' }}>
+                <div className="u365-skeleton-line" style={{ width: '64px', height: '42px', borderRadius: '6px', background: '#EEEAE0' }} />
+                <div className="u365-skeleton-line-d1" style={{ height: '14px', width: '40%', borderRadius: '4px', background: '#EEEAE0' }} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!gamesLoading && recentGames.length === 0 && (
+          <div style={{ border: '1px dashed #D8D3C6', borderRadius: '12px', background: '#FBFAF6', padding: '32px', textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#6F6E66' }}>Әзірше ойындар жоқ — жоғарыда біреуін жасаңыз.</p>
+          </div>
+        )}
+
+        {!gamesLoading && recentGames.length > 0 && (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px 150px', gap: '16px', padding: '0 14px 10px', fontSize: '12px', color: '#6F6E66' }}>
+              <span>Атауы</span><span>Сынып · Пән</span><span>Өзгертілді</span>
+            </div>
+            <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', overflow: 'hidden', background: '#FFFFFF' }}>
+              {recentGames.map((g, i) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => onOpenGame(g.id)}
+                  className="u365-table-row"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 220px 150px',
+                    gap: '16px',
+                    alignItems: 'center',
+                    padding: '14px',
+                    borderBottom: i < recentGames.length - 1 ? '1px solid #EEEAE0' : 'none',
+                    border: 'none',
+                    background: 'transparent',
+                    width: '100%',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+                    <div style={{ width: '64px', height: '42px', borderRadius: '6px', border: '1px solid #E6E2D8', background: '#EAF1ED', flexShrink: 0 }} />
+                    <span style={{ fontSize: '14px', color: '#1A1A17', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {g.description || 'Атаусыз ойын'}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '13px', color: '#6F6E66' }}>
+                    {formatLessonChips({ grade: g.context.grade, subject: g.context.subject, lessonTopic: g.context.lessonTopic }).slice(0, 2).join(' · ')}
+                  </span>
+                  <span style={{ fontSize: '13px', color: '#6F6E66' }}>{formatRelativeTime(g.updatedAt)}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
+}
+
+function formatRelativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+
+  if (diffMin < 1) return 'дәл қазір';
+  if (diffMin < 60) return `${diffMin} мин бұрын`;
+
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `${diffHours} сағат бұрын`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'кеше';
+  if (diffDays < 7) return `${diffDays} күн бұрын`;
+
+  return date.toLocaleDateString('kk');
 }
 
 function FilterBtn({ children, onClick, 'data-tour': dataTour }: { children: React.ReactNode; onClick?: () => void; 'data-tour'?: string }) {
@@ -220,6 +326,7 @@ function FieldSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        className="u365-field-select"
         style={{
           height: '34px',
           padding: '0 28px 0 12px',

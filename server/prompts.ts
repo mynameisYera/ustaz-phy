@@ -57,8 +57,10 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 - Весь остальной текст: font-family:'Inter',system-ui,sans-serif; font-size:15px; line-height:1.5
 
 Компоненты:
-- body: margin:0; background:#F7F5EF; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:'Inter',system-ui,sans-serif; color:#1A1A17
-- .game-wrap: background:#FFFFFF; border:1px solid #E6E2D8; border-radius:16px; padding:32px 28px; max-width:720px; width:100%; box-shadow:0 4px 20px rgba(0,0,0,.06)
+- Игра ОБЯЗАНА занимать весь экран/окно — НЕ ограничивай ширину узкой карточкой.
+- body: margin:0; min-height:100vh; width:100%; background:#F7F5EF; font-family:'Inter',system-ui,sans-serif; color:#1A1A17
+- .game-wrap: background:#FFFFFF; min-height:100vh; width:100%; padding:32px clamp(20px,5vw,64px); box-sizing:border-box (без max-width и без border-radius/тени на корневом контейнере — это полноэкранная область, а не карточка)
+- Внутренний контент можно центрировать и ограничивать по ширине (например, .content{max-width:900px;margin:0 auto}), но сам .game-wrap и body должны растягиваться на 100% ширины и высоты
 - h1: font-family:'Spectral',serif; font-size:28px; font-weight:500; color:#1A1A17; margin:0 0 24px; text-align:center
 - button (основная): background:#1E6E5C; color:#fff; border:none; border-radius:8px; padding:10px 20px; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; transition:background .15s
 - button:hover: background:#175f4f
@@ -80,14 +82,16 @@ export const SYSTEM_PROMPT = `Ты — профессиональный JavaScri
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#F7F5EF;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;color:#1A1A17;font-size:15px;line-height:1.5}
-.game-wrap{background:#fff;border:1px solid #E6E2D8;border-radius:16px;padding:32px 28px;max-width:720px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+html,body{height:100%}
+body{background:#F7F5EF;min-height:100vh;width:100%;font-family:'Inter',system-ui,sans-serif;color:#1A1A17;font-size:15px;line-height:1.5}
+.game-wrap{background:#fff;min-height:100vh;width:100%;padding:32px clamp(20px,5vw,64px)}
+.content{max-width:900px;margin:0 auto}
 h1{font-family:'Spectral',serif;font-size:28px;font-weight:500;color:#1A1A17;margin:0 0 24px;text-align:center}
 button{background:#1E6E5C;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
 button:hover{background:#175f4f}
 /* остальные стили */
 </style></head>
-<body><div class="game-wrap">...</div><script>/* логика */</script></body>
+<body><div class="game-wrap"><div class="content">...</div></div><script>/* логика */</script></body>
 </html>`;
 
 export const SYSTEM_PROMPT_REACT = `Ты — профессиональный React-разработчик и UI-дизайнер.
@@ -133,7 +137,7 @@ export const SYSTEM_PROMPT_REACT = `Ты — профессиональный Re
 - Заголовки h1/h2: font-family:'Spectral',serif; font-weight:500
 - Весь остальной текст: font-family:'Inter',system-ui,sans-serif
 
-Корневой JSX ОБЯЗАН быть обёрнут в <div className="game-wrap">...</div>.
+Корневой JSX ОБЯЗАН быть обёрнут в <div className="game-wrap">...</div> — этот контейнер уже растянут на весь экран глобально, НЕ ограничивай его ширину инлайн-стилями. Внутри можно добавить <div className="content">...</div>, чтобы центрировать и ограничить по ширине сам контент (текст, карточки).
 
 ЗАПРЕЩЕНО: яркие градиенты, синие/фиолетовые/кислотные цвета, font-weight:700.
 
