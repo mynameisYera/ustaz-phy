@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
-import { listTemplates, type TextTemplate } from '@/infrastructure/templates/TemplatesApi';
-import { SUBJECTS, GRADES } from '@/domain/entities/Subjects';
+import {
+  fetchClasses,
+  fetchSubjects,
+  fetchTopics,
+  type CatalogItem,
+} from '@/infrastructure/templates/CatalogApi';
+import {
+  fetchAllTemplates,
+  type AllTemplatesFilters,
+  type TextTemplate,
+} from '@/infrastructure/templates/TemplatesApi';
 
 const TEMPLATES_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="grid"]', icon: 'grid', title: 'Үлгілер каталогы', body: 'Сақталған ойындар осында сақталады. Үлгіні ашу үшін картаны басыңыз.' },
@@ -21,22 +30,106 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
   const [items, setItems] = useState<TextTemplate[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const [classes, setClasses] = useState<CatalogItem[]>([]);
+  const [subjects, setSubjects] = useState<CatalogItem[]>([]);
+  const [topics, setTopics] = useState<CatalogItem[]>([]);
+
+  const [classId, setClassId] = useState<number | ''>('');
+  const [subjectId, setSubjectId] = useState<number | ''>('');
+  const [topicId, setTopicId] = useState<number | ''>('');
+  const [searchQ, setSearchQ] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(searchQ.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchQ]);
+
+  useEffect(() => {
+    void fetchClasses()
+      .then(({ items }) => setClasses(items))
+      .catch(() => setClasses([]));
+  }, []);
+
+  useEffect(() => {
+    if (classId === '') {
+      setSubjects([]);
+      setSubjectId('');
+      return;
+    }
+    let cancelled = false;
+    void fetchSubjects(classId)
+      .then(({ items }) => {
+        if (!cancelled) {
+          setSubjects(items);
+          setSubjectId('');
+          setTopicId('');
+          setTopics([]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSubjects([]);
+          setSubjectId('');
+          setTopicId('');
+          setTopics([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [classId]);
+
+  useEffect(() => {
+    if (subjectId === '') {
+      setTopics([]);
+      setTopicId('');
+      return;
+    }
+    let cancelled = false;
+    void fetchTopics(subjectId)
+      .then(({ items }) => {
+        if (!cancelled) {
+          setTopics(items);
+          setTopicId('');
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTopics([]);
+          setTopicId('');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [subjectId]);
+
   const load = useCallback(async () => {
     setStatus('loading');
     setError(null);
+
+    const filters: AllTemplatesFilters = {};
+    if (classId !== '') filters.classId = classId;
+    if (subjectId !== '') filters.subjectId = subjectId;
+    if (topicId !== '') filters.topicId = topicId;
+    if (debouncedQ) filters.q = debouncedQ;
+
     try {
-      const { items } = await listTemplates();
+      const { items } = await fetchAllTemplates(filters);
       setItems(items);
       setStatus('ready');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Үлгілерді жүктеу мүмкін болмады');
       setStatus('error');
     }
-  }, []);
+  }, [classId, subjectId, topicId, debouncedQ]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const hasFilters = classId !== '' || subjectId !== '' || topicId !== '' || debouncedQ !== '';
 
   return (
     <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
@@ -58,27 +151,50 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
           Сақталған ойындар сабақта көрсетуге дайын. Үлгіні ашу үшін басыңыз.
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', margin: '0 0 24px' }}>
-          <FilterSelect label="Пән">
-            <option value="">Пән</option>
-            {SUBJECTS.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </FilterSelect>
-          <FilterSelect label="Сынып">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', margin: '0 0 16px' }}>
+          <FilterSelect
+            label="Сынып"
+            value={classId === '' ? '' : String(classId)}
+            onChange={(v) => setClassId(v === '' ? '' : Number(v))}
+          >
             <option value="">Сынып</option>
-            {GRADES.map((g) => (
-              <option key={g} value={g}>{g} сынып</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </FilterSelect>
-          <FilterSelect label="Ойын түрі">
-            <option value="">Ойын түрі</option>
+          <FilterSelect
+            label="Пән"
+            value={subjectId === '' ? '' : String(subjectId)}
+            onChange={(v) => setSubjectId(v === '' ? '' : Number(v))}
+            disabled={classId === ''}
+          >
+            <option value="">Пән</option>
+            {subjects.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
           </FilterSelect>
+          <FilterSelect
+            label="Тақырып"
+            value={topicId === '' ? '' : String(topicId)}
+            onChange={(v) => setTopicId(v === '' ? '' : Number(v))}
+            disabled={subjectId === ''}
+          >
+            <option value="">Тақырып</option>
+            {topics.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </FilterSelect>
+        </div>
+
+        <div style={{ margin: '0 0 24px' }}>
+          <SearchInput value={searchQ} onChange={setSearchQ} />
         </div>
 
         {status === 'loading' && <LoadingState />}
         {status === 'error' && <ErrorState message={error} onRetry={() => void load()} />}
-        {status === 'ready' && items.length === 0 && <EmptyState onCreate={onBack} />}
+        {status === 'ready' && items.length === 0 && (
+          hasFilters ? <NoResultsState onClear={() => { setClassId(''); setSearchQ(''); }} /> : <EmptyState onCreate={onBack} />
+        )}
         {status === 'ready' && items.length > 0 && (
           <div data-tour="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
             {items.map((tpl) => (
@@ -113,6 +229,32 @@ function TemplateCard({ template, onOpen }: { template: TextTemplate; onOpen: ()
         </div>
       </div>
     </button>
+  );
+}
+
+function SearchInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label style={{ display: 'block', maxWidth: '360px' }}>
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Атау бойынша іздеу…"
+        aria-label="Атау бойынша іздеу"
+        maxLength={200}
+        style={{
+          width: '100%',
+          height: '38px',
+          padding: '0 16px',
+          background: '#FFFFFF',
+          border: '1px solid #E6E2D8',
+          borderRadius: '19px',
+          color: '#1A1A17',
+          fontFamily: 'inherit',
+          fontSize: '14px',
+        }}
+      />
+    </label>
   );
 }
 
@@ -171,22 +313,54 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
   );
 }
 
-function FilterSelect({ label, children }: { label: string; children: React.ReactNode }) {
+function NoResultsState({ onClear }: { onClear: () => void }) {
+  return (
+    <div style={{ border: '1px dashed #D8D3C6', borderRadius: '12px', background: '#FBFAF6', padding: '48px 40px', textAlign: 'center' }}>
+      <p style={{ margin: '0 0 6px', fontSize: '18px', color: '#1A1A17', fontFamily: 'Spectral, serif' }}>Ештеңе табылмады</p>
+      <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#6F6E66' }}>
+        Сүзгілерді өзгертіп көріңіз немесе іздеуді тазалаңыз.
+      </p>
+      <button
+        type="button"
+        onClick={onClear}
+        style={{ height: '36px', padding: '0 18px', border: '1px solid #E6E2D8', borderRadius: '8px', background: '#FFFFFF', color: '#1A1A17', fontFamily: 'inherit', fontSize: '14px', cursor: 'pointer' }}
+      >
+        Сүзгілерді тазалау
+      </button>
+    </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  disabled,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <label style={{ position: 'relative', display: 'inline-flex' }}>
       <select
-        defaultValue=""
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
         aria-label={label}
         style={{
           height: '38px',
           padding: '0 32px 0 16px',
-          background: '#FFFFFF',
+          background: disabled ? '#F5F4F0' : '#FFFFFF',
           border: '1px solid #E6E2D8',
           borderRadius: '19px',
-          color: '#1A1A17',
+          color: disabled ? '#A8A69E' : '#1A1A17',
           fontFamily: 'inherit',
           fontSize: '14px',
-          cursor: 'pointer',
+          cursor: disabled ? 'not-allowed' : 'pointer',
           appearance: 'none',
         }}
       >

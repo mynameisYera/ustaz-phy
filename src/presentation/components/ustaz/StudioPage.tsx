@@ -3,7 +3,7 @@ import type { CreateGameInput } from "@/domain/entities/GameContext";
 import { formatLessonChips } from "@/domain/entities/GameContext";
 import type { GameId } from "@/domain/entities/Game";
 import { prepareGameHtml } from "@/infrastructure/launchers/BlobGameLauncher";
-import { createTemplate } from "@/infrastructure/templates/TemplatesApi";
+import { SaveTemplateDialog } from "./SaveTemplateDialog";
 import { useGameStudio } from "../../hooks/useGameStudio";
 import { Tour, type TourStep } from "./Tour";
 
@@ -28,6 +28,7 @@ export function StudioPage(props: StudioPageProps) {
   const [studioState, setStudioState] = useState<StudioState>("building");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const startedRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -135,22 +136,15 @@ export function StudioPage(props: StudioPageProps) {
     }
   }
 
-  async function handleSaveTemplate() {
+  function handleOpenSaveDialog() {
     if (!game || saveState === "saving") return;
-
-    setSaveState("saving");
     setSaveError(null);
+    setShowSaveDialog(true);
+  }
 
-    try {
-      const content = prepareGameHtml(game);
-      await createTemplate(title || "Игра", content);
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 2500);
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : "Не удалось сохранить шаблон");
-      setSaveState("error");
-      setTimeout(() => setSaveState("idle"), 4000);
-    }
+  function handleTemplateSaved() {
+    setSaveState("saved");
+    setTimeout(() => setSaveState("idle"), 2500);
   }
 
   const saveLabel =
@@ -162,6 +156,18 @@ export function StudioPage(props: StudioPageProps) {
   return (
     <div className="u365-studio-full">
       {showTour && <Tour steps={TOUR_STEPS} onClose={() => setShowTour(false)} />}
+      {game && showSaveDialog && (
+        <SaveTemplateDialog
+          open={showSaveDialog}
+          onClose={() => setShowSaveDialog(false)}
+          templateName={title || "Ойын"}
+          content={prepareGameHtml(game)}
+          initialClassId={game.context.grade}
+          initialSubjectName={game.context.subject}
+          initialTopicName={game.context.lessonTopic}
+          onSaved={handleTemplateSaved}
+        />
+      )}
 
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "12px 20px", borderBottom: "1px solid #E6E2D8", background: "#F7F5EF" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
@@ -205,7 +211,7 @@ export function StudioPage(props: StudioPageProps) {
           {game && (
             <button
               type="button"
-              onClick={() => void handleSaveTemplate()}
+              onClick={handleOpenSaveDialog}
               disabled={saveState === "saving"}
               title={saveError ?? "Бұл ойынды үлгі ретінде сақтау"}
               style={{
