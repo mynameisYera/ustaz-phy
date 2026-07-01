@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, type FormEvent } from "react";
+import type { OutputFormat } from "@/domain/entities/GameContext";
 import { GamePlayer } from "./GamePlayer";
 import { useGameStudio } from "../hooks/useGameStudio";
 type ChatMsg = {
@@ -12,6 +13,7 @@ export function GameStudio() {
     "Кинематика бойынша викторина: жылдамдық, үдеу, қозғалыс   графиктері"
   );
   const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>("html");
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -38,6 +40,7 @@ export function GameStudio() {
         subject: "Физика",
         lessonTopic: "Кинематика",
         description: text,
+        outputFormat,
       });
       setMessages((prev) => [
         ...prev,
@@ -91,6 +94,26 @@ export function GameStudio() {
         </div>
 
         <form className="chat-input-area" onSubmit={handleSubmit}>
+          {!hasGame && (
+            <div className="format-toggle" role="group" aria-label="Формат">
+              <button
+                type="button"
+                className={`format-pill${outputFormat === "html" ? " format-pill--active" : ""}`}
+                onClick={() => setOutputFormat("html")}
+                disabled={loading}
+              >
+                HTML
+              </button>
+              <button
+                type="button"
+                className={`format-pill${outputFormat === "react" ? " format-pill--active" : ""}`}
+                onClick={() => setOutputFormat("react")}
+                disabled={loading}
+              >
+                React
+              </button>
+            </div>
+          )}
           <textarea
             ref={textareaRef}
             value={input}

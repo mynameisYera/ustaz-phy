@@ -32,6 +32,7 @@ function validateInput(input: CreateGameInput): CreateGameInput {
     lessonTopic,
     description,
     materialText: materialText || undefined,
+    outputFormat: input.outputFormat === "react" ? "react" : "html",
   };
 }
 
@@ -58,6 +59,7 @@ export class CreateGameUseCase {
         grade: validated.grade,
         subject: validated.subject,
         lessonTopic: validated.lessonTopic,
+        outputFormat: validated.outputFormat ?? "html",
       },
       materialText: validated.materialText,
       version: 1,

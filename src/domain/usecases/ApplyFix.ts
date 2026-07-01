@@ -37,6 +37,7 @@ export class ApplyFixUseCase {
       lessonTopic: existing.context.lessonTopic,
       description: existing.description,
       materialText: existing.materialText,
+      outputFormat: existing.context.outputFormat,
       fixHistory,
       attachments,
     });

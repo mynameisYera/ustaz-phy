@@ -54,17 +54,20 @@ export async function handleGenerate(body: GenerateRequestBody): Promise<Generat
     return { ok: false, status: 400, error: "description міндетті" };
   }
 
+  const outputFormat = body.outputFormat === "react" ? "react" : "html";
+
   const context: GameGenerationContext = {
     grade,
     subject,
     lessonTopic,
     description,
     materialText: materialText || undefined,
+    outputFormat,
   };
 
   try {
     const content = await generateGame(context, fixHistory, body.attachments ?? []);
-    const files = parseGameResponse(content);
+    const files = await parseGameResponse(content, outputFormat);
     return { ok: true, files };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Генерация қатесі";

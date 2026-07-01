@@ -1,7 +1,10 @@
+export type OutputFormat = "html" | "react";
+
 export interface GameLessonContext {
   grade: number;
   subject: string;
   lessonTopic: string;
+  outputFormat: OutputFormat;
 }
 
 export interface CreateGameInput {
@@ -10,9 +13,12 @@ export interface CreateGameInput {
   lessonTopic: string;
   description: string;
   materialText?: string;
+  outputFormat?: OutputFormat;
 }
 
-export function formatLessonChips(context: GameLessonContext): string[] {
+export function formatLessonChips(
+  context: Pick<GameLessonContext, "grade" | "subject" | "lessonTopic">
+): string[] {
   return [`${context.grade} класс`, context.subject, context.lessonTopic];
 }
 

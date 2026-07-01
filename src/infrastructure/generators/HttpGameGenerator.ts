@@ -51,6 +51,7 @@ export class HttpGameGenerator implements GameGenerator {
           lessonTopic: input.lessonTopic,
           description: input.description,
           materialText: input.materialText,
+          outputFormat: input.outputFormat ?? "html",
           fixHistory: input.fixHistory.map((f) => ({ message: f.message })),
           attachments: input.attachments ?? [],
         }),

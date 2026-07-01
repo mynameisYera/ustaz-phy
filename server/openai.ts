@@ -1,6 +1,6 @@
 import { getEnv } from "./env.js";
 import OpenAI from "openai";
-import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts.js";
+import { buildUserPrompt, getSystemPrompt } from "./prompts.js";
 import type { FixRequestInput, GameGenerationContext } from "./prompts.js";
 import type { ServerAttachment } from "./handleGenerate.js";
 
@@ -80,7 +80,7 @@ export async function generateGameWithOpenAi(
     temperature: 1,
     max_completion_tokens: 16384,
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: getSystemPrompt(context.outputFormat) },
       { role: "user", content: userContent },
     ],
   });

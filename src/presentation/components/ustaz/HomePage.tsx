@@ -1,5 +1,5 @@
 import { useState, useRef, type FormEvent } from 'react';
-import type { CreateGameInput } from '@/domain/entities/GameContext';
+import type { CreateGameInput, OutputFormat } from '@/domain/entities/GameContext';
 import { extractPdfMaterial } from '@/infrastructure/pdf/extractPdfMaterial';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
@@ -25,6 +25,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
   const [materialText, setMaterialText] = useState<string | undefined>();
   const [materialLoading, setMaterialLoading] = useState(false);
   const [materialError, setMaterialError] = useState<string | null>(null);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('html');
   const [showTour, setShowTour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +40,7 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
       lessonTopic: lessonTopic.trim(),
       description: input.trim(),
       materialText,
+      outputFormat,
     });
   }
 
@@ -135,6 +137,8 @@ export function HomePage({ onCreate, onNavTemplates }: HomePageProps) {
                 onChange={setLessonTopic}
                 placeholder="Сабақ тақырыбы"
               />
+
+              <FormatToggle value={outputFormat} onChange={setOutputFormat} />
             </div>
 
             <button
@@ -165,6 +169,40 @@ function FilterBtn({ children, onClick, 'data-tour': dataTour }: { children: Rea
     <button type="button" onClick={onClick} data-tour={dataTour} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px', padding: '0 12px', background: '#FFFFFF', border: '1px solid #E6E2D8', borderRadius: '8px', color: '#1A1A17', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}>
       {children}
     </button>
+  );
+}
+
+function FormatToggle({ value, onChange }: { value: OutputFormat; onChange: (value: OutputFormat) => void }) {
+  const options: { id: OutputFormat; label: string }[] = [
+    { id: 'html', label: 'HTML' },
+    { id: 'react', label: 'React' },
+  ];
+  return (
+    <div role="group" aria-label="Формат" style={{ display: 'inline-flex', height: '34px', border: '1px solid #E6E2D8', borderRadius: '8px', overflow: 'hidden' }}>
+      {options.map((opt) => {
+        const active = value === opt.id;
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => onChange(opt.id)}
+            style={{
+              height: '100%',
+              padding: '0 14px',
+              border: 'none',
+              background: active ? '#1E6E5C' : '#FFFFFF',
+              color: active ? '#FFFFFF' : '#6F6E66',
+              fontFamily: 'inherit',
+              fontSize: '13px',
+              fontWeight: active ? 500 : 400,
+              cursor: 'pointer',
+            }}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

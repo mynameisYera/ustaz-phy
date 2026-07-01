@@ -1,4 +1,6 @@
 import { polishGameHtml, validateGameHtml } from "./gameHtml.js";
+import { assembleReactGameHtml, transpileGameJsx } from "./reactGameHtml.js";
+import type { OutputFormat } from "./prompts.js";
 
 interface GameFile {
   path: string;
@@ -64,7 +66,39 @@ function extractHtmlFromText(raw: string): string | null {
   return trimmed.slice(htmlStart);
 }
 
-export function parseGameResponse(raw: string): GameFile[] {
+export async function parseGameResponse(
+  raw: string,
+  outputFormat?: OutputFormat
+): Promise<GameFile[]> {
+  if (outputFormat === "react") {
+    return parseGameResponseReact(raw);
+  }
+  return parseGameResponseHtml(raw);
+}
+
+async function parseGameResponseReact(raw: string): Promise<GameFile[]> {
+  let jsx = raw.trim();
+
+  // Strip a markdown code fence if the model wrapped the component in one.
+  const fenced = jsx.match(/```(?:jsx|tsx|js|javascript)?\s*\n([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    jsx = fenced[1].trim();
+  }
+
+  // Detect a short polite refusal (no component) and surface it as-is.
+  if (!jsx.includes("function Game(")) {
+    const refusal = tryExtractRefusal(jsx);
+    if (refusal) throw new Error(refusal);
+    throw new Error("ЖИ Game() компонентін қайтармады");
+  }
+
+  const componentJs = await transpileGameJsx(jsx);
+  const html = assembleReactGameHtml(componentJs);
+  validateGameHtml(html);
+  return [{ path: "index.html", content: html }];
+}
+
+function parseGameResponseHtml(raw: string): GameFile[] {
   const fromJson = extractHtmlFromJson(raw);
   if (fromJson) return [finalizeIndex(fromJson)];
 

@@ -2,12 +2,15 @@ export interface FixRequestInput {
   message: string;
 }
 
+export type OutputFormat = "html" | "react";
+
 export interface GameGenerationContext {
   grade: number;
   subject: string;
   lessonTopic: string;
   description: string;
   materialText?: string;
+  outputFormat?: OutputFormat;
 }
 
 export const SYSTEM_PROMPT = `Ты — профессиональный JavaScript-разработчик и UI-дизайнер.
@@ -87,7 +90,73 @@ button:hover{background:#175f4f}
 <body><div class="game-wrap">...</div><script>/* логика */</script></body>
 </html>`;
 
+export const SYSTEM_PROMPT_REACT = `Ты — профессиональный React-разработчик и UI-дизайнер.
+
+Создай полностью рабочую интерактивную игру по описанию учителя в виде ОДНОГО React-компонента.
+
+Назначение и ограничения:
+- Ты создаёшь ТОЛЬКО учебные интерактивные игры для школьных уроков.
+- Игра помогает закрепить материал: викторина, drag-and-drop, симуляция, задачи с проверкой.
+- Если запрос не про учебную игру — вежливо откажи на казахском, без кода.
+
+Уровень сложности по классу:
+- Строго соблюдай указанный класс (1–11). Один и тот же предмет/тема в разных классах — разная глубина.
+- Пример: «циклы» в 5 классе — только базовые понятия; в 7–9 — полнее и сложнее.
+- Не используй термины и задачи выше уровня указанного класса.
+- Если приложен учебный материал (PDF) — опирайся на него как на главный источник содержания но есл запрос не про учебную игру, то не используй материал.
+
+Правила кода:
+- Верни ТОЛЬКО одну функцию-компонент: function Game() { ... } на JSX.
+- НЕ используй import/export, TypeScript-типы, npm, CDN или сторонние библиотеки.
+- React и его хуки доступны как глобали: пиши React.useState, React.useEffect и т.п.
+- НЕ вызывай ReactDOM и не рендери сам — только объяви function Game() и верни JSX из return.
+- Текст игры на казахском языке.
+- Интерактивность обязательна: кнопки, клики, drag-and-drop или викторина.
+- Учти все фиксы от учителя.
+- Не добавляй пояснений вне кода.
+
+Дизайн — СТРОГО следуй этой палитре, стили задавай через inline style или className (эти классы уже определены глобально: game-wrap, кнопки через <button>):
+
+Цвета (только эти значения, никаких ярких градиентов):
+- Фон страницы: #F7F5EF
+- Основной текст: #1A1A17
+- Вторичный текст: #6F6E66
+- Рамки: #E6E2D8
+- Кнопки / акцент: #1E6E5C (тёмно-зелёный)
+- Кнопка hover: #175f4f
+- Светло-зелёный фон (чипы, выделение): #E4EFEA
+- Карточки: #FFFFFF
+- Правильный ответ: цвет #1E6E5C, фон #E4EFEA
+- Неправильный ответ: цвет #B4533B, фон #FDECEA
+
+Шрифты (уже подключены глобально):
+- Заголовки h1/h2: font-family:'Spectral',serif; font-weight:500
+- Весь остальной текст: font-family:'Inter',system-ui,sans-serif
+
+Корневой JSX ОБЯЗАН быть обёрнут в <div className="game-wrap">...</div>.
+
+ЗАПРЕЩЕНО: яркие градиенты, синие/фиолетовые/кислотные цвета, font-weight:700.
+
+КРИТИЧНО — формат ответа:
+- Верни ТОЛЬКО сырой JSX-код, начиная с function Game() {
+- НЕ возвращай JSON, markdown, \`\`\`jsx, HTML, import/export или ReactDOM.render.
+
+Шаблон:
+function Game() {
+  const [score, setScore] = React.useState(0);
+  return (
+    <div className="game-wrap">
+      <h1>...</h1>
+      <button onClick={() => setScore(score + 1)}>...</button>
+    </div>
+  );
+}`;
+
 const MATERIAL_CHAR_LIMIT = 12000;
+
+export function getSystemPrompt(outputFormat?: OutputFormat): string {
+  return outputFormat === "react" ? SYSTEM_PROMPT_REACT : SYSTEM_PROMPT;
+}
 
 export function buildUserPrompt(
   context: GameGenerationContext,
@@ -128,5 +197,9 @@ ${context.description}
 Түзету сұраулары:
 ${fixes}
 
-Толық index.html жаса. Тек HTML қайтар (<!DOCTYPE html> басталады), JSON жоқ. </html> дейін аяқта.`;
+${
+    context.outputFormat === "react"
+      ? "Толық Game() React компонентін жаса. Тек JSX қайтар (function Game() { деп басталады), JSON, markdown немесе HTML жоқ."
+      : "Толық index.html жаса. Тек HTML қайтар (<!DOCTYPE html> басталады), JSON жоқ. </html> дейін аяқта."
+  }`;
 }
