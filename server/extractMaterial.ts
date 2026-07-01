@@ -22,7 +22,7 @@ export async function extractTextFromScannedPages(pageImages: string[]): Promise
 
   const completion = await client.chat.completions.create({
     model: getOpenAiModelName(),
-    temperature: 0.2,
+    temperature: 1,
     max_completion_tokens: 10000,
     messages: [
       {
