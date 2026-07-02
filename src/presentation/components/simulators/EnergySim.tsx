@@ -25,9 +25,19 @@ import {
   type HiddenParam,
 } from "@/domain/physics/gameChallenge";
 import { FRICTION_COEFF, GRAVITY } from "@/domain/physics/energy";
-import { SimObjectVisual } from "./SimObjectVisual";
-import { TrajectoryOverlay } from "./TrajectoryOverlay";
-import "@/presentation/styles/simulator.css";
+import { SimObjectVisual } from "../SimObjectVisual";
+import { TrajectoryOverlay } from "../TrajectoryOverlay";
+import { Sidebar } from "../primitives/Sidebar";
+import { SectionLabel } from "../primitives/SectionLabel";
+import { ModePills } from "../primitives/ModePills";
+import { SliderRow } from "../primitives/SliderRow";
+import { BodyCard } from "../primitives/BodyCard";
+import { Canvas } from "../primitives/Canvas";
+import { FormulaChip } from "../primitives/FormulaChip";
+import { GameButton } from "../primitives/GameButton";
+import { TargetChallenge } from "../primitives/TargetChallenge";
+import "../../styles/simulator.css";
+import "../../styles/primitives.css";
 
 type Phase = "idle" | "animating" | "done";
 
@@ -42,7 +52,7 @@ const MAX_MASS = 100;
 
 type AppMode = "learn" | "game";
 
-export function EnergySimulator() {
+export function EnergySim() {
   const [appMode, setAppMode] = useState<AppMode>("learn");
   const [challenge, setChallenge] = useState<GameChallenge | null>(null);
   const [answer, setAnswer] = useState("");
@@ -161,8 +171,7 @@ export function EnergySimulator() {
     [appMode, challenge]
   );
 
-  const formatValue = (param: HiddenParam, value: string) =>
-    isHidden(param) ? "???" : value;
+  const formatValue = (param: HiddenParam, value: string) => (isHidden(param) ? "???" : value);
 
   const runPushAnimation = useCallback(
     (physics: PhysicsResult) => {
@@ -170,7 +179,6 @@ export function EnergySimulator() {
       const v0 = physics.velocity;
       const duration = Math.max(1800, (maxDist / Math.max(v0, 0.1)) * 1600);
       const start = performance.now();
-
       const tick = (now: number) => {
         const t = Math.min((now - start) / duration, 1);
         const ease = t < 0.15 ? t / 0.15 : 1 - Math.pow(1 - (t - 0.15) / 0.85, 2);
@@ -193,7 +201,6 @@ export function EnergySimulator() {
       const v = physics.velocity;
       let state = { x: 0, y: 0.05, vx: v * Math.cos(rad), vy: v * Math.sin(rad), speed: v };
       let last = performance.now();
-
       const tick = (now: number) => {
         const dt = Math.min((now - last) / 1000, 0.032);
         last = now;
@@ -218,7 +225,6 @@ export function EnergySimulator() {
       const h = physics.heightM ?? 0;
       let state = { x: 1.5, y: h, vx: 0, vy: 0, speed: 0 };
       let last = performance.now();
-
       const tick = (now: number) => {
         const dt = Math.min((now - last) / 1000, 0.032);
         last = now;
@@ -246,11 +252,9 @@ export function EnergySimulator() {
       setLiveSpeed(0);
       setBreakdownOpen(false);
       setBodyFaded(false);
-
       const physics = computePhysics(object, activeEnergy, activeMode, throwAngle);
       setResult(physics);
       setPhase("animating");
-
       if (activeMode === "drop") {
         setPos({ x: 1.5, y: physics.heightM ?? 0 });
         runDropAnimation(physics);
@@ -260,21 +264,18 @@ export function EnergySimulator() {
         runPushAnimation(physics);
       }
     },
-    [activeAngle, activeEnergy, activeMode, object, runDropAnimation, runPushAnimation, runThrowAnimation]
+    [activeAngle, activeEnergy, activeMode, object, runDropAnimation, runPushAnimation, runThrowAnimation] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const idleY = activeMode === "drop" && phase === "idle" ? activeEnergy / (object.mass * GRAVITY) : 0;
   const displayX = phase === "idle" && activeMode === "drop" ? 1.5 : pos.x;
   const displayY = phase === "idle" ? idleY : pos.y;
 
-  const viewPosX = displayX;
-  const viewPosY = displayY;
-
   const { ppm, widthM, heightM } = computeArenaView({
     arenaWidth: arenaSize.w,
     arenaHeight: arenaSize.h,
-    posX: viewPosX,
-    posY: viewPosY,
+    posX: displayX,
+    posY: displayY,
     physics: activePhysics,
     trajectory,
   });
@@ -296,9 +297,8 @@ export function EnergySimulator() {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (phase === "animating" || activeMode !== "throw" || appMode === "game") return;
-    const p = getArenaPoint(e.clientX, e.clientY);
     dragStart.current = { x: 0, y: 0 };
-    setAimEnd(p);
+    setAimEnd(getArenaPoint(e.clientX, e.clientY));
     setDragging(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
@@ -328,20 +328,15 @@ export function EnergySimulator() {
 
   const handleResizeMove = (e: React.PointerEvent) => {
     if (!resizeRef.current) return;
-    const next = resizeRef.current.startW + (e.clientX - resizeRef.current.startX);
-    setPanelWidth(Math.min(520, Math.max(300, next)));
+    setPanelWidth(Math.min(520, Math.max(300, resizeRef.current.startW + (e.clientX - resizeRef.current.startX))));
   };
 
-  const handleResizeUp = () => {
-    resizeRef.current = null;
-  };
+  const handleResizeUp = () => { resizeRef.current = null; };
 
   useEffect(() => {
     const el = arenaRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => {
-      setArenaSize({ w: el.clientWidth, h: el.clientHeight });
-    });
+    const ro = new ResizeObserver(() => setArenaSize({ w: el.clientWidth, h: el.clientHeight }));
     ro.observe(el);
     setArenaSize({ w: el.clientWidth, h: el.clientHeight });
     return () => ro.disconnect();
@@ -350,75 +345,74 @@ export function EnergySimulator() {
   useEffect(() => () => cancelAnimationFrame(animRef.current), []);
 
   const showTrajectory = phase === "done" && trajectory.length > 1;
-
+  const formatTick = (m: number) => String(m);
   const modeLabel =
     appMode === "game" && challenge
       ? getModeLabel(challenge.mode)
-      : activeMode === "push"
-        ? "Итеру"
-        : activeMode === "throw"
-          ? "Лақтыру"
-          : "Түсіру";
+      : activeMode === "push" ? "Итеру" : activeMode === "throw" ? "Лақтыру" : "Түсіру";
 
-  const formatTick = (m: number) => String(m);
+  const scaleLabel =
+    viewScale !== 1
+      ? viewScale < 1
+        ? `масштаб ×${(1 / viewScale).toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`
+        : `жақындату ×${viewScale.toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`
+      : undefined;
 
   return (
     <div
-      className={`sim-layout ${appMode === "game" ? "sim-layout--game" : ""} ${playgroundExpanded ? "sim-layout--playground-expanded" : ""}`}
-      style={appMode === "learn" && !playgroundExpanded ? { ["--sim-panel-width" as string]: `${panelWidth}px` } : undefined}
+      className={[
+        "sim-layout",
+        appMode === "game" ? "sim-layout--game" : "",
+        playgroundExpanded ? "sim-layout--playground-expanded" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
+      {/* ── Left panel (learn mode only) ── */}
       {appMode === "learn" && !playgroundExpanded && (
-      <aside className="sim-panel">
-        <div className="sim-panel-scroll">
+        <Sidebar width={panelWidth}>
           <header className="sim-panel-header">
             <h1>Энергия симуляторы</h1>
             <p>Болат куб · траектория · есепті шешу</p>
           </header>
 
           <section className="sim-section">
-            <button type="button" className="sim-expand-panel-btn" onClick={() => setPlaygroundExpanded(true)}>
+            <button
+              type="button"
+              className="sim-expand-panel-btn"
+              onClick={() => setPlaygroundExpanded(true)}
+            >
               ⛶ Алаңды кеңейту
             </button>
           </section>
 
           <section className="sim-section">
-            <button type="button" className="sim-game-start-btn" onClick={startGame}>
-              🎯 Ойын: Тап
-            </button>
+            <GameButton onClick={startGame}>🎯 Ойын: Тап</GameButton>
           </section>
 
           <section className="sim-section">
-            <h2>1. Режим</h2>
-            <div className="sim-modes">
-              {MODES.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  className={`sim-mode-btn ${mode === m.id ? "active" : ""}`}
-                  onClick={() => { setMode(m.id); reset(); }}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
+            <SectionLabel num={1}>Режим</SectionLabel>
+            <ModePills
+              modes={MODES}
+              value={mode}
+              onChange={(id) => { setMode(id as InteractionMode); reset(); }}
+            />
           </section>
 
           <section className="sim-section">
-            <h2>2. Дене</h2>
-            <div className="sim-cube-card">
+            <SectionLabel num={2}>Дене</SectionLabel>
+            <BodyCard selected>
               <SimObjectVisual material="steel-cube" size="md" />
               <span>Болат куб</span>
-            </div>
-            <label className="sim-energy-label">
-              Масса: <strong>{mass} кг</strong>
-            </label>
-            <input
-              type="range"
+            </BodyCard>
+            <SliderRow
+              label="Масса"
+              value={mass}
+              unit="кг"
               min={MIN_MASS}
               max={MAX_MASS}
               step={0.5}
-              value={mass}
-              onChange={(e) => { setMass(Number(e.target.value)); reset(); }}
+              onChange={(v) => { setMass(v); reset(); }}
             />
             <input
               type="number"
@@ -436,30 +430,28 @@ export function EnergySimulator() {
           </section>
 
           <section className="sim-section">
-            <h2>3. Энергия</h2>
-            <label className="sim-energy-label">
-              {mode === "drop" ? "Ep" : "Ek"}: <strong>{energy} Дж</strong>
-            </label>
-            <input
-              type="range"
+            <SectionLabel num={3}>Энергия</SectionLabel>
+            <SliderRow
+              label={mode === "drop" ? "Ep" : "Ek"}
+              value={energy}
+              unit="Дж"
               min={1}
               max={50}
               step={0.5}
-              value={energy}
-              onChange={(e) => { setEnergy(Number(e.target.value)); reset(); }}
+              onChange={(v) => { setEnergy(v); reset(); }}
             />
           </section>
 
           {mode === "throw" && (
             <section className="sim-section">
-              <h2>4. Лақтыру бұрышы</h2>
-              <label className="sim-energy-label">θ = <strong>{angle}°</strong></label>
-              <input
-                type="range"
+              <SectionLabel num={4}>Лақтыру бұрышы</SectionLabel>
+              <SliderRow
+                label="θ"
+                value={angle}
+                unit="°"
                 min={10}
                 max={80}
-                value={angle}
-                onChange={(e) => { setAngle(Number(e.target.value)); reset(); }}
+                onChange={(v) => { setAngle(v); reset(); }}
               />
             </section>
           )}
@@ -474,7 +466,9 @@ export function EnergySimulator() {
               {phase === "animating" ? "Тәжірибе…" : "Іске қосу"}
             </button>
             {phase !== "idle" && (
-              <button type="button" className="sim-reset-btn" onClick={reset}>Қалпына келтіру</button>
+              <button type="button" className="sim-reset-btn" onClick={reset}>
+                Қалпына келтіру
+              </button>
             )}
           </section>
 
@@ -486,11 +480,17 @@ export function EnergySimulator() {
                 <div><dt>F</dt><dd>{result.forceN.toFixed(1)} Н</dd></div>
                 <div><dt>m</dt><dd>{result.massKg} кг</dd></div>
                 <div><dt>a</dt><dd>{result.acceleration.toFixed(2)} м/с²</dd></div>
-                <div><dt>v</dt><dd>{(phase === "animating" ? liveSpeed : result.velocity).toFixed(2)} м/с</dd></div>
+                <div>
+                  <dt>v</dt>
+                  <dd>{(phase === "animating" ? liveSpeed : result.velocity).toFixed(2)} м/с</dd>
+                </div>
                 {result.heightM !== undefined && result.heightM > 0 && (
                   <div><dt>h</dt><dd>{result.heightM.toFixed(2)} м</dd></div>
                 )}
-                <div><dt>L</dt><dd>{(mode === "drop" ? result.heightM : result.distanceM)?.toFixed(2)} м</dd></div>
+                <div>
+                  <dt>L</dt>
+                  <dd>{(mode === "drop" ? result.heightM : result.distanceM)?.toFixed(2)} м</dd>
+                </div>
               </dl>
             </section>
           )}
@@ -499,7 +499,7 @@ export function EnergySimulator() {
             <section className="sim-breakdown">
               <button
                 type="button"
-                className={`sim-breakdown-btn ${breakdownOpen ? "open" : ""}`}
+                className={`sim-breakdown-btn${breakdownOpen ? " open" : ""}`}
                 onClick={() => setBreakdownOpen((v) => !v)}
                 aria-expanded={breakdownOpen}
               >
@@ -533,13 +533,14 @@ export function EnergySimulator() {
 
           {!result && (
             <p className="sim-scroll-placeholder">
-              Тәжірибені іске қосқаннан кейін мұнда көрсеткіштер пайда болады. «Талдау» түймесі қадамдық шешімді ашады.
+              Тәжірибені іске қосқаннан кейін мұнда көрсеткіштер пайда болады. «Талдау» түймесі
+              қадамдық шешімді ашады.
             </p>
           )}
-        </div>
-      </aside>
+        </Sidebar>
       )}
 
+      {/* ── Resizer ── */}
       {appMode === "learn" && !playgroundExpanded && (
         <div
           className="sim-resizer"
@@ -553,6 +554,7 @@ export function EnergySimulator() {
         />
       )}
 
+      {/* ── Right: playground ── */}
       <section className="sim-playground">
         {appMode === "learn" && playgroundExpanded && (
           <button
@@ -565,23 +567,38 @@ export function EnergySimulator() {
         )}
 
         {appMode === "game" && challenge && (
-          <div className="sim-game-task">
-            <div className="sim-game-task-head">
-              <h2>🎯 Шаманы тап</h2>
-              <button type="button" className="sim-game-exit-btn" onClick={exitGame}>
-                ← Оқу режимі
-              </button>
-            </div>
-            <p className="sim-game-question">{challenge.question}</p>
+          <TargetChallenge
+            question={challenge.question}
+            answerValue={answer}
+            answerUnit={challenge.unit}
+            onAnswerChange={(v) => { setAnswer(v); setCheckResult(null); }}
+            onCheck={handleCheckAnswer}
+            onAnswerKeyDown={(e) => e.key === "Enter" && handleCheckAnswer()}
+            checkResult={checkResult}
+            onExit={exitGame}
+            hint={getGameHint(challenge)}
+            actions={
+              <div className="sim-game-actions">
+                <button
+                  type="button"
+                  className="sim-apply-btn"
+                  onClick={() => launch()}
+                  disabled={phase === "animating"}
+                >
+                  {phase === "animating" ? "Тәжірибе…" : "Тәжірибені іске қосу"}
+                </button>
+                <button type="button" className="sim-reset-btn" onClick={newChallenge}>
+                  Жаңа есеп
+                </button>
+              </div>
+            }
+          >
+            {/* Known parameters */}
             <div className="sim-game-known">
               <span>Режим: <strong>{modeLabel}</strong></span>
               <span>g = <strong>{GRAVITY} м/с²</strong></span>
-              {challenge.mode === "drop" && (
-                <span>v₀ = <strong>0 м/с</strong></span>
-              )}
-              {challenge.mode === "push" && (
-                <span>μ = <strong>{FRICTION_COEFF}</strong></span>
-              )}
+              {challenge.mode === "drop" && <span>v₀ = <strong>0 м/с</strong></span>}
+              {challenge.mode === "push" && <span>μ = <strong>{FRICTION_COEFF}</strong></span>}
               <span>m = <strong>{formatValue("mass", `${challenge.mass} кг`)}</strong></span>
               <span>
                 {challenge.mode === "drop" ? "Ep" : "Ek"} ={" "}
@@ -591,268 +608,194 @@ export function EnergySimulator() {
                 <span>θ = <strong>{formatValue("angle", `${challenge.angle}°`)}</strong></span>
               )}
             </div>
-            {result && (showsAfterExperiment(challenge, "velocity") || showsAfterExperiment(challenge, "distance")) && (
-              <div className="sim-game-known sim-game-known--after">
-                {showsAfterExperiment(challenge, "velocity") && (
-                  <span>v = <strong>{result.velocity.toFixed(2)} м/с</strong></span>
-                )}
-                {showsAfterExperiment(challenge, "distance") && (
-                  <span>
-                    {distanceSymbol(challenge.mode)} ={" "}
-                    <strong>
-                      {(challenge.mode === "drop" ? result.heightM : result.distanceM)?.toFixed(2)} м
-                    </strong>
-                  </span>
-                )}
-              </div>
-            )}
-            <div className="sim-game-answer-row">
-              <input
-                type="text"
-                className="sim-game-answer-input"
-                placeholder={`Жауап (${challenge.unit})`}
-                value={answer}
-                onChange={(e) => {
-                  setAnswer(e.target.value);
-                  setCheckResult(null);
-                }}
-                onKeyDown={(e) => e.key === "Enter" && handleCheckAnswer()}
-              />
-              <button
-                type="button"
-                className="sim-game-check-btn"
-                onClick={handleCheckAnswer}
-                disabled={!answer.trim()}
-              >
-                Тексеру
-              </button>
-            </div>
-            {checkResult === "correct" && (
-              <p className="sim-game-feedback sim-game-feedback--ok">✓ Дұрыс!</p>
-            )}
-            {checkResult === "wrong" && (
-              <p className="sim-game-feedback sim-game-feedback--bad">✗ Қате. Қайта көріңіз.</p>
-            )}
-            <div className="sim-game-actions">
-              <button
-                type="button"
-                className="sim-apply-btn"
-                onClick={() => launch()}
-                disabled={phase === "animating"}
-              >
-                {phase === "animating" ? "Тәжірибе…" : "Тәжірибені іске қосу"}
-              </button>
-              <button type="button" className="sim-reset-btn" onClick={newChallenge}>
-                Жаңа есеп
-              </button>
-            </div>
-            <p className="sim-game-hint">{getGameHint(challenge)}</p>
-          </div>
+            {result &&
+              (showsAfterExperiment(challenge, "velocity") ||
+                showsAfterExperiment(challenge, "distance")) && (
+                <div className="sim-game-known sim-game-known--after">
+                  {showsAfterExperiment(challenge, "velocity") && (
+                    <span>v = <strong>{result.velocity.toFixed(2)} м/с</strong></span>
+                  )}
+                  {showsAfterExperiment(challenge, "distance") && (
+                    <span>
+                      {distanceSymbol(challenge.mode)} ={" "}
+                      <strong>
+                        {(challenge.mode === "drop" ? result.heightM : result.distanceM)?.toFixed(2)} м
+                      </strong>
+                    </span>
+                  )}
+                </div>
+              )}
+          </TargetChallenge>
         )}
 
-        <div className="sim-screen">
-        <div className="sim-screen-header">
-          <span>Тәжірибе экраны</span>
-          <div className="sim-screen-header-actions">
-          {viewScale !== 1 && (
-            <span className="sim-scale-label">
-              {viewScale < 1
-                ? `масштаб ×${(1 / viewScale).toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`
-                : `жақындату ×${viewScale.toFixed(1)} · ${widthM.toFixed(1)}×${heightM.toFixed(1)} м`}
-            </span>
-          )}
-          {showTrajectory && <span className="sim-traj-label">— траектория сызылды</span>}
-          {phase === "done" && (
-            <button
-              type="button"
-              className="sim-fade-body-btn"
-              onClick={() => setBodyFaded((v) => !v)}
-            >
-              {bodyFaded ? "Кубты көрсету" : "Кубты жасыру"}
-            </button>
-          )}
-          {appMode === "learn" && (
-            <button
-              type="button"
-              className="sim-expand-btn"
-              onClick={() => setPlaygroundExpanded((v) => !v)}
-            >
-              {playgroundExpanded ? "Жию" : "Алаңды кеңейту"}
-            </button>
-          )}
-          </div>
-        </div>
-
-        <div
-          ref={arenaRef}
-          className={`sim-arena ${activeMode === "throw" && appMode !== "game" ? "sim-arena-aim" : ""}`}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
-          onClick={() => {
-            if (appMode === "game") return;
-            if (phase === "idle" && activeMode === "push") launch();
-            if (phase === "idle" && activeMode === "drop") launch();
-          }}
-          role="presentation"
+        {/* ── Canvas ── */}
+        <Canvas
+          scaleLabel={scaleLabel}
+          trajectoryLabel={showTrajectory ? "— траектория сызылды" : undefined}
+          expanded={playgroundExpanded}
+          onToggleExpand={appMode === "learn" ? () => setPlaygroundExpanded((v) => !v) : undefined}
+          headerActions={
+            phase === "done" ? (
+              <button
+                type="button"
+                className="sim-fade-body-btn"
+                onClick={() => setBodyFaded((v) => !v)}
+              >
+                {bodyFaded ? "Кубты көрсету" : "Кубты жасыру"}
+              </button>
+            ) : undefined
+          }
+          formulas={
+            <>
+              <FormulaChip>Ep = mgh</FormulaChip>
+              <FormulaChip>Ek = ½mv²</FormulaChip>
+              <FormulaChip>W = F·s</FormulaChip>
+            </>
+          }
         >
-          <div className="sim-sky" />
-          <svg className="sim-grid" aria-hidden>
-            {yTicks.map((m, i) => {
-              if (m === 0) return null;
-              const y = arenaSize.h - ARENA_GROUND_BOTTOM - m * ppm;
-              return (
-                <line
-                  key={`grid-${i}-${m}`}
-                  x1={ARENA_ORIGIN_X}
-                  y1={y}
-                  x2={arenaSize.w}
-                  y2={y}
-                  stroke="rgba(148, 163, 184, 0.22)"
-                  strokeWidth="1"
-                  strokeDasharray="4 6"
-                />
-              );
-            })}
-          </svg>
-          <div className="sim-height-ruler">
-            {yTicks.map((m, i) => (
-              <span
-                key={`y-${i}-${m}`}
-                style={{ bottom: `${ARENA_GROUND_BOTTOM + m * ppm}px` }}
-              >
-                {formatTick(m)} м
-              </span>
-            ))}
-          </div>
-          <div className="sim-ground" />
-          <div className="sim-ground-texture" />
-          <div className="sim-ruler">
-            {xTicks.map((m, i) => (
-              <span
-                key={`x-${i}-${m}`}
-                style={{ left: `${m * ppm}px` }}
-              >
-                {formatTick(m)} м
-              </span>
-            ))}
-          </div>
-
-          <TrajectoryOverlay
-            points={trajectory}
-            ppm={ppm}
-            arenaHeight={arenaSize.h}
-            visible={showTrajectory}
-          />
-
-          {activeMode === "drop" && idleY > 0 && phase !== "animating" && !isHidden("energy") && (
-            <svg className="sim-height-dim" aria-hidden>
-              {(() => {
-                const objX = ARENA_ORIGIN_X + displayX * ppm;
-                const lineX = objX - 58 * viewScale;
-                const yGround = arenaSize.h - ARENA_GROUND_BOTTOM;
-                const yTop = arenaSize.h - ARENA_GROUND_BOTTOM - idleY * ppm;
-                const yMid = (yGround + yTop) / 2;
-                return (
-                  <>
-                    <line
-                      x1={lineX}
-                      y1={yGround}
-                      x2={lineX}
-                      y2={yTop}
-                      stroke="#fbbf24"
-                      strokeWidth="2"
-                      strokeDasharray="5 4"
-                    />
-                    <line x1={lineX - 6} y1={yGround} x2={lineX + 6} y2={yGround} stroke="#fbbf24" strokeWidth="2" />
-                    <line x1={lineX - 6} y1={yTop} x2={lineX + 6} y2={yTop} stroke="#fbbf24" strokeWidth="2" />
-                    <rect
-                      x={lineX - 72}
-                      y={yMid - 12}
-                      width={64}
-                      height={24}
-                      rx={6}
-                      fill="#0f172a"
-                      stroke="#fbbf24"
-                      strokeWidth="1.5"
-                    />
-                    <text
-                      x={lineX - 40}
-                      y={yMid + 5}
-                      textAnchor="middle"
-                      fill="#ffffff"
-                      fontSize="13"
-                      fontWeight="700"
-                    >
-                      h = {idleY.toFixed(2)} м
-                    </text>
-                  </>
-                );
-              })()}
-            </svg>
-          )}
-
-          {dragging && aimEnd && activeMode === "throw" && (
-            <svg className="sim-aim-line" aria-hidden>
-              <line
-                x1={ARENA_ORIGIN_X}
-                y1={arenaSize.h - ARENA_GROUND_BOTTOM}
-                x2={ARENA_ORIGIN_X + aimEnd.x * ppm}
-                y2={arenaSize.h - ARENA_GROUND_BOTTOM - aimEnd.y * ppm}
-                stroke="#fbbf24"
-                strokeWidth="2"
-                strokeDasharray="6 4"
-              />
-            </svg>
-          )}
-
+          {/* ── Arena ── */}
           <div
-            className={`sim-body-wrap ${phase === "animating" ? "flying" : ""} ${phase === "done" && bodyFaded ? "faded" : ""} ${phase === "done" ? "sim-body-wrap--done" : ""}`}
-            style={{
-              left: ARENA_ORIGIN_X + displayX * ppm,
-              bottom: ARENA_GROUND_BOTTOM + displayY * ppm,
-              transform: `translateX(-50%) scale(${viewScale})`,
+            ref={arenaRef}
+            className={`sim-arena${activeMode === "throw" && appMode !== "game" ? " sim-arena-aim" : ""}`}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onClick={() => {
+              if (appMode === "game") return;
+              if (phase === "idle" && activeMode === "push") launch();
+              if (phase === "idle" && activeMode === "drop") launch();
             }}
-            onClick={(e) => {
-              if (phase === "done") {
-                e.stopPropagation();
-                setBodyFaded((v) => !v);
-              }
-            }}
-            role={phase === "done" ? "button" : undefined}
-            aria-label={phase === "done" ? (bodyFaded ? "Кубты көрсету" : "Траекторияны көру үшін кубты жасыру") : undefined}
-            tabIndex={phase === "done" ? 0 : undefined}
-            onKeyDown={(e) => {
-              if (phase === "done" && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault();
-                setBodyFaded((v) => !v);
-              }
-            }}
+            role="presentation"
           >
-            <SimObjectVisual material="steel-cube" size="lg" />
-          </div>
+            <div className="sim-sky" />
+            <svg className="sim-grid" aria-hidden>
+              {yTicks.map((m, i) => {
+                if (m === 0) return null;
+                const y = arenaSize.h - ARENA_GROUND_BOTTOM - m * ppm;
+                return (
+                  <line
+                    key={`grid-${i}-${m}`}
+                    x1={ARENA_ORIGIN_X}
+                    y1={y}
+                    x2={arenaSize.w}
+                    y2={y}
+                    stroke="rgba(148, 163, 184, 0.22)"
+                    strokeWidth="1"
+                    strokeDasharray="4 6"
+                  />
+                );
+              })}
+            </svg>
+            <div className="sim-height-ruler">
+              {yTicks.map((m, i) => (
+                <span key={`y-${i}-${m}`} style={{ bottom: `${ARENA_GROUND_BOTTOM + m * ppm}px` }}>
+                  {formatTick(m)} м
+                </span>
+              ))}
+            </div>
+            <div className="sim-ground" />
+            <div className="sim-ground-texture" />
+            <div className="sim-ruler">
+              {xTicks.map((m, i) => (
+                <span key={`x-${i}-${m}`} style={{ left: `${m * ppm}px` }}>
+                  {formatTick(m)} м
+                </span>
+              ))}
+            </div>
 
-          {phase === "animating" && !isHidden("energy") && (
+            <TrajectoryOverlay
+              points={trajectory}
+              ppm={ppm}
+              arenaHeight={arenaSize.h}
+              visible={showTrajectory}
+            />
+
+            {activeMode === "drop" && idleY > 0 && phase !== "animating" && !isHidden("energy") && (
+              <svg className="sim-height-dim" aria-hidden>
+                {(() => {
+                  const objX = ARENA_ORIGIN_X + displayX * ppm;
+                  const lineX = objX - 58 * viewScale;
+                  const yGround = arenaSize.h - ARENA_GROUND_BOTTOM;
+                  const yTop = arenaSize.h - ARENA_GROUND_BOTTOM - idleY * ppm;
+                  const yMid = (yGround + yTop) / 2;
+                  return (
+                    <>
+                      <line x1={lineX} y1={yGround} x2={lineX} y2={yTop} stroke="#fbbf24" strokeWidth="2" strokeDasharray="5 4" />
+                      <line x1={lineX - 6} y1={yGround} x2={lineX + 6} y2={yGround} stroke="#fbbf24" strokeWidth="2" />
+                      <line x1={lineX - 6} y1={yTop} x2={lineX + 6} y2={yTop} stroke="#fbbf24" strokeWidth="2" />
+                      <rect x={lineX - 72} y={yMid - 12} width={64} height={24} rx={6} fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+                      <text x={lineX - 40} y={yMid + 5} textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="700">
+                        h = {idleY.toFixed(2)} м
+                      </text>
+                    </>
+                  );
+                })()}
+              </svg>
+            )}
+
+            {dragging && aimEnd && activeMode === "throw" && (
+              <svg className="sim-aim-line" aria-hidden>
+                <line
+                  x1={ARENA_ORIGIN_X}
+                  y1={arenaSize.h - ARENA_GROUND_BOTTOM}
+                  x2={ARENA_ORIGIN_X + aimEnd.x * ppm}
+                  y2={arenaSize.h - ARENA_GROUND_BOTTOM - aimEnd.y * ppm}
+                  stroke="#fbbf24"
+                  strokeWidth="2"
+                  strokeDasharray="6 4"
+                />
+              </svg>
+            )}
+
             <div
-              className="sim-energy-burst"
+              className={[
+                "sim-body-wrap",
+                phase === "animating" ? "flying" : "",
+                phase === "done" && bodyFaded ? "faded" : "",
+                phase === "done" ? "sim-body-wrap--done" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               style={{
                 left: ARENA_ORIGIN_X + displayX * ppm,
-                bottom: ARENA_GROUND_BOTTOM + displayY * ppm + 60 * viewScale,
-                fontSize: `${0.9 * Math.max(viewScale, 0.6)}rem`,
+                bottom: ARENA_GROUND_BOTTOM + displayY * ppm,
+                transform: `translateX(-50%) scale(${viewScale})`,
+              }}
+              onClick={(e) => {
+                if (phase === "done") { e.stopPropagation(); setBodyFaded((v) => !v); }
+              }}
+              role={phase === "done" ? "button" : undefined}
+              aria-label={
+                phase === "done"
+                  ? bodyFaded ? "Кубты көрсету" : "Траекторияны көру үшін кубты жасыру"
+                  : undefined
+              }
+              tabIndex={phase === "done" ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (phase === "done" && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  setBodyFaded((v) => !v);
+                }
               }}
             >
-              {activeEnergy} Дж
+              <SimObjectVisual material="steel-cube" size="lg" />
             </div>
-          )}
-        </div>
 
-        <div className="sim-formula-bar">
-          <code>Ep = mgh</code>
-          <code>Ek = ½mv²</code>
-          <code>W = F·s</code>
-        </div>
-        </div>
+            {phase === "animating" && !isHidden("energy") && (
+              <div
+                className="sim-energy-burst"
+                style={{
+                  left: ARENA_ORIGIN_X + displayX * ppm,
+                  bottom: ARENA_GROUND_BOTTOM + displayY * ppm + 60 * viewScale,
+                  fontSize: `${0.9 * Math.max(viewScale, 0.6)}rem`,
+                }}
+              >
+                {activeEnergy} Дж
+              </div>
+            )}
+          </div>
+        </Canvas>
       </section>
     </div>
   );
