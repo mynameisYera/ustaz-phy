@@ -7,6 +7,7 @@ import { HomePage } from './HomePage';
 import { StudioPage } from './StudioPage';
 import { TemplatesPage } from './TemplatesPage';
 import { TemplateViewerPage } from './TemplateViewerPage';
+import { LabsPage } from './LabsPage';
 import { JeopardyPage } from './JeopardyPage';
 import { EnergySim } from '../simulators/EnergySim';
 import { BuoyancySim } from '../simulators/BuoyancySim';
@@ -29,6 +30,7 @@ type Page =
   | { id: 'studio-resume'; gameId: GameId }
   | { id: 'templates' }
   | { id: 'viewer'; template: TextTemplate }
+  | { id: 'labs' }
   | { id: 'simulator'; sim: SimulatorId }
   | { id: 'jeopardy' };
 
@@ -61,6 +63,7 @@ export function UstazApp() {
       <TemplatesPage
         onBack={() => setPage({ id: 'home' })}
         onOpen={(template) => setPage({ id: 'viewer', template })}
+        onNavLabs={() => setPage({ id: 'labs' })}
       />
     );
   }
@@ -70,6 +73,16 @@ export function UstazApp() {
       <TemplateViewerPage
         template={page.template}
         onBack={() => setPage({ id: 'templates' })}
+      />
+    );
+  }
+
+  if (page.id === 'labs') {
+    return (
+      <LabsPage
+        onBack={() => setPage({ id: 'home' })}
+        onNavHome={() => setPage({ id: 'home' })}
+        onNavTemplates={() => setPage({ id: 'templates' })}
       />
     );
   }
@@ -109,6 +122,7 @@ export function UstazApp() {
       }
       onOpenGame={(gameId) => setPage({ id: 'studio-resume', gameId })}
       onNavTemplates={() => setPage({ id: 'templates' })}
+      onNavLabs={() => setPage({ id: 'labs' })}
       onOpenSimulator={(sim) => setPage({ id: 'simulator', sim })}
       onOpenJeopardy={() => setPage({ id: 'jeopardy' })}
     />

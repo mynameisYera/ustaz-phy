@@ -35,11 +35,12 @@ interface HomePageProps {
   onCreate: (input: CreateGameInput) => void;
   onOpenGame: (gameId: GameId) => void;
   onNavTemplates: () => void;
+  onNavLabs: () => void;
   onOpenSimulator: (sim: SimulatorId) => void;
   onOpenJeopardy: () => void;
 }
 
-export function HomePage({ onCreate, onOpenGame, onNavTemplates, onOpenJeopardy }: HomePageProps) {
+export function HomePage({ onCreate, onOpenGame, onNavTemplates, onNavLabs, onOpenJeopardy }: HomePageProps) {
   const [input, setInput] = useState('');
   const [grade, setGrade] = useState<number | ''>('');
   const [subject, setSubject] = useState('');
@@ -147,6 +148,7 @@ export function HomePage({ onCreate, onOpenGame, onNavTemplates, onOpenJeopardy 
         activePage="home"
         onNavHome={() => {}}
         onNavTemplates={onNavTemplates}
+        onNavLabs={onNavLabs}
       />
 
       <main style={{ maxWidth: '760px', margin: '0 auto', padding: '72px 24px 80px' }}>

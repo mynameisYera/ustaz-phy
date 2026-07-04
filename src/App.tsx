@@ -10,6 +10,9 @@ import { ListRecentGamesUseCase } from "@/domain/usecases/ListRecentGames";
 import { GetGameUseCase } from "@/domain/usecases/GetGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
+import { MathGeoGebraPage } from "@/presentation/components/ustaz/MathGeoGebraPage";
+import { PhysicsBuoyancyPage } from "@/presentation/components/ustaz/PhysicsBuoyancyPage";
+import { GeographyLabPage } from "@/presentation/components/ustaz/GeographyLabPage";
 import "@/presentation/styles/studio.css";
 
 const gameRepository = new InMemoryGameRepository();
@@ -27,6 +30,18 @@ const services = {
 };
 
 export function App() {
+  if (window.location.pathname === "/math") {
+    return <MathGeoGebraPage />;
+  }
+
+  if (window.location.pathname === "/physics") {
+    return <PhysicsBuoyancyPage />;
+  }
+
+  if (window.location.pathname === "/geography") {
+    return <GeographyLabPage />;
+  }
+
   return (
     <ServicesProvider services={services}>
       <UstazApp />

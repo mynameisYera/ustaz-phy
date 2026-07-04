@@ -20,11 +20,12 @@ const TEMPLATES_TOUR_STEPS: TourStep[] = [
 interface TemplatesPageProps {
   onBack: () => void;
   onOpen: (template: TextTemplate) => void;
+  onNavLabs: () => void;
 }
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 
-export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
+export function TemplatesPage({ onBack, onOpen, onNavLabs }: TemplatesPageProps) {
   const [showTour, setShowTour] = useState(false);
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [items, setItems] = useState<TextTemplate[]>([]);
@@ -141,6 +142,7 @@ export function TemplatesPage({ onBack, onOpen }: TemplatesPageProps) {
         activePage="templates"
         onNavHome={onBack}
         onNavTemplates={() => {}}
+        onNavLabs={onNavLabs}
       />
 
       <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>

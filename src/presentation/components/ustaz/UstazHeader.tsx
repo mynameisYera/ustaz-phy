@@ -2,12 +2,13 @@ interface UstazHeaderProps {
   onLogoClick?: () => void;
   onHelp?: () => void;
   helpLabel?: string;
-  activePage?: 'home' | 'templates';
+  activePage?: 'home' | 'templates' | 'labs';
   onNavHome?: () => void;
   onNavTemplates?: () => void;
+  onNavLabs?: () => void;
 }
 
-export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavHome, onNavTemplates }: UstazHeaderProps) {
+export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavHome, onNavTemplates, onNavLabs }: UstazHeaderProps) {
   return (
     <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 40px', borderBottom: '1px solid #E6E2D8' }}>
       <button
@@ -21,10 +22,11 @@ export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavH
         </div>
       </button>
 
-      {(onNavHome || onNavTemplates) && (
+      {(onNavHome || onNavTemplates || onNavLabs) && (
         <nav style={{ display: 'flex', alignItems: 'center', gap: '2px', background: '#F0EDE6', borderRadius: '10px', padding: '3px' }}>
           <NavTab label="Ойын студиясы" active={activePage === 'home'} onClick={onNavHome} />
           <NavTab label="Үлгілер" active={activePage === 'templates'} onClick={onNavTemplates} />
+          <NavTab label="Зертханалар" active={activePage === 'labs'} onClick={onNavLabs} />
         </nav>
       )}
 
