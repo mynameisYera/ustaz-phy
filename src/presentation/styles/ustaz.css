@@ -21,6 +21,41 @@ html, body, #root {
   50% { opacity: 0.45; }
 }
 
+@keyframes u365-bubble-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-14px); opacity: 0; }
+}
+
+@keyframes u365-dial-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes u365-soft-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+.u365-bubble {
+  animation: u365-bubble-rise 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.u365-bubble-d1 { animation-delay: 0s; }
+.u365-bubble-d2 { animation-delay: 0.6s; }
+.u365-bubble-d3 { animation-delay: 1.2s; }
+
+.u365-dial-spin {
+  animation: u365-dial-spin 8s linear infinite;
+  transform-origin: center;
+}
+
+.u365-soft-pulse {
+  animation: u365-soft-pulse 2.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
 .u365-root {
   background: #F7F5EF;
   color: #1A1A17;

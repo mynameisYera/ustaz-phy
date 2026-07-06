@@ -12,6 +12,7 @@
     "start:server": "tsx server/index.ts"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.19.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",
