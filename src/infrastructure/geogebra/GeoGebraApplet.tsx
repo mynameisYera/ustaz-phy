@@ -41,6 +41,7 @@ export interface GeoGebraApi {
   unregisterObjectUpdateListener(objName: string): void;
   deleteObject(objName: string): void;
   exists(objName: string): boolean;
+  setErrorDialogsActive(flag: boolean): void;
   remove(): void;
 }
 
@@ -104,6 +105,12 @@ export function GeoGebraApplet({
             perspective,
             appletOnLoad: (api: GeoGebraApi) => {
               if (cancelled) return;
+              // Suppress GeoGebra's modal error dialogs; failed commands are handled in code.
+              try {
+                api.setErrorDialogsActive(false);
+              } catch {
+                /* older applet builds may not expose this — ignore */
+              }
               onReadyRef.current(api);
             },
           },
