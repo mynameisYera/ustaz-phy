@@ -99,19 +99,12 @@ export function GeographyLabPage() {
               top: f.top,
               left: (f as { left?: string }).left,
               right: (f as { right?: string }).right,
-              ['--rot' as string]: f.rot,
-              ['--delay' as string]: f.delay,
             }}
           >
             {f.text}
           </span>
         ))}
       </div>
-
-      <span className="geo-lab-sticker geo-lab-sticker--1" aria-hidden>🌍</span>
-      <span className="geo-lab-sticker geo-lab-sticker--2" aria-hidden>🧭</span>
-      <span className="geo-lab-sticker geo-lab-sticker--3" aria-hidden>🗺️</span>
-      <span className="geo-lab-sticker geo-lab-sticker--4" aria-hidden>⛰️</span>
 
       <nav className="geo-lab-nav">
         <div className="geo-lab-brand">
@@ -129,38 +122,35 @@ export function GeographyLabPage() {
       </nav>
 
       <section className="geo-lab-hero">
-        <div className="geo-lab-badges">
-          <span className="geo-lab-badge geo-lab-badge--rose">🗺️ Карта</span>
-          <span className="geo-lab-badge geo-lab-badge--crimson">📏 Қашықтық</span>
-          <span className="geo-lab-badge geo-lab-badge--amber">⛰️ Рельеф</span>
+        <div className="geo-lab-hero-inner">
+          <div className="geo-lab-dot" />
+          <h1 className="geo-lab-hero-title">
+            <span>MapLibre</span> зертханасы
+          </h1>
+          <span className="geo-lab-chip">Интерактивті</span>
         </div>
-        <h1 className="geo-lab-hero-title">
-          <span>MapLibre</span> зертханасы
-        </h1>
         <p className="geo-lab-hero-desc">
           Жер шарын бұрап, қалалар арасын өлшеп, рельефті зерттеп — географияны қызықты тәжірибе ретінде көріңіз!
         </p>
-      </section>
 
-      <div className="geo-lab-tabs">
-        {TAB_LABELS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`geo-lab-tab${tab === t.id ? ' geo-lab-tab--active' : ''}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+        <div className="geo-lab-tabs">
+          {TAB_LABELS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`geo-lab-tab${tab === t.id ? ' geo-lab-tab--active' : ''}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="geo-lab-sim-wrap">
         <div className="geo-lab-sim-frame">
           <div className="geo-lab-sim-label">
-            <span>🧭</span>
             <span>Интерактивті зертхана</span>
-            <span>🧭</span>
           </div>
           <div className="geo-lab-sim-body">
             <div className="geo-lab-task">

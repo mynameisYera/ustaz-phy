@@ -12,7 +12,21 @@ import {
   CAR_Y_OBJECT_NAME,
 } from '@/infrastructure/geogebra/DistanceTaskConfig';
 import { DISTANCE_TASK_CONFIGS } from '@/infrastructure/geogebra/distanceTaskConfigs';
+import {
+  fetchLabGames,
+  fetchLabRoute,
+  fetchLabSubjects,
+  type LabItem,
+} from '@/infrastructure/labs/LabsApi';
 import '@/presentation/styles/math-lab.css';
+
+type LoadStatus = 'loading' | 'ready' | 'error';
+
+const GAME_ICONS = ['📐', '📊', '🧮', '📏', '🔢', '✏️'];
+
+function gameIcon(id: number): string {
+  return GAME_ICONS[id % GAME_ICONS.length];
+}
 
 type Tab =
   | { kind: 'distance'; config: (typeof DISTANCE_TASK_CONFIGS)[number] }
@@ -53,7 +67,63 @@ export function MathGeoGebraPage() {
   const apiRef = useRef<GeoGebraApi | null>(null);
   const pollIntervalRef = useRef<number | null>(null);
 
+  const [labStatus, setLabStatus] = useState<LoadStatus>('loading');
+  const [labs, setLabs] = useState<LabItem[]>([]);
+  const [labError, setLabError] = useState<string | null>(null);
+  const [subjectId, setSubjectId] = useState<number | null>(null);
+  const [openingId, setOpeningId] = useState<number | null>(null);
+  const [openError, setOpenError] = useState<string | null>(null);
+
   const activeTab = TABS.find((t) => t.config.id === activeTabId)!;
+
+  const loadLabs = (id: number) => {
+    setLabStatus('loading');
+    setLabError(null);
+    void fetchLabGames(id)
+      .then(({ items }) => {
+        setLabs(items);
+        setLabStatus('ready');
+      })
+      .catch((e) => {
+        setLabError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
+        setLabStatus('error');
+      });
+  };
+
+  useEffect(() => {
+    void fetchLabSubjects()
+      .then((items) => {
+        const math =
+          items.find((s) => s.name.toLowerCase() === 'math') ??
+          items.find((s) => s.name.toLowerCase().includes('math')) ??
+          null;
+        if (!math) {
+          setLabStatus('error');
+          setLabError('Математика пәні табылмады');
+          return;
+        }
+        setSubjectId(math.subjectId);
+        loadLabs(math.subjectId);
+      })
+      .catch((e) => {
+        setLabError(e instanceof Error ? e.message : 'Пәндерді жүктеу мүмкін болмады');
+        setLabStatus('error');
+      });
+  }, []);
+
+  const handleOpenLab = async (labId: number) => {
+    if (!subjectId) return;
+    setOpeningId(labId);
+    setOpenError(null);
+    try {
+      const { route } = await fetchLabRoute(subjectId);
+      window.open(route, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      setOpenError(e instanceof Error ? e.message : 'Зертхананы ашу мүмкін болмады');
+    } finally {
+      setOpeningId(null);
+    }
+  };
 
   const stopPolling = useCallback(() => {
     if (pollIntervalRef.current !== null) {
@@ -148,19 +218,12 @@ export function MathGeoGebraPage() {
               top: f.top,
               left: (f as { left?: string }).left,
               right: (f as { right?: string }).right,
-              ['--rot' as string]: f.rot,
-              ['--delay' as string]: f.delay,
             }}
           >
             {f.text}
           </span>
         ))}
       </div>
-
-      <span className="math-lab-sticker math-lab-sticker--1" aria-hidden>📐</span>
-      <span className="math-lab-sticker math-lab-sticker--2" aria-hidden>📊</span>
-      <span className="math-lab-sticker math-lab-sticker--3" aria-hidden>🧮</span>
-      <span className="math-lab-sticker math-lab-sticker--4" aria-hidden>✏️</span>
 
       <nav className="math-lab-nav">
         <div className="math-lab-brand">
@@ -178,38 +241,35 @@ export function MathGeoGebraPage() {
       </nav>
 
       <section className="math-lab-hero">
-        <div className="math-lab-badges">
-          <span className="math-lab-badge math-lab-badge--sky">📐 Геометрия</span>
-          <span className="math-lab-badge math-lab-badge--azure">➗ Векторлар</span>
-          <span className="math-lab-badge math-lab-badge--indigo">🎯 Тапсырма</span>
+        <div className="math-lab-hero-inner">
+          <div className="math-lab-dot" />
+          <h1 className="math-lab-hero-title">
+            <span>GeoGebra</span> зертханасы
+          </h1>
+          <span className="math-lab-chip">Интерактивті</span>
         </div>
-        <h1 className="math-lab-hero-title">
-          <span>GeoGebra</span> зертханасы
-        </h1>
         <p className="math-lab-hero-desc">
           Нүктелерді жылжытып, векторлар мен қашықтықты өлшеп — математиканы қызықты тәжірибе ретінде көріңіз!
         </p>
-      </section>
 
-      <div className="math-lab-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.config.id}
-            type="button"
-            onClick={() => setActiveTabId(tab.config.id)}
-            className={`math-lab-tab${activeTabId === tab.config.id ? ' math-lab-tab--active' : ''}`}
-          >
-            {tab.config.label}
-          </button>
-        ))}
-      </div>
+        <div className="math-lab-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.config.id}
+              type="button"
+              onClick={() => setActiveTabId(tab.config.id)}
+              className={`math-lab-tab${activeTabId === tab.config.id ? ' math-lab-tab--active' : ''}`}
+            >
+              {tab.config.label}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="math-lab-sim-wrap">
         <div className="math-lab-sim-frame">
           <div className="math-lab-sim-label">
-            <span>🧭</span>
             <span>Интерактивті зертхана</span>
-            <span>🧭</span>
           </div>
           <div className="math-lab-sim-body">
             <div className="math-lab-task">
@@ -261,6 +321,73 @@ export function MathGeoGebraPage() {
           <p className="math-lab-debug-ref">distanceTraveled = {debugValues.distanceValue ?? '…'}</p>
         )}
       </div>
+
+      <section className="math-lab-games">
+        <div className="math-lab-games-head">
+          <div className="math-lab-games-icon" aria-hidden>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="6" width="16" height="10" rx="3" />
+              <circle cx="6.5" cy="11" r="1.5" />
+              <circle cx="13.5" cy="11" r="1.5" />
+              <path d="M8 4h4" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="math-lab-games-title">Ойын таңдаңыз</h2>
+            <p className="math-lab-games-sub">Қызықты зертханалар мен ойындар</p>
+          </div>
+        </div>
+
+        {openError && <div className="math-lab-alert">{openError}</div>}
+
+        <div className="math-lab-games-grid">
+          {labStatus === 'loading' &&
+            [0, 1, 2, 3].map((i) => <div key={i} className="math-lab-skeleton" />)}
+
+          {labStatus === 'error' && (
+            <div className="math-lab-error-box">
+              <p>Жүктеу мүмкін болмады</p>
+              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>{labError}</p>
+              {subjectId && (
+                <button type="button" className="math-lab-retry-btn" onClick={() => loadLabs(subjectId)}>
+                  Қайталау 🔄
+                </button>
+              )}
+            </div>
+          )}
+
+          {labStatus === 'ready' && labs.length === 0 && (
+            <div className="math-lab-empty">
+              <p style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff' }}>Ойындар әлі жоқ 🌱</p>
+              <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>
+                Кейінірек қайта көріңіз
+              </p>
+            </div>
+          )}
+
+          {labStatus === 'ready' &&
+            labs.map((lab) => (
+              <button
+                key={lab.id}
+                type="button"
+                className="math-lab-game-card"
+                onClick={() => void handleOpenLab(lab.id)}
+                disabled={openingId === lab.id}
+              >
+                <div className="math-lab-game-thumb" aria-hidden>
+                  {gameIcon(lab.id)}
+                </div>
+                <div className="math-lab-game-body">
+                  <p className="math-lab-game-name">{lab.name}</p>
+                  <p className="math-lab-game-desc">{lab.content}</p>
+                  <span className="math-lab-game-cta">
+                    {openingId === lab.id ? 'Ашылуда… ⏳' : 'Ойынды ашу →'}
+                  </span>
+                </div>
+              </button>
+            ))}
+        </div>
+      </section>
 
       <footer className="math-lab-footer">
         Математика зертханасы · Ustaz Math · {new Date().getFullYear()} ✨

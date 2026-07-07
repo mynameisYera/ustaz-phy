@@ -13,6 +13,7 @@ import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
 import { MathGeoGebraPage } from "@/presentation/components/ustaz/MathGeoGebraPage";
 import { PhysicsLabPage } from "@/presentation/components/ustaz/PhysicsLabPage";
 import { GeographyLabPage } from "@/presentation/components/ustaz/GeographyLabPage";
+import { ChemistryLabPage } from "@/presentation/components/ustaz/ChemistryLabPage";
 import "@/presentation/styles/studio.css";
 
 const gameRepository = new InMemoryGameRepository();
@@ -40,6 +41,10 @@ export function App() {
 
   if (window.location.pathname === "/geography") {
     return <GeographyLabPage />;
+  }
+
+  if (window.location.pathname === "/chemistry") {
+    return <ChemistryLabPage />;
   }
 
   return (
