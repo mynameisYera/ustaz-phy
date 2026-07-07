@@ -220,10 +220,18 @@ const SUBJECT_LESSONS: {
 ];
 
 function LabsHero({ onOpenResources }: { onOpenResources: (subject: 'math' | 'physics' | 'chemistry') => void }) {
+  const handleOpen = (key: 'math' | 'physics' | 'chemistry') => {
+    if (key === 'physics') {
+      window.location.assign('/physics');
+      return;
+    }
+    onOpenResources(key);
+  };
+
   return (
     <div data-tour="subjects" style={{ display: 'flex', flexDirection: 'column', gap: '28px', margin: '0 0 36px' }}>
       {SUBJECT_LESSONS.map((lesson) => (
-        <SubjectLessonBlock key={lesson.key} lesson={lesson} onOpen={() => onOpenResources(lesson.key)} />
+        <SubjectLessonBlock key={lesson.key} lesson={lesson} onOpen={() => handleOpen(lesson.key)} />
       ))}
     </div>
   );

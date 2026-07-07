@@ -11,7 +11,7 @@ import { GetGameUseCase } from "@/domain/usecases/GetGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
 import { MathGeoGebraPage } from "@/presentation/components/ustaz/MathGeoGebraPage";
-import { PhysicsBuoyancyPage } from "@/presentation/components/ustaz/PhysicsBuoyancyPage";
+import { PhysicsLabPage } from "@/presentation/components/ustaz/PhysicsLabPage";
 import { GeographyLabPage } from "@/presentation/components/ustaz/GeographyLabPage";
 import "@/presentation/styles/studio.css";
 
@@ -35,7 +35,7 @@ export function App() {
   }
 
   if (window.location.pathname === "/physics") {
-    return <PhysicsBuoyancyPage />;
+    return <PhysicsLabPage />;
   }
 
   if (window.location.pathname === "/geography") {
