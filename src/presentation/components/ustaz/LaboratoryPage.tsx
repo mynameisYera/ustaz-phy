@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Tour, type TourStep } from './Tour';
-import '@/presentation/styles/laboratory.css';
+import type { TourStep } from './Tour';
+import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
 
 const CHALK_FORMULAS = [
   { text: 'a⃗ + b⃗ = c⃗', top: '4%', left: '3%' },
@@ -38,42 +37,34 @@ const LAB_TOUR_STEPS: TourStep[] = [
   },
 ];
 
-interface GameCard {
-  tone: 'blue' | 'amber';
-  tag: string;
-  name: string;
-  desc: string;
-  icon: JSX.Element;
-}
-
-const GAME_CARDS: GameCard[] = [
+const GAME_CARDS: LabGameCard[] = [
   {
-    tone: 'blue',
+    tone: 'accent',
     tag: 'СИМУЛЯТОР',
     name: 'Построение графиков',
     desc: 'Интерактивное построение линейных и квадратичных функций с параметрами.',
     icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-bright)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
         <line x1="4" y1="24" x2="44" y2="24" />
         <line x1="24" y1="4" x2="24" y2="44" />
         <polyline points="10,38 20,20 30,28 40,10" />
-        <circle cx="20" cy="20" r="3" fill="#60A5FA" opacity="0.3" />
-        <circle cx="30" cy="28" r="3" fill="#60A5FA" opacity="0.3" />
+        <circle cx="20" cy="20" r="3" fill="var(--accent-bright)" opacity="0.3" />
+        <circle cx="30" cy="28" r="3" fill="var(--accent-bright)" opacity="0.3" />
       </svg>
     ),
   },
   {
-    tone: 'blue',
+    tone: 'accent',
     tag: 'СИМУЛЯТОР',
     name: 'Геометрия фигур',
     desc: 'Построение и измерение треугольников, площади и периметра на плоскости.',
     icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#60A5FA" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-bright)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
         <polygon points="12,38 24,10 36,38" />
         <line x1="16" y1="30" x2="32" y2="30" />
-        <circle cx="24" cy="10" r="2.5" fill="#60A5FA" opacity="0.3" />
-        <circle cx="12" cy="38" r="2.5" fill="#60A5FA" opacity="0.3" />
-        <circle cx="36" cy="38" r="2.5" fill="#60A5FA" opacity="0.3" />
+        <circle cx="24" cy="10" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
+        <circle cx="12" cy="38" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
+        <circle cx="36" cy="38" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
       </svg>
     ),
   },
@@ -107,182 +98,101 @@ const GAME_CARDS: GameCard[] = [
 ];
 
 const TOOLS = [
-  { key: 'cursor', active: false, path: 'M3 2l3 12 2-5 5-2z', fill: false },
-  { key: 'point', active: true, path: '', fill: true },
-  { key: 'line', active: false, path: 'M3 13L13 3', fill: false },
-  { key: 'vector', active: false, path: 'M3 13L13 3M13 3H8M13 3v5', fill: false },
-  { key: 'segment', active: false, path: 'M3 13L13 3', fill: false, endpoints: true },
-  { key: 'polygon', active: false, path: '', fill: false, polygon: true },
+  { key: 'cursor', active: false, path: 'M3 2l3 12 2-5 5-2z' },
+  { key: 'point', active: true, path: '' },
+  { key: 'line', active: false, path: 'M3 13L13 3' },
+  { key: 'vector', active: false, path: 'M3 13L13 3M13 3H8M13 3v5' },
+  { key: 'segment', active: false, path: 'M3 13L13 3' },
+  { key: 'polygon', active: false, path: '' },
 ] as const;
 
 export function LaboratoryPage() {
-  const [showTour, setShowTour] = useState(false);
-
   return (
-    <div className="lab-page">
-      {showTour && <Tour steps={LAB_TOUR_STEPS} onClose={() => setShowTour(false)} />}
+    <LabShell
+      subject="math"
+      subjectIcon={
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 16V4M4 4h8l-3 4 3 4H4" />
+        </svg>
+      }
+      subjectTitle="Математика · Векторы"
+      subjectChip="Математика"
+      tourSteps={LAB_TOUR_STEPS}
+      formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
+      games={GAME_CARDS}
+      calculator={
+        <>
+          <div className="lab-toolbar">
+            {TOOLS.map((tool) => (
+              <button key={tool.key} type="button" className={`lab-tool-btn${tool.active ? ' active' : ''}`}>
+                <ToolIcon tool={tool} />
+              </button>
+            ))}
 
-      <div className="lab-formulas" aria-hidden>
-        {CHALK_FORMULAS.map((f) => (
-          <span
-            key={f.text}
-            style={{
-              top: f.top,
-              left: (f as { left?: string }).left,
-              right: (f as { right?: string }).right,
-            }}
-          >
-            {f.text}
-          </span>
-        ))}
-      </div>
+            <div className="lab-toolbar-divider" />
 
-      <div className="lab-content">
-        <header className="lab-nav">
-          <div className="lab-nav-left">
-            <button type="button" className="lab-brand" onClick={() => window.location.assign('/')}>
-              <span className="lab-brand-title">Ustaz Лаборатории</span>
-            </button>
-            <div className="lab-divider" />
-            <div className="lab-subject-icon">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 16V4M4 4h8l-3 4 3 4H4" />
-              </svg>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span className="lab-subject-title">Математика · Векторы</span>
-              <span className="lab-subject-chip">Математика</span>
-            </div>
-          </div>
-          <div className="lab-nav-right">
-            <button type="button" title="Как пользоваться" className="lab-icon-btn" onClick={() => setShowTour(true)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="1.7">
-                <circle cx="12" cy="12" r="8.5" />
-                <path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.7-2 2.1-2 3.4M12 17.2h0" strokeLinecap="round" />
+            <button type="button" className="lab-tool-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 14h8M3.5 10.5l7-7 3 3-7 7-3.5.5z" />
               </svg>
             </button>
-            <button type="button" className="lab-back-link" onClick={() => window.location.assign('/')}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 3 5 8l5 5" />
+            <button type="button" className="lab-tool-btn">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 6h6a3 3 0 0 1 0 6H8M4 6l2-2M4 6l2 2" />
               </svg>
-              На главную
+            </button>
+
+            <div className="lab-toolbar-spacer" />
+
+            <div className="lab-zoom">
+              <button type="button" className="lab-zoom-btn">−</button>
+              <span className="lab-zoom-label">100%</span>
+              <button type="button" className="lab-zoom-btn">+</button>
+            </div>
+            <div className="lab-toolbar-divider" />
+            <button type="button" title="На весь экран" className="lab-fullscreen-btn">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
+              </svg>
             </button>
           </div>
-        </header>
 
-        <main className="lab-main">
-          <div className="lab-top-row">
-            <div data-tour="calculator" className="lab-calc">
-              <div className="lab-toolbar">
-                {TOOLS.map((tool) => (
-                  <button key={tool.key} type="button" className={`lab-tool-btn${tool.active ? ' active' : ''}`}>
-                    <ToolIcon tool={tool} />
-                  </button>
-                ))}
+          <div className="lab-plane">
+            <CoordinatePlane />
+          </div>
+        </>
+      }
+      instructions={
+        <>
+          <LabInstructionsHead
+            title="Инструкция"
+            icon={
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="8" />
+                <path d="M10 6v5M10 14h0" />
+              </svg>
+            }
+          />
+          <p className="lab-instructions-desc">Постройте вектор по двум точкам на координатной плоскости.</p>
 
-                <div className="lab-toolbar-divider" />
-
-                <button type="button" className="lab-tool-btn">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 14h8M3.5 10.5l7-7 3 3-7 7-3.5.5z" />
-                  </svg>
-                </button>
-                <button type="button" className="lab-tool-btn">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 6h6a3 3 0 0 1 0 6H8M4 6l2-2M4 6l2 2" />
-                  </svg>
-                </button>
-
-                <div className="lab-toolbar-spacer" />
-
-                <div className="lab-zoom">
-                  <button type="button" className="lab-zoom-btn">−</button>
-                  <span className="lab-zoom-label">100%</span>
-                  <button type="button" className="lab-zoom-btn">+</button>
-                </div>
-                <div className="lab-toolbar-divider" />
-                <button type="button" title="На весь экран" className="lab-fullscreen-btn">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#6F6E66" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="lab-plane">
-                <CoordinatePlane />
-              </div>
-            </div>
-
-            <div data-tour="instructions" className="lab-instructions">
-              <div className="lab-instructions-head">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="10" cy="10" r="8" />
-                  <path d="M10 6v5M10 14h0" />
-                </svg>
-                <h2 className="lab-instructions-title">Инструкция</h2>
-              </div>
-              <p className="lab-instructions-desc">Постройте вектор по двум точкам на координатной плоскости.</p>
-
-              <div className="lab-steps">
-                <Step n={1} title="Выберите инструмент «Точка»" body="Нажмите на кнопку с точкой на панели инструментов." />
-                <Step n={2} title="Постройте точки A и B" body="Кликните на плоскости, чтобы разместить две точки." />
-                <Step n={3} title="Соедините вектором" body="Выберите инструмент «Вектор» и соедините точки A → B." />
-                <Step n={4} title="Определите координаты" body="Запишите координаты вектора AB⃗ = (x₂−x₁, y₂−y₁)." inactive />
-              </div>
-
-              <div className="lab-hint">
-                <div className="lab-hint-label">Подсказка</div>
-                <div className="lab-hint-body">Вектор AB⃗ = (3−1, −1−2) = (2, −3). Длина = √(4+9) ≈ 3.6</div>
-              </div>
-            </div>
+          <div className="lab-steps">
+            <LabStep n={1} title="Выберите инструмент «Точка»" body="Нажмите на кнопку с точкой на панели инструментов." />
+            <LabStep n={2} title="Постройте точки A и B" body="Кликните на плоскости, чтобы разместить две точки." />
+            <LabStep n={3} title="Соедините вектором" body="Выберите инструмент «Вектор» и соедините точки A → B." />
+            <LabStep n={4} title="Определите координаты" body="Запишите координаты вектора AB⃗ = (x₂−x₁, y₂−y₁)." inactive />
           </div>
 
-          <section data-tour="games">
-            <div className="lab-games-head">
-              <h2 className="lab-games-title">Выберите игру</h2>
-              <span className="lab-games-count">{GAME_CARDS.length} игры</span>
-            </div>
-
-            <div className="lab-games-grid">
-              {GAME_CARDS.map((card) => (
-                <button key={card.name} type="button" className={`lab-card tone-${card.tone}`}>
-                  <div className={`lab-card-thumb tone-${card.tone}`}>
-                    {card.icon}
-                    <span className={`lab-card-tag tone-${card.tone}`}>{card.tag}</span>
-                  </div>
-                  <div className="lab-card-body">
-                    <div className="lab-card-name">{card.name}</div>
-                    <div className="lab-card-desc">{card.desc}</div>
-                    <span className={`lab-card-cta tone-${card.tone}`}>
-                      Открыть игру <span>→</span>
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
-  );
-}
-
-function Step({ n, title, body, inactive }: { n: number; title: string; body: string; inactive?: boolean }) {
-  return (
-    <div className="lab-step">
-      <div className={`lab-step-num${inactive ? ' inactive' : ''}`}>{n}</div>
-      <div>
-        <div className={`lab-step-title${inactive ? ' inactive' : ''}`}>{title}</div>
-        <div className={`lab-step-body${inactive ? ' inactive' : ''}`}>{body}</div>
-      </div>
-    </div>
+          <LabHint label="Подсказка">Вектор AB⃗ = (3−1, −1−2) = (2, −3). Длина = √(4+9) ≈ 3.6</LabHint>
+        </>
+      }
+    />
   );
 }
 
 function ToolIcon({ tool }: { tool: (typeof TOOLS)[number] }) {
   if (tool.key === 'point') {
     return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="#2563EB" stroke="none">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="var(--accent)" stroke="none">
         <circle cx="8" cy="8" r="4" />
       </svg>
     );
@@ -345,16 +255,16 @@ function CoordinatePlane() {
       <text x="388" y="314" fill="#A6A498" fontSize="11" fontFamily="Inter,sans-serif" textAnchor="end">−1</text>
       <text x="388" y="394" fill="#A6A498" fontSize="11" fontFamily="Inter,sans-serif" textAnchor="end">−2</text>
 
-      <circle cx="480" cy="70" r="6" fill="#2563EB" />
-      <text x="492" y="66" fill="#2563EB" fontSize="14" fontWeight="600" fontFamily="Inter,sans-serif">A (1, 2)</text>
+      <circle cx="480" cy="70" r="6" fill="var(--accent)" />
+      <text x="492" y="66" fill="var(--accent)" fontSize="14" fontWeight="600" fontFamily="Inter,sans-serif">A (1, 2)</text>
 
-      <circle cx="640" cy="310" r="6" fill="#2563EB" />
-      <text x="652" y="306" fill="#2563EB" fontSize="14" fontWeight="600" fontFamily="Inter,sans-serif">B (3, −1)</text>
+      <circle cx="640" cy="310" r="6" fill="var(--accent)" />
+      <text x="652" y="306" fill="var(--accent)" fontSize="14" fontWeight="600" fontFamily="Inter,sans-serif">B (3, −1)</text>
 
-      <line x1="480" y1="70" x2="640" y2="310" stroke="#2563EB" strokeWidth="2.2" />
-      <polygon points="640,310 624,298 630,314" fill="#2563EB" />
+      <line x1="480" y1="70" x2="640" y2="310" stroke="var(--accent)" strokeWidth="2.2" />
+      <polygon points="640,310 624,298 630,314" fill="var(--accent)" />
 
-      <text x="570" y="178" fill="#2563EB" fontSize="13" fontWeight="500" fontFamily="Inter,sans-serif" transform="rotate(56.3, 570, 178)">AB⃗</text>
+      <text x="570" y="178" fill="var(--accent)" fontSize="13" fontWeight="500" fontFamily="Inter,sans-serif" transform="rotate(56.3, 570, 178)">AB⃗</text>
 
       <circle cx="320" cy="150" r="5" fill="#DC2626" />
       <text x="296" y="142" fill="#DC2626" fontSize="13" fontWeight="600" fontFamily="Inter,sans-serif">C (−1, 1)</text>

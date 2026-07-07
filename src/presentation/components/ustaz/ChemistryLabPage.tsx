@@ -1,24 +1,45 @@
 import { useMemo, useState } from 'react';
-import '@/presentation/styles/chem-lab.css';
+import type { TourStep } from './Tour';
+import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
 
 const CHALK_FORMULAS = [
-  { text: 'H₂O', top: '8%', left: '4%', rot: '-12deg', delay: '0s' },
-  { text: 'NaCl → Na⁺ + Cl⁻', top: '18%', right: '6%', rot: '8deg', delay: '1.2s' },
-  { text: 'pH = -log[H⁺]', top: '42%', left: '2%', rot: '6deg', delay: '0.6s' },
-  { text: '2H₂ + O₂ → 2H₂O', top: '55%', right: '3%', rot: '-10deg', delay: '1.8s' },
-  { text: 'CO₂', top: '72%', left: '8%', rot: '-6deg', delay: '2.4s' },
-  { text: 'n = m / M', top: '85%', right: '10%', rot: '14deg', delay: '0.3s' },
-  { text: 'HCl + NaOH → NaCl + H₂O', top: '32%', left: '48%', rot: '-4deg', delay: '1s' },
-  { text: 'C₆H₁₂O₆', top: '65%', left: '45%', rot: '5deg', delay: '2s' },
+  { text: 'H₂O', top: '8%', left: '4%' },
+  { text: 'NaCl → Na⁺ + Cl⁻', top: '18%', right: '6%' },
+  { text: 'pH = -log[H⁺]', top: '42%', left: '2%' },
+  { text: '2H₂ + O₂ → 2H₂O', top: '55%', right: '3%' },
+  { text: 'CO₂', top: '72%', left: '8%' },
+  { text: 'n = m / M', top: '85%', right: '10%' },
+  { text: 'HCl + NaOH → NaCl + H₂O', top: '32%', left: '48%' },
+  { text: 'C₆H₁₂O₆', top: '65%', left: '45%' },
 ] as const;
 
-/** A pH color for the liquid, from acidic (0) to basic (14). */
+const LAB_TOUR_STEPS: TourStep[] = [
+  {
+    target: '[data-tour="calculator"]',
+    icon: 'grid',
+    title: 'pH симуляторы',
+    body: 'Реагенттерді араластырып немесе бегунокты жылжытып, ерітіндінің қышқылдығын өзгертіңіз.',
+  },
+  {
+    target: '[data-tour="instructions"]',
+    icon: 'help',
+    title: 'Тапсырма нұсқаулығы',
+    body: 'Қадам бойынша нұсқаулар — симуляторда не істеу керектігі.',
+  },
+  {
+    target: '[data-tour="games"]',
+    icon: 'grid',
+    title: 'Ойындар мен зертханалар',
+    body: 'Тақырып бойынша ойындар карточкалары.',
+  },
+];
+
 function phColor(ph: number): string {
-  if (ph <= 3) return '#ef4444'; // strong acid — red
-  if (ph <= 6) return '#f97316'; // weak acid — orange
-  if (ph < 8) return '#22c55e'; // neutral — green
-  if (ph <= 11) return '#0ea5e9'; // weak base — blue
-  return '#7c3aed'; // strong base — violet
+  if (ph <= 3) return '#ef4444';
+  if (ph <= 6) return '#f97316';
+  if (ph < 8) return '#22c55e';
+  if (ph <= 11) return '#0ea5e9';
+  return '#a78bfa';
 }
 
 function phVerdict(ph: number): { text: string; color: string; bg: string } {
@@ -40,12 +61,31 @@ const REAGENTS: Reagent[] = [
   { id: 'bleach', label: '🧴 Хлор', ph: 13 },
 ];
 
-/** Static sample games — placeholder until a chemistry backend exists. */
-const SAMPLE_GAMES = [
-  { id: 1, icon: '⚗️', name: 'pH-микс', desc: 'Реагенттерді араластырып, ерітіндінің қышқылдығын анықтаңыз.' },
-  { id: 2, icon: '🧪', name: 'Реакция балансы', desc: 'Химиялық теңдеулердің коэффициенттерін дұрыс қойыңыз. (жақында)' },
-  { id: 3, icon: '🔬', name: 'Молекула құрастыру', desc: 'Атомдардан молекула жинаңыз да, атауын табыңыз. (жақында)' },
-] as const;
+const GAME_CARDS: LabGameCard[] = [
+  {
+    tone: 'accent',
+    tag: 'СИМУЛЯТОР',
+    name: 'pH-микс',
+    desc: 'Реагенттерді араластырып, ерітіндінің қышқылдығын анықтаңыз.',
+    icon: <span style={{ fontSize: '40px' }}>⚗️</span>,
+  },
+  {
+    tone: 'amber',
+    tag: 'ИГРА',
+    name: 'Реакция балансы',
+    desc: 'Химиялық теңдеулердің коэффициенттерін дұрыс қойыңыз. (жақында)',
+    icon: <span style={{ fontSize: '40px' }}>🧪</span>,
+    disabled: true,
+  },
+  {
+    tone: 'amber',
+    tag: 'ИГРА',
+    name: 'Молекула құрастыру',
+    desc: 'Атомдардан молекула жинаңыз да, атауын табыңыз. (жақында)',
+    icon: <span style={{ fontSize: '40px' }}>🔬</span>,
+    disabled: true,
+  },
+];
 
 export function ChemistryLabPage() {
   const [ph, setPh] = useState(7);
@@ -65,164 +105,156 @@ export function ChemistryLabPage() {
   };
 
   return (
-    <div className="chem-lab">
-      <div className="chem-lab-formulas" aria-hidden>
-        {CHALK_FORMULAS.map((f) => (
-          <span
-            key={f.text}
-            className="chem-lab-formula"
-            style={{
-              top: f.top,
-              left: (f as { left?: string }).left,
-              right: (f as { right?: string }).right,
-            }}
-          >
-            {f.text}
-          </span>
-        ))}
-      </div>
-
-      <nav className="chem-lab-nav">
-        <div className="chem-lab-brand">
-          <div className="chem-lab-logo" aria-hidden>
-            ⚗️
+    <LabShell
+      subject="chemistry"
+      subjectIcon={
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3h4M8.5 3v5l-4 8a1.5 1.5 0 0 0 1.3 2.2h8.4A1.5 1.5 0 0 0 15.5 16l-4-8V3" />
+        </svg>
+      }
+      subjectTitle="Химия · pH"
+      subjectChip="Химия"
+      tourSteps={LAB_TOUR_STEPS}
+      formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
+      games={GAME_CARDS}
+      calculator={
+        <div className="lab-panel-body">
+          <div className="lab-panel-task">
+            Реагентті таңдап немесе бегунокты жылжытып, ерітіндіні бейтарап (pH = 7) күйге келтіріңіз.
           </div>
-          <div>
-            <p className="chem-lab-brand-title">Химия зертханасы</p>
-            <p className="chem-lab-brand-sub">Ойнап үйренеміз!</p>
-          </div>
-        </div>
-        <button type="button" className="chem-lab-back-btn" onClick={() => window.location.assign('/')}>
-          ← Басты бет
-        </button>
-      </nav>
-
-      <section className="chem-lab-hero">
-        <div className="chem-lab-hero-inner">
-          <div className="chem-lab-dot" />
-          <h1 className="chem-lab-hero-title">
-            <span>pH</span> симуляторы
-          </h1>
-          <span className="chem-lab-chip">Интерактивті</span>
-        </div>
-        <p className="chem-lab-hero-desc">
-          Реагенттерді араластырып, ерітіндінің түсі мен қышқылдығын бақылаңыз — химияны қызықты тәжірибе ретінде көріңіз!
-        </p>
-      </section>
-
-      <section className="chem-lab-sim-wrap">
-        <div className="chem-lab-sim-frame">
-          <div className="chem-lab-sim-label">
-            <span>Интерактивті зертхана</span>
-          </div>
-          <div className="chem-lab-sim-body">
-            <div className="chem-lab-task">
-              <p className="chem-lab-task-label">Тапсырма</p>
-              <p className="chem-lab-task-text">
-                Реагентті таңдап немесе бегунокты жылжытып, ерітіндіні бейтарап (pH = 7) күйге келтіріңіз.
-              </p>
+          <div style={{ flex: 1, minHeight: '460px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '24px', flexWrap: 'wrap' }}>
+            <div
+              aria-hidden
+              style={{
+                width: '120px',
+                height: '220px',
+                border: '3px solid #1a1a17',
+                borderTop: 'none',
+                borderRadius: '0 0 16px 16px',
+                position: 'relative',
+                overflow: 'hidden',
+                background: 'rgba(255,255,255,0.5)',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: color,
+                  height: `${58 + (ph / 14) * 8}%`,
+                  transition: 'background 0.3s, height 0.3s',
+                }}
+              />
             </div>
 
-            <div className="chem-lab-mixer">
-              <div className="chem-lab-beaker" aria-hidden>
-                <div
-                  className="chem-lab-liquid"
-                  style={{ background: color, height: `${58 + (ph / 14) * 8}%` }}
-                >
-                  <span className="chem-lab-bubble" style={{ left: '25%', animationDelay: '0s' }} />
-                  <span className="chem-lab-bubble" style={{ left: '55%', animationDelay: '0.8s' }} />
-                  <span className="chem-lab-bubble" style={{ left: '75%', animationDelay: '1.6s' }} />
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '260px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                <span style={{ fontSize: '40px', fontWeight: 700, color: '#1a1a17', fontFamily: 'Spectral, serif' }}>{ph.toFixed(1)}</span>
+                <span style={{ fontSize: '13px', color: '#6f6e66' }}>pH деңгейі</span>
               </div>
 
-              <div className="chem-lab-controls">
-                <div className="chem-lab-ph-display">
-                  <span className="chem-lab-ph-value">{ph.toFixed(1)}</span>
-                  <span className="chem-lab-ph-label">pH деңгейі</span>
-                </div>
+              <div
+                style={{
+                  display: 'inline-block',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  border: `1px solid ${verdict.color}`,
+                  background: verdict.bg,
+                  color: verdict.color,
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  width: 'fit-content',
+                }}
+              >
+                {verdict.text}
+              </div>
 
-                <div
-                  className="chem-lab-verdict"
-                  style={{ color: verdict.color, background: verdict.bg, borderColor: verdict.color }}
-                >
-                  {verdict.text}
-                </div>
+              <div>
+                <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#6f6e66' }}>Қышқылдықты реттеу: 0 (қышқыл) — 14 (негіз)</p>
+                <input
+                  type="range"
+                  min={0}
+                  max={14}
+                  step={0.5}
+                  value={ph}
+                  onChange={(e) => {
+                    setPh(Number(e.target.value));
+                    setActiveReagent(null);
+                  }}
+                  style={{ width: '100%', accentColor: 'var(--accent)' }}
+                />
+              </div>
 
-                <div className="chem-lab-slider-row">
-                  <span>Қышқылдықты реттеу: 0 (қышқыл) — 14 (негіз)</span>
-                  <input
-                    className="chem-lab-slider"
-                    type="range"
-                    min={0}
-                    max={14}
-                    step={0.5}
-                    value={ph}
-                    onChange={(e) => {
-                      setPh(Number(e.target.value));
-                      setActiveReagent(null);
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {REAGENTS.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => applyReagent(r)}
+                    style={{
+                      height: '34px',
+                      padding: '0 14px',
+                      border: `1px solid ${activeReagent === r.id ? 'var(--accent)' : '#e6e2d8'}`,
+                      borderRadius: '8px',
+                      background: activeReagent === r.id ? 'var(--accent-dim-2)' : '#ffffff',
+                      color: '#1a1a17',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      cursor: 'pointer',
                     }}
-                  />
-                </div>
-
-                <div className="chem-lab-reagents">
-                  {REAGENTS.map((r) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      className={`chem-lab-reagent${activeReagent === r.id ? ' chem-lab-reagent--active' : ''}`}
-                      onClick={() => applyReagent(r)}
-                    >
-                      {r.label}
-                    </button>
-                  ))}
-                </div>
-
-                <button type="button" className="chem-lab-reset" onClick={reset}>
-                  🔄 Қайта бастау
-                </button>
+                  >
+                    {r.label}
+                  </button>
+                ))}
               </div>
+
+              <button
+                type="button"
+                onClick={reset}
+                style={{
+                  alignSelf: 'flex-start',
+                  height: '34px',
+                  padding: '0 16px',
+                  border: '1px solid #e6e2d8',
+                  borderRadius: '8px',
+                  background: '#ffffff',
+                  color: '#6f6e66',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+              >
+                🔄 Қайта бастау
+              </button>
             </div>
           </div>
         </div>
-      </section>
+      }
+      instructions={
+        <>
+          <LabInstructionsHead
+            title="Инструкция"
+            icon={
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="8" />
+                <path d="M10 6v5M10 14h0" />
+              </svg>
+            }
+          />
+          <p className="lab-instructions-desc">Ерітіндінің қышқылдығын өзгертіп, pH шкаласын зерттеңіз.</p>
 
-      <section className="chem-lab-games">
-        <div className="chem-lab-games-head">
-          <div className="chem-lab-games-icon" aria-hidden>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="6" width="16" height="10" rx="3" />
-              <circle cx="6.5" cy="11" r="1.5" />
-              <circle cx="13.5" cy="11" r="1.5" />
-              <path d="M8 4h4" />
-            </svg>
+          <div className="lab-steps">
+            <LabStep n={1} title="Реагентті таңдаңыз" body="Лимон, су, сабын немесе хлорды таңдап көріңіз." />
+            <LabStep n={2} title="Бегунокты жылжытыңыз" body="Қышқылдық деңгейін қолмен де реттей аласыз." />
+            <LabStep n={3} title="Түс өзгерісін бақылаңыз" body="Ыдыстағы сұйықтық түсі pH мәніне байланысты өзгереді." />
+            <LabStep n={4} title="Бейтарап деңгейге жеткізіңіз" body="pH = 7 мәніне жеткізіп, нәтижені тексеріңіз." inactive />
           </div>
-          <div>
-            <h2 className="chem-lab-games-title">Ойын таңдаңыз</h2>
-            <p className="chem-lab-games-sub">Қызықты зертханалар мен ойындар</p>
-          </div>
-        </div>
 
-        <div className="chem-lab-games-grid">
-          {SAMPLE_GAMES.map((game) => (
-            <div key={game.id} className="chem-lab-game-card">
-              <div className="chem-lab-game-thumb" aria-hidden>
-                {game.icon}
-              </div>
-              <div className="chem-lab-game-body">
-                <p className="chem-lab-game-name">{game.name}</p>
-                <p className="chem-lab-game-desc">{game.desc}</p>
-                <span className="chem-lab-game-cta">
-                  {game.id === 1 ? 'Жоғарыда ойнаңыз ↑' : 'Жақында ⏳'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="chem-lab-footer">
-        Химия зертханасы · Ustaz Chemistry · {new Date().getFullYear()} ✨
-      </footer>
-    </div>
+          <LabHint label="Подсказка">pH = -log[H⁺]. pH &lt; 7 — қышқыл, pH = 7 — бейтарап, pH &gt; 7 — негіз.</LabHint>
+        </>
+      }
+    />
   );
 }

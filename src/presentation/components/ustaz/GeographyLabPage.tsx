@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import type { TourStep } from './Tour';
+import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
 import { MapEngine } from '@/infrastructure/geography/MapEngine';
 import { setupGeoTask, type GeoTaskRuntimeState } from '@/infrastructure/geography/GeoTaskConfig';
 import { GEO_TASK_CONFIGS } from '@/infrastructure/geography/geoTaskConfigs';
-import '@/presentation/styles/geo-lab.css';
 
 type Tab = 'grade7' | 'grade8' | 'grade11';
 
@@ -20,32 +21,41 @@ const TAB_LABELS: { id: Tab; label: string }[] = [
 ];
 
 const CHALK_FORMULAS = [
-  { text: 'd = R · Δσ', top: '8%', left: '4%', rot: '-12deg', delay: '0s' },
-  { text: 'lat / lon', top: '18%', right: '6%', rot: '8deg', delay: '1.2s' },
-  { text: 'R⊕ ≈ 6371 км', top: '42%', left: '2%', rot: '6deg', delay: '0.6s' },
-  { text: 'N 43° · E 76°', top: '55%', right: '3%', rot: '-10deg', delay: '1.8s' },
-  { text: '360° меридиан', top: '72%', left: '8%', rot: '-6deg', delay: '2.4s' },
-  { text: 'h = рельеф', top: '85%', right: '10%', rot: '14deg', delay: '0.3s' },
-  { text: 'azimuth θ', top: '32%', left: '50%', rot: '-4deg', delay: '1s' },
-  { text: 'экватор 0°', top: '65%', left: '45%', rot: '5deg', delay: '2s' },
+  { text: 'd = R · Δσ', top: '8%', left: '4%' },
+  { text: 'lat / lon', top: '18%', right: '6%' },
+  { text: 'R⊕ ≈ 6371 км', top: '42%', left: '2%' },
+  { text: 'N 43° · E 76°', top: '55%', right: '3%' },
+  { text: '360° меридиан', top: '72%', left: '8%' },
+  { text: 'h = рельеф', top: '85%', right: '10%' },
+  { text: 'azimuth θ', top: '32%', left: '50%' },
+  { text: 'экватор 0°', top: '65%', left: '45%' },
 ] as const;
 
-interface DebugValues {
-  center: [number, number];
-  zoom: number;
-  pitch: number;
-  bearing: number;
-}
-
-interface MeasureValues {
-  distanceKm: number | null;
-  pointCount: number;
-}
+const LAB_TOUR_STEPS: TourStep[] = [
+  {
+    target: '[data-tour="calculator"]',
+    icon: 'grid',
+    title: 'Интерактивті карта',
+    body: 'Жер шарын бұрап, қалалар арасын өлшеп, рельефті зерттеңіз. Сыныпты таңдау арқылы тапсырманы өзгертіңіз.',
+  },
+  {
+    target: '[data-tour="instructions"]',
+    icon: 'help',
+    title: 'Тапсырма нұсқаулығы',
+    body: 'Қадам бойынша нұсқаулар — картада не істеу керектігі.',
+  },
+  {
+    target: '[data-tour="games"]',
+    icon: 'grid',
+    title: 'Ойындар мен зертханалар',
+    body: 'Тақырып бойынша ойындар карточкалары.',
+  },
+];
 
 export function GeographyLabPage() {
   const [tab, setTab] = useState<Tab>('grade7');
-  const [debugValues, setDebugValues] = useState<DebugValues | null>(null);
-  const [measureValues, setMeasureValues] = useState<MeasureValues | null>(null);
+  const [debugValues, setDebugValues] = useState<{ center: [number, number]; zoom: number; pitch: number; bearing: number } | null>(null);
+  const [measureValues, setMeasureValues] = useState<{ distanceKm: number | null; pointCount: number } | null>(null);
   const [terrainNote, setTerrainNote] = useState<string | null>(null);
 
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -88,119 +98,124 @@ export function GeographyLabPage() {
     };
   }, [tab]);
 
+  const games: LabGameCard[] = [
+    {
+      tone: 'accent',
+      tag: 'СИМУЛЯТОР',
+      name: 'Жер шары',
+      desc: 'Жер шарын еркін бұрап, континенттер мен мұхиттарды зерттеңіз.',
+      icon: <span style={{ fontSize: '40px' }}>🌍</span>,
+    },
+    {
+      tone: 'accent',
+      tag: 'СИМУЛЯТОР',
+      name: 'Рельеф картасы',
+      desc: '3D камераны бұрап, ғимараттар мен рельефті қарап шығыңыз.',
+      icon: <span style={{ fontSize: '40px' }}>🏔️</span>,
+    },
+    {
+      tone: 'amber',
+      tag: 'ИГРА',
+      name: 'Қашықтықты тап',
+      desc: 'Екі қаланы шертіп, олардың арақашықтығын дәл есептеңіз.',
+      icon: <span style={{ fontSize: '40px' }}>📍</span>,
+    },
+    {
+      tone: 'amber',
+      tag: 'ИГРА',
+      name: 'Координата-квест',
+      desc: 'Координаталар бойынша орынды тауып, ұпай жинаңыз.',
+      icon: <span style={{ fontSize: '40px' }}>🧭</span>,
+    },
+  ];
+
   return (
-    <div className="geo-lab">
-      <div className="geo-lab-formulas" aria-hidden>
-        {CHALK_FORMULAS.map((f) => (
-          <span
-            key={f.text}
-            className="geo-lab-formula"
-            style={{
-              top: f.top,
-              left: (f as { left?: string }).left,
-              right: (f as { right?: string }).right,
-            }}
-          >
-            {f.text}
-          </span>
-        ))}
-      </div>
-
-      <nav className="geo-lab-nav">
-        <div className="geo-lab-brand">
-          <div className="geo-lab-logo" aria-hidden>
-            🌍
-          </div>
-          <div>
-            <p className="geo-lab-brand-title">География зертханасы</p>
-            <p className="geo-lab-brand-sub">Ойнап үйренеміз!</p>
-          </div>
-        </div>
-        <button type="button" className="geo-lab-back-btn" onClick={() => window.location.assign('/')}>
-          ← Басты бет
-        </button>
-      </nav>
-
-      <section className="geo-lab-hero">
-        <div className="geo-lab-hero-inner">
-          <div className="geo-lab-dot" />
-          <h1 className="geo-lab-hero-title">
-            <span>MapLibre</span> зертханасы
-          </h1>
-          <span className="geo-lab-chip">Интерактивті</span>
-        </div>
-        <p className="geo-lab-hero-desc">
-          Жер шарын бұрап, қалалар арасын өлшеп, рельефті зерттеп — географияны қызықты тәжірибе ретінде көріңіз!
-        </p>
-
-        <div className="geo-lab-tabs">
-          {TAB_LABELS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`geo-lab-tab${tab === t.id ? ' geo-lab-tab--active' : ''}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="geo-lab-sim-wrap">
-        <div className="geo-lab-sim-frame">
-          <div className="geo-lab-sim-label">
-            <span>Интерактивті зертхана</span>
-          </div>
-          <div className="geo-lab-sim-body">
-            <div className="geo-lab-task">
-              <p className="geo-lab-task-label">Тапсырма</p>
-              <p className="geo-lab-task-text">
-                {activeConfig.objective === 'measure_distance'
-                  ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
-                  : activeConfig.mode === 'globe'
-                    ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
-                    : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.'}
-              </p>
+    <LabShell
+      subject="geography"
+      subjectIcon={
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="10" cy="10" r="8" />
+          <path d="M2 10h16M10 2a13 13 0 0 1 0 16M10 2a13 13 0 0 0 0 16" />
+        </svg>
+      }
+      subjectTitle="География · Картография"
+      subjectChip="География"
+      tourSteps={LAB_TOUR_STEPS}
+      formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
+      games={games}
+      calculator={
+        <div className="lab-panel-body">
+          <div className="lab-panel-toolbar">
+            <div className="lab-panel-tabs">
+              {TAB_LABELS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`lab-panel-tab${tab === t.id ? ' active' : ''}`}
+                  onClick={() => setTab(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
-
-            <div className="geo-lab-applet">
-              <MapEngine key={activeConfig.id} width={880} height={520} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
-            </div>
-
-            {terrainNote && (
-              <div className="geo-lab-note">
-                <span aria-hidden>⛰️</span>
-                <span>{terrainNote}</span>
-              </div>
-            )}
           </div>
+          <div className="lab-panel-task">
+            {activeConfig.objective === 'measure_distance'
+              ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
+              : activeConfig.mode === 'globe'
+                ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
+                : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.'}
+          </div>
+          <div style={{ flex: 1, minHeight: '460px', position: 'relative' }}>
+            <MapEngine key={activeConfig.id} width={880} height={520} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
+          </div>
+          {terrainNote && (
+            <div className="lab-panel-task" style={{ borderTop: '1px solid #e6e2d8', borderBottom: 'none' }}>
+              ⛰️ {terrainNote}
+            </div>
+          )}
+          {debugValues && (
+            <div className="lab-panel-debug">
+              <span>
+                center = [<strong>{debugValues.center[0].toFixed(4)}</strong>, <strong>{debugValues.center[1].toFixed(4)}</strong>]
+              </span>
+              <span>
+                zoom = <strong>{debugValues.zoom.toFixed(2)}</strong>
+              </span>
+              {activeConfig.objective === 'measure_distance' && (
+                <span>
+                  {measureValues?.distanceKm != null
+                    ? <>distance = <strong>{measureValues.distanceKm.toFixed(1)} km</strong></>
+                    : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-      </section>
+      }
+      instructions={
+        <>
+          <LabInstructionsHead
+            title="Инструкция"
+            icon={
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="8" />
+                <path d="M10 6v5M10 14h0" />
+              </svg>
+            }
+          />
+          <p className="lab-instructions-desc">Картамен жұмыс жасап, географиялық тапсырманы орындаңыз.</p>
 
-      <div className="geo-lab-debug">
-        <p className="geo-lab-debug-title">Debug panel — live MapLibre camera values</p>
-        {!debugValues && <p>Map жүктелуде…</p>}
-        {debugValues && (
-          <>
-            <p>center = [{debugValues.center[0].toFixed(4)}, {debugValues.center[1].toFixed(4)}]</p>
-            <p>zoom = {debugValues.zoom.toFixed(2)}</p>
-            <p>pitch = {debugValues.pitch.toFixed(1)}°</p>
-            <p>bearing = {debugValues.bearing.toFixed(1)}°</p>
-            {activeConfig.objective === 'measure_distance' && (
-              <p className="geo-lab-debug-ref">
-                {measureValues?.distanceKm != null
-                  ? `distance = ${measureValues.distanceKm.toFixed(1)} km`
-                  : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
-              </p>
-            )}
-          </>
-        )}
-      </div>
+          <div className="lab-steps">
+            <LabStep n={1} title="Сыныпты таңдаңыз" body="Жоғарыдағы қойындылардан тапсырма деңгейін таңдаңыз." />
+            <LabStep n={2} title="Картамен әрекеттесіңіз" body="Тінтуірмен бұрап, масштабтап, қажетті орынды табыңыз." />
+            <LabStep n={3} title="Тапсырманы орындаңыз" body="Экран жоғарғы жағындағы тапсырма мәтінін оқып орындаңыз." />
+            <LabStep n={4} title="Нәтижені тексеріңіз" body="Төмендегі debug панелінен координаталар мен қашықтықты тексеріңіз." inactive />
+          </div>
 
-      <footer className="geo-lab-footer">
-        География зертханасы · Ustaz Geography · {new Date().getFullYear()} ✨
-      </footer>
-    </div>
+          <LabHint label="Подсказка">Жердің радиусы R⊕ ≈ 6371 км. Қашықтық d = R · Δσ формуласымен есептеледі.</LabHint>
+        </>
+      }
+    />
   );
 }

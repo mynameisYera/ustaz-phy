@@ -1,16 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
 
-/* —— Laboratory · vectors coordinate-plane lab —— */
+/* —— Laboratory · shared subject-lab shell —— */
 
 .lab-page {
+  --accent: #2563eb;
+  --accent-bright: #60a5fa;
+  --accent-line: rgba(37, 99, 235, 0.25);
+  --accent-dim: rgba(37, 99, 235, 0.15);
+  --accent-dim-2: rgba(37, 99, 235, 0.1);
+  --bg: #0f1e3d;
+
   position: relative;
   min-height: 100vh;
   font-family: Inter, system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.5;
   color: #e8edf5;
-  background: #0f1e3d;
+  background: var(--bg);
   overflow-x: hidden;
+}
+
+.lab-page[data-subject='geography'] {
+  --accent: #dc2626;
+  --accent-bright: #f87171;
+  --accent-line: rgba(220, 38, 38, 0.25);
+  --accent-dim: rgba(220, 38, 38, 0.15);
+  --accent-dim-2: rgba(220, 38, 38, 0.1);
+  --bg: #2e0f14;
+}
+
+.lab-page[data-subject='chemistry'] {
+  --accent: #7c3aed;
+  --accent-bright: #a78bfa;
+  --accent-line: rgba(124, 58, 237, 0.25);
+  --accent-dim: rgba(124, 58, 237, 0.15);
+  --accent-dim-2: rgba(124, 58, 237, 0.1);
+  --bg: #1e1240;
+}
+
+.lab-page[data-subject='physics'] {
+  --accent: #0f6f6a;
+  --accent-bright: #2dd4bf;
+  --accent-line: rgba(15, 111, 106, 0.3);
+  --accent-dim: rgba(15, 111, 106, 0.2);
+  --accent-dim-2: rgba(15, 111, 106, 0.12);
+  --bg: #0a2626;
 }
 
 .lab-formulas {
@@ -80,8 +114,8 @@
 .lab-subject-icon {
   width: 36px;
   height: 36px;
-  background: rgba(37, 99, 235, 0.15);
-  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-line);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -97,7 +131,7 @@
 
 .lab-subject-chip {
   padding: 4px 12px;
-  background: #2563eb;
+  background: var(--accent);
   color: #fff;
   border-radius: 20px;
   font-size: 12px;
@@ -206,8 +240,8 @@
 }
 
 .lab-tool-btn.active {
-  border: 2px solid #2563eb;
-  background: #ebf2ff;
+  border: 2px solid var(--accent);
+  background: var(--accent-dim-2);
 }
 
 .lab-toolbar-divider {
@@ -286,6 +320,89 @@
   height: 100%;
 }
 
+/* Generic simulator host (physics / geography / chemistry) */
+.lab-panel-body {
+  flex: 1;
+  min-height: 460px;
+  position: relative;
+  background: #fafaf8;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lab-panel-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #e6e2d8;
+  background: #ffffff;
+  flex-wrap: wrap;
+}
+
+.lab-panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lab-panel-tab {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid #e6e2d8;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #6f6e66;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lab-panel-tab:hover {
+  background: #fbfaf6;
+}
+
+.lab-panel-tab.active {
+  border-color: var(--accent);
+  background: var(--accent-dim-2);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.lab-panel-task {
+  padding: 12px 18px;
+  border-bottom: 1px solid #e6e2d8;
+  background: #fbfaf6;
+  font-size: 13px;
+  color: #4a4943;
+  line-height: 1.5;
+}
+
+.lab-panel-task strong {
+  color: #1a1a17;
+  font-weight: 600;
+}
+
+.lab-panel-debug {
+  padding: 10px 18px;
+  border-top: 1px solid #e6e2d8;
+  background: #ffffff;
+  font-size: 12px;
+  color: #6f6e66;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.lab-panel-debug strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* Instruction panel */
 .lab-instructions {
   background: rgba(255, 255, 255, 0.06);
@@ -335,7 +452,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--accent);
   color: #fff;
   display: flex;
   align-items: center;
@@ -373,15 +490,15 @@
 .lab-hint {
   margin-top: 20px;
   padding: 14px 16px;
-  background: rgba(37, 99, 235, 0.1);
+  background: var(--accent-dim-2);
   border-radius: 8px;
-  border-left: 3px solid #2563eb;
+  border-left: 3px solid var(--accent);
 }
 
 .lab-hint-label {
   font-size: 13px;
   font-weight: 500;
-  color: #60a5fa;
+  color: var(--accent-bright);
   margin-bottom: 4px;
 }
 
@@ -445,8 +562,8 @@
   padding: 0;
 }
 
-.lab-card.tone-blue:hover {
-  border-color: rgba(96, 165, 250, 0.3);
+.lab-card.tone-accent:hover {
+  border-color: var(--accent-line);
   background: rgba(255, 255, 255, 0.09);
 }
 
@@ -464,8 +581,8 @@
   position: relative;
 }
 
-.lab-card-thumb.tone-blue {
-  background: rgba(37, 99, 235, 0.1);
+.lab-card-thumb.tone-accent {
+  background: var(--accent-dim-2);
 }
 
 .lab-card-thumb.tone-amber {
@@ -484,8 +601,8 @@
   letter-spacing: 0.02em;
 }
 
-.lab-card-tag.tone-blue {
-  background: #2563eb;
+.lab-card-tag.tone-accent {
+  background: var(--accent);
 }
 
 .lab-card-tag.tone-amber {
@@ -522,8 +639,8 @@
   gap: 4px;
 }
 
-.lab-card-cta.tone-blue {
-  color: #60a5fa;
+.lab-card-cta.tone-accent {
+  color: var(--accent-bright);
 }
 
 .lab-card-cta.tone-amber {
