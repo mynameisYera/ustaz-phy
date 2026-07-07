@@ -12,6 +12,7 @@ import {
   CAR_Y_OBJECT_NAME,
 } from '@/infrastructure/geogebra/DistanceTaskConfig';
 import { DISTANCE_TASK_CONFIGS } from '@/infrastructure/geogebra/distanceTaskConfigs';
+import '@/presentation/styles/math-lab.css';
 
 type Tab =
   | { kind: 'distance'; config: (typeof DISTANCE_TASK_CONFIGS)[number] }
@@ -21,6 +22,17 @@ const TABS: Tab[] = [
   ...DISTANCE_TASK_CONFIGS.map((config) => ({ kind: 'distance', config }) as const),
   ...VECTOR_TASK_CONFIGS.map((config) => ({ kind: 'vector', config }) as const),
 ];
+
+const CHALK_FORMULAS = [
+  { text: 'a² + b² = c²', top: '8%', left: '4%', rot: '-12deg', delay: '0s' },
+  { text: '∫ f(x) dx', top: '18%', right: '6%', rot: '8deg', delay: '1.2s' },
+  { text: 'y = kx + b', top: '42%', left: '2%', rot: '6deg', delay: '0.6s' },
+  { text: 'sin²θ + cos²θ = 1', top: '55%', right: '3%', rot: '-10deg', delay: '1.8s' },
+  { text: 'd = √(Δx² + Δy²)', top: '72%', left: '8%', rot: '-6deg', delay: '2.4s' },
+  { text: 'A = πr²', top: '85%', right: '10%', rot: '14deg', delay: '0.3s' },
+  { text: '|v⃗| = √(x² + y²)', top: '32%', left: '50%', rot: '-4deg', delay: '1s' },
+  { text: 'f′(x) = lim Δy/Δx', top: '65%', left: '45%', rot: '5deg', delay: '2s' },
+] as const;
 
 interface VectorDebugValues {
   kind: 'vector';
@@ -126,96 +138,133 @@ export function MathGeoGebraPage() {
   }, [activeTabId]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FBFAF6', fontFamily: 'inherit' }}>
-      <header style={{ borderBottom: '1px solid #E6E2D8', background: '#FFFFFF', padding: '20px 40px' }}>
-        <h1 style={{ fontFamily: 'Spectral, serif', fontWeight: 500, fontSize: '26px', letterSpacing: '-0.01em', margin: 0, color: '#1A1A17' }}>
-          Math Labs — GeoGebra
-        </h1>
-        <p style={{ color: '#6F6E66', fontSize: '14px', margin: '6px 0 0' }}>
-          Сынып бойынша тапсырманы таңдаңыз.
-        </p>
-      </header>
+    <div className="math-lab">
+      <div className="math-lab-formulas" aria-hidden>
+        {CHALK_FORMULAS.map((f) => (
+          <span
+            key={f.text}
+            className="math-lab-formula"
+            style={{
+              top: f.top,
+              left: (f as { left?: string }).left,
+              right: (f as { right?: string }).right,
+              ['--rot' as string]: f.rot,
+              ['--delay' as string]: f.delay,
+            }}
+          >
+            {f.text}
+          </span>
+        ))}
+      </div>
 
-      <main style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 40px 80px' }}>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-          {TABS.map((tab) => (
-            <button
-              key={tab.config.id}
-              type="button"
-              onClick={() => setActiveTabId(tab.config.id)}
-              style={{
-                height: '38px',
-                padding: '0 18px',
-                borderRadius: '19px',
-                border: activeTabId === tab.config.id ? '1px solid #1E6E5C' : '1px solid #E6E2D8',
-                background: activeTabId === tab.config.id ? '#1E6E5C' : '#FFFFFF',
-                color: activeTabId === tab.config.id ? '#FFFFFF' : '#1A1A17',
-                fontFamily: 'inherit',
-                fontSize: '14px',
-                fontWeight: activeTabId === tab.config.id ? 500 : 400,
-                cursor: 'pointer',
-              }}
-            >
-              {tab.config.label}
-            </button>
-          ))}
-        </div>
+      <span className="math-lab-sticker math-lab-sticker--1" aria-hidden>📐</span>
+      <span className="math-lab-sticker math-lab-sticker--2" aria-hidden>📊</span>
+      <span className="math-lab-sticker math-lab-sticker--3" aria-hidden>🧮</span>
+      <span className="math-lab-sticker math-lab-sticker--4" aria-hidden>✏️</span>
 
-        <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', background: '#FFFFFF', padding: '20px', marginBottom: '20px' }}>
-          <p style={{ margin: '0 0 4px', fontSize: '13px', color: '#6F6E66', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Тапсырма
-          </p>
-          <p style={{ margin: 0, fontSize: '16px', color: '#1A1A17' }}>{activeTab.config.objective}</p>
-        </div>
-
-        <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', background: '#FFFFFF', padding: '12px', marginBottom: '20px' }}>
-          <GeoGebraApplet
-            key={activeTab.config.id}
-            appName={activeTab.config.appName}
-            width={880}
-            height={520}
-            showToolBar={activeTab.config.showToolBar}
-            showAlgebraInput={activeTab.config.showAlgebraInput}
-            perspective={activeTab.kind === 'vector' ? activeTab.config.perspective : undefined}
-            onReady={handleReady}
-          />
-        </div>
-
-        {activeTab.kind === 'distance' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', border: '1px solid #E6E2D8', borderRadius: '12px', background: '#EAF1ED', padding: '16px 20px', marginBottom: '20px' }}>
-            <span style={{ fontSize: '13px', color: '#1E6E5C', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Жүрген қашықтық
-            </span>
-            <span style={{ fontFamily: 'Spectral, serif', fontSize: '28px', fontWeight: 600, color: '#1A1A17' }}>
-              {debugValues?.kind === 'distance' && debugValues.distanceValue ? `${debugValues.distanceValue} бірлік` : '…'}
-            </span>
+      <nav className="math-lab-nav">
+        <div className="math-lab-brand">
+          <div className="math-lab-logo" aria-hidden>
+            📐
           </div>
-        )}
-
-        <div style={{ border: '1px solid #E6E2D8', borderRadius: '12px', background: '#1A1A17', padding: '16px 20px', fontFamily: 'monospace', fontSize: '13px', color: '#D8D3C6' }}>
-          <p style={{ margin: '0 0 10px', color: '#8FBFAF', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}>
-            Debug panel — live GeoGebra API values
-          </p>
-          {!debugValues && <p style={{ margin: 0 }}>Applet жүктелуде…</p>}
-          {debugValues?.kind === 'vector' && (
-            <>
-              {debugValues.vectorReadouts.map((r) => (
-                <p key={r.name} style={{ margin: '0 0 4px' }}>
-                  {r.name} = {r.value}
-                </p>
-              ))}
-              <p style={{ margin: '8px 0 0', color: '#C9A96A' }}>
-                hidden reference = {debugValues.referenceValue ?? '…'}
-              </p>
-            </>
-          )}
-          {debugValues?.kind === 'distance' && (
-            <p style={{ margin: 0, color: '#C9A96A' }}>
-              distanceTraveled = {debugValues.distanceValue ?? '…'}
-            </p>
-          )}
+          <div>
+            <p className="math-lab-brand-title">Математика зертханасы</p>
+            <p className="math-lab-brand-sub">Ойнап үйренеміз!</p>
+          </div>
         </div>
-      </main>
+        <button type="button" className="math-lab-back-btn" onClick={() => window.location.assign('/')}>
+          ← Басты бет
+        </button>
+      </nav>
+
+      <section className="math-lab-hero">
+        <div className="math-lab-badges">
+          <span className="math-lab-badge math-lab-badge--sky">📐 Геометрия</span>
+          <span className="math-lab-badge math-lab-badge--azure">➗ Векторлар</span>
+          <span className="math-lab-badge math-lab-badge--indigo">🎯 Тапсырма</span>
+        </div>
+        <h1 className="math-lab-hero-title">
+          <span>GeoGebra</span> зертханасы
+        </h1>
+        <p className="math-lab-hero-desc">
+          Нүктелерді жылжытып, векторлар мен қашықтықты өлшеп — математиканы қызықты тәжірибе ретінде көріңіз!
+        </p>
+      </section>
+
+      <div className="math-lab-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.config.id}
+            type="button"
+            onClick={() => setActiveTabId(tab.config.id)}
+            className={`math-lab-tab${activeTabId === tab.config.id ? ' math-lab-tab--active' : ''}`}
+          >
+            {tab.config.label}
+          </button>
+        ))}
+      </div>
+
+      <section className="math-lab-sim-wrap">
+        <div className="math-lab-sim-frame">
+          <div className="math-lab-sim-label">
+            <span>🧭</span>
+            <span>Интерактивті зертхана</span>
+            <span>🧭</span>
+          </div>
+          <div className="math-lab-sim-body">
+            <div className="math-lab-task">
+              <p className="math-lab-task-label">Тапсырма</p>
+              <p className="math-lab-task-text">{activeTab.config.objective}</p>
+            </div>
+
+            <div className="math-lab-applet">
+              <GeoGebraApplet
+                key={activeTab.config.id}
+                appName={activeTab.config.appName}
+                width={880}
+                height={520}
+                showToolBar={activeTab.config.showToolBar}
+                showAlgebraInput={activeTab.config.showAlgebraInput}
+                perspective={activeTab.kind === 'vector' ? activeTab.config.perspective : undefined}
+                onReady={handleReady}
+              />
+            </div>
+
+            {activeTab.kind === 'distance' && (
+              <div className="math-lab-readout">
+                <span className="math-lab-readout-label">Жүрген қашықтық</span>
+                <span className="math-lab-readout-value">
+                  {debugValues?.kind === 'distance' && debugValues.distanceValue
+                    ? `${debugValues.distanceValue} бірлік`
+                    : '…'}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <div className="math-lab-debug">
+        <p className="math-lab-debug-title">Debug panel — live GeoGebra API values</p>
+        {!debugValues && <p>Applet жүктелуде…</p>}
+        {debugValues?.kind === 'vector' && (
+          <>
+            {debugValues.vectorReadouts.map((r) => (
+              <p key={r.name}>
+                {r.name} = {r.value}
+              </p>
+            ))}
+            <p className="math-lab-debug-ref">hidden reference = {debugValues.referenceValue ?? '…'}</p>
+          </>
+        )}
+        {debugValues?.kind === 'distance' && (
+          <p className="math-lab-debug-ref">distanceTraveled = {debugValues.distanceValue ?? '…'}</p>
+        )}
+      </div>
+
+      <footer className="math-lab-footer">
+        Математика зертханасы · Ustaz Math · {new Date().getFullYear()} ✨
+      </footer>
     </div>
   );
 }

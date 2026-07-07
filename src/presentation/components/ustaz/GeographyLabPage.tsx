@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl';
 import { MapEngine } from '@/infrastructure/geography/MapEngine';
 import { setupGeoTask, type GeoTaskRuntimeState } from '@/infrastructure/geography/GeoTaskConfig';
 import { GEO_TASK_CONFIGS } from '@/infrastructure/geography/geoTaskConfigs';
+import '@/presentation/styles/geo-lab.css';
 
 type Tab = 'grade7' | 'grade8' | 'grade11';
 
@@ -11,6 +12,23 @@ const TAB_TO_CONFIG_ID: Record<Tab, string> = {
   grade8: 'grade-8-geo',
   grade11: 'grade-11-geo',
 };
+
+const TAB_LABELS: { id: Tab; label: string }[] = [
+  { id: 'grade7', label: '7-сынып' },
+  { id: 'grade8', label: '8-сынып' },
+  { id: 'grade11', label: '11-сынып' },
+];
+
+const CHALK_FORMULAS = [
+  { text: 'd = R · Δσ', top: '8%', left: '4%', rot: '-12deg', delay: '0s' },
+  { text: 'lat / lon', top: '18%', right: '6%', rot: '8deg', delay: '1.2s' },
+  { text: 'R⊕ ≈ 6371 км', top: '42%', left: '2%', rot: '6deg', delay: '0.6s' },
+  { text: 'N 43° · E 76°', top: '55%', right: '3%', rot: '-10deg', delay: '1.8s' },
+  { text: '360° меридиан', top: '72%', left: '8%', rot: '-6deg', delay: '2.4s' },
+  { text: 'h = рельеф', top: '85%', right: '10%', rot: '14deg', delay: '0.3s' },
+  { text: 'azimuth θ', top: '32%', left: '50%', rot: '-4deg', delay: '1s' },
+  { text: 'экватор 0°', top: '65%', left: '45%', rot: '5deg', delay: '2s' },
+] as const;
 
 interface DebugValues {
   center: [number, number];
@@ -71,82 +89,128 @@ export function GeographyLabPage() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 font-sans">
-      <header className="border-b border-neutral-200 bg-white px-10 py-5">
-        <h1 className="text-2xl font-serif tracking-tight text-neutral-900">
-          Geography Labs — MapLibre Engine (spike)
-        </h1>
-        <p className="mt-1.5 text-sm text-neutral-500">
-          Бір компонент, екі config: төмендегі таб арасын ауыстырып көріңіз.
-        </p>
-      </header>
+    <div className="geo-lab">
+      <div className="geo-lab-formulas" aria-hidden>
+        {CHALK_FORMULAS.map((f) => (
+          <span
+            key={f.text}
+            className="geo-lab-formula"
+            style={{
+              top: f.top,
+              left: (f as { left?: string }).left,
+              right: (f as { right?: string }).right,
+              ['--rot' as string]: f.rot,
+              ['--delay' as string]: f.delay,
+            }}
+          >
+            {f.text}
+          </span>
+        ))}
+      </div>
 
-      <main className="mx-auto max-w-4xl px-10 py-8 pb-20">
-        <div className="mb-5 flex gap-2">
-          <TabButton active={tab === 'grade7'} onClick={() => setTab('grade7')} label="7-сынып" />
-          <TabButton active={tab === 'grade8'} onClick={() => setTab('grade8')} label="8-сынып" />
-          <TabButton active={tab === 'grade11'} onClick={() => setTab('grade11')} label="11-сынып" />
-        </div>
+      <span className="geo-lab-sticker geo-lab-sticker--1" aria-hidden>🌍</span>
+      <span className="geo-lab-sticker geo-lab-sticker--2" aria-hidden>🧭</span>
+      <span className="geo-lab-sticker geo-lab-sticker--3" aria-hidden>🗺️</span>
+      <span className="geo-lab-sticker geo-lab-sticker--4" aria-hidden>⛰️</span>
 
-        <div className="mb-5 rounded-xl border border-neutral-200 bg-white p-5">
-          <p className="mb-1 text-xs uppercase tracking-wide text-neutral-500">Тапсырма</p>
-          <p className="text-base text-neutral-900">
-            {activeConfig.objective === 'measure_distance'
-              ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
-              : activeConfig.mode === 'globe'
-                ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
-                : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.'}
-          </p>
-        </div>
-
-        <div className="mb-5 rounded-xl border border-neutral-200 bg-white p-3">
-          <MapEngine key={activeConfig.id} width={880} height={520} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
-        </div>
-
-        {terrainNote && (
-          <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            {terrainNote}
+      <nav className="geo-lab-nav">
+        <div className="geo-lab-brand">
+          <div className="geo-lab-logo" aria-hidden>
+            🌍
           </div>
-        )}
-
-        <div className="rounded-xl border border-neutral-200 bg-neutral-900 p-5 font-mono text-sm text-neutral-300">
-          <p className="mb-2.5 text-[11px] uppercase tracking-wide text-emerald-300">
-            Debug panel — live MapLibre camera values
-          </p>
-          {!debugValues && <p>Map жүктелуде…</p>}
-          {debugValues && (
-            <>
-              <p>center = [{debugValues.center[0].toFixed(4)}, {debugValues.center[1].toFixed(4)}]</p>
-              <p>zoom = {debugValues.zoom.toFixed(2)}</p>
-              <p>pitch = {debugValues.pitch.toFixed(1)}°</p>
-              <p>bearing = {debugValues.bearing.toFixed(1)}°</p>
-              {activeConfig.objective === 'measure_distance' && (
-                <p className="mt-2 text-amber-300">
-                  {measureValues?.distanceKm != null
-                    ? `distance = ${measureValues.distanceKm.toFixed(1)} km`
-                    : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
-                </p>
-              )}
-            </>
-          )}
+          <div>
+            <p className="geo-lab-brand-title">География зертханасы</p>
+            <p className="geo-lab-brand-sub">Ойнап үйренеміз!</p>
+          </div>
         </div>
-      </main>
-    </div>
-  );
-}
+        <button type="button" className="geo-lab-back-btn" onClick={() => window.location.assign('/')}>
+          ← Басты бет
+        </button>
+      </nav>
 
-function TabButton({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        active
-          ? 'h-9 rounded-full border border-emerald-700 bg-emerald-700 px-4 text-sm font-medium text-white'
-          : 'h-9 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-900'
-      }
-    >
-      {label}
-    </button>
+      <section className="geo-lab-hero">
+        <div className="geo-lab-badges">
+          <span className="geo-lab-badge geo-lab-badge--rose">🗺️ Карта</span>
+          <span className="geo-lab-badge geo-lab-badge--crimson">📏 Қашықтық</span>
+          <span className="geo-lab-badge geo-lab-badge--amber">⛰️ Рельеф</span>
+        </div>
+        <h1 className="geo-lab-hero-title">
+          <span>MapLibre</span> зертханасы
+        </h1>
+        <p className="geo-lab-hero-desc">
+          Жер шарын бұрап, қалалар арасын өлшеп, рельефті зерттеп — географияны қызықты тәжірибе ретінде көріңіз!
+        </p>
+      </section>
+
+      <div className="geo-lab-tabs">
+        {TAB_LABELS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`geo-lab-tab${tab === t.id ? ' geo-lab-tab--active' : ''}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <section className="geo-lab-sim-wrap">
+        <div className="geo-lab-sim-frame">
+          <div className="geo-lab-sim-label">
+            <span>🧭</span>
+            <span>Интерактивті зертхана</span>
+            <span>🧭</span>
+          </div>
+          <div className="geo-lab-sim-body">
+            <div className="geo-lab-task">
+              <p className="geo-lab-task-label">Тапсырма</p>
+              <p className="geo-lab-task-text">
+                {activeConfig.objective === 'measure_distance'
+                  ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
+                  : activeConfig.mode === 'globe'
+                    ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
+                    : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.'}
+              </p>
+            </div>
+
+            <div className="geo-lab-applet">
+              <MapEngine key={activeConfig.id} width={880} height={520} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
+            </div>
+
+            {terrainNote && (
+              <div className="geo-lab-note">
+                <span aria-hidden>⛰️</span>
+                <span>{terrainNote}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <div className="geo-lab-debug">
+        <p className="geo-lab-debug-title">Debug panel — live MapLibre camera values</p>
+        {!debugValues && <p>Map жүктелуде…</p>}
+        {debugValues && (
+          <>
+            <p>center = [{debugValues.center[0].toFixed(4)}, {debugValues.center[1].toFixed(4)}]</p>
+            <p>zoom = {debugValues.zoom.toFixed(2)}</p>
+            <p>pitch = {debugValues.pitch.toFixed(1)}°</p>
+            <p>bearing = {debugValues.bearing.toFixed(1)}°</p>
+            {activeConfig.objective === 'measure_distance' && (
+              <p className="geo-lab-debug-ref">
+                {measureValues?.distanceKm != null
+                  ? `distance = ${measureValues.distanceKm.toFixed(1)} km`
+                  : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+
+      <footer className="geo-lab-footer">
+        География зертханасы · Ustaz Geography · {new Date().getFullYear()} ✨
+      </footer>
+    </div>
   );
 }

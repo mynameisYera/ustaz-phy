@@ -1,0 +1,419 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Caveat:wght@500;600&display=swap');
+
+/* —— Math Lab · playful blueprint theme —— */
+
+.math-lab {
+  --ml-sky: #7dd3fc;
+  --ml-azure: #38bdf8;
+  --ml-blue: #3b82f6;
+  --ml-indigo: #6366f1;
+  --ml-cyan: #67e8f9;
+  --ml-sun: #fde047;
+  --ml-coral: #fb7185;
+  --ml-board: #1e3a8a;
+  --ml-board-dark: #0f213f;
+  --ml-chalk: rgba(255, 255, 255, 0.9);
+  --ml-chalk-dim: rgba(255, 255, 255, 0.24);
+  --ml-card: #f8fbff;
+  --ml-shadow: 0 8px 32px rgba(15, 33, 63, 0.4);
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Nunito', Inter, system-ui, sans-serif;
+  color: var(--ml-chalk);
+  position: relative;
+  overflow-x: hidden;
+  background-color: var(--ml-board-dark);
+}
+
+/* Blueprint + formula wallpaper */
+.math-lab::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 10%, rgba(56, 189, 248, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(103, 232, 249, 0.12) 0%, transparent 45%),
+    linear-gradient(165deg, #1e40af 0%, var(--ml-board-dark) 45%, #081428 100%);
+}
+
+/* Subtle graph-paper grid overlay */
+.math-lab::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(rgba(125, 211, 252, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.math-lab-formulas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.6;
+}
+
+.math-lab-formula {
+  position: absolute;
+  font-family: 'Caveat', 'Segoe Print', cursive;
+  font-size: clamp(1.1rem, 2.2vw, 1.75rem);
+  color: var(--ml-chalk-dim);
+  white-space: nowrap;
+  transform: rotate(var(--rot, 0deg));
+  text-shadow: 0 0 20px rgba(125, 211, 252, 0.12);
+  animation: ml-float 8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes ml-float {
+  0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+  50% { transform: rotate(var(--rot, 0deg)) translateY(-6px); }
+}
+
+.math-lab > *:not(.math-lab-formulas) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Nav */
+.math-lab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: rgba(15, 33, 63, 0.82);
+  border-bottom: 3px solid var(--ml-azure);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.math-lab-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.math-lab-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ml-sky) 0%, var(--ml-blue) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 0 #1d4ed8, 0 6px 16px rgba(0, 0, 0, 0.3);
+  animation: ml-wiggle 4s ease-in-out infinite;
+}
+
+@keyframes ml-wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.math-lab-brand-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.math-lab-brand-sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ml-sky);
+}
+
+.math-lab-back-btn {
+  height: 42px;
+  padding: 0 20px;
+  border: 3px solid var(--ml-sky);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.math-lab-back-btn:hover {
+  background: rgba(125, 211, 252, 0.25);
+  transform: scale(1.04);
+}
+
+/* Hero */
+.math-lab-hero {
+  padding: 36px 24px 28px;
+  text-align: center;
+}
+
+.math-lab-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.math-lab-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.math-lab-badge--sky {
+  background: var(--ml-sky);
+  color: #0c4a6e;
+  border-color: #38bdf8;
+}
+
+.math-lab-badge--azure {
+  background: var(--ml-azure);
+  color: #082f49;
+  border-color: #0ea5e9;
+}
+
+.math-lab-badge--indigo {
+  background: #a5b4fc;
+  color: #312e81;
+  border-color: var(--ml-indigo);
+}
+
+.math-lab-hero-title {
+  margin: 0 auto;
+  max-width: 700px;
+  font-size: clamp(2rem, 5.5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  text-shadow:
+    3px 3px 0 var(--ml-board-dark),
+    0 0 40px rgba(56, 189, 248, 0.45);
+}
+
+.math-lab-hero-title span {
+  color: var(--ml-sky);
+}
+
+.math-lab-hero-desc {
+  margin: 14px auto 0;
+  max-width: 560px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Tabs */
+.math-lab-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px 8px;
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.math-lab-tab {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 3px solid rgba(125, 211, 252, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.math-lab-tab:hover {
+  transform: translateY(-2px);
+  background: rgba(125, 211, 252, 0.18);
+}
+
+.math-lab-tab--active {
+  background: linear-gradient(180deg, var(--ml-sky), var(--ml-blue));
+  border-color: #fff;
+  color: #0c2340;
+  box-shadow: 0 4px 0 #1d4ed8;
+}
+
+/* Simulator frame */
+.math-lab-sim-wrap {
+  padding: 12px 20px 32px;
+}
+
+.math-lab-sim-frame {
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 4px solid var(--ml-sky);
+  box-shadow:
+    var(--ml-shadow),
+    0 0 0 6px rgba(255, 255, 255, 0.08),
+    inset 0 0 60px rgba(56, 189, 248, 0.06);
+  background: var(--ml-card);
+}
+
+.math-lab-sim-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, var(--ml-sky), var(--ml-azure));
+  color: #0c2340;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.math-lab-sim-body {
+  padding: 20px;
+}
+
+/* Task card */
+.math-lab-task {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 2px solid #bfdbfe;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.math-lab-task-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ml-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.math-lab-task-text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f213f;
+  line-height: 1.5;
+}
+
+.math-lab-applet {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #dbeafe;
+  background: #fff;
+}
+
+/* Readout */
+.math-lab-readout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  border: 2px solid #7dd3fc;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+
+.math-lab-readout-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ml-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.math-lab-readout-value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0c2340;
+}
+
+/* Debug panel */
+.math-lab-debug {
+  max-width: 1000px;
+  margin: 0 auto 40px;
+  border-radius: 16px;
+  background: rgba(8, 20, 40, 0.9);
+  border: 2px solid rgba(125, 211, 252, 0.3);
+  padding: 16px 20px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px;
+  color: #bae6fd;
+}
+
+.math-lab-debug-title {
+  margin: 0 0 10px;
+  color: var(--ml-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.math-lab-debug p {
+  margin: 0 0 4px;
+}
+
+.math-lab-debug-ref {
+  margin-top: 8px !important;
+  color: var(--ml-sun);
+}
+
+/* Footer */
+.math-lab-footer {
+  margin-top: auto;
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  border-top: 2px dashed rgba(255, 255, 255, 0.15);
+}
+
+/* Decorative stickers */
+.math-lab-sticker {
+  position: fixed;
+  font-size: clamp(2rem, 4vw, 3rem);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+  animation: ml-float 6s ease-in-out infinite;
+}
+
+.math-lab-sticker--1 { top: 12%; left: 4%; animation-delay: 0s; }
+.math-lab-sticker--2 { top: 28%; right: 5%; animation-delay: 1s; }
+.math-lab-sticker--3 { bottom: 22%; left: 6%; animation-delay: 2s; }
+.math-lab-sticker--4 { bottom: 35%; right: 4%; animation-delay: 0.5s; }
