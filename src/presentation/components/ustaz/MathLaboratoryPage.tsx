@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TourStep } from './Tour';
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
 import { GeoGebraApplet, type GeoGebraApi } from '@/infrastructure/geogebra/GeoGebraApplet';
+import { fetchLabGames, fetchLabRoute, fetchLabSubjects } from '@/infrastructure/labs/LabsApi';
 
 const CHALK_FORMULAS = [
   { text: 'a⃗ + b⃗ = c⃗', top: '4%', left: '3%' },
@@ -39,67 +40,111 @@ const LAB_TOUR_STEPS: TourStep[] = [
   },
 ];
 
-const GAME_CARDS: LabGameCard[] = [
-  {
-    tone: 'accent',
-    tag: 'СИМУЛЯТОР',
-    name: 'Графиктерді салу',
-    desc: 'Параметрлері бар сызықтық және квадраттық функцияларды интерактивті түрде салу.',
-    icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-bright)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
+type LoadStatus = 'loading' | 'ready' | 'error';
+
+function labIcon(index: number, tone: 'accent' | 'amber') {
+  if (index % 2 === 0) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.65">
         <line x1="4" y1="24" x2="44" y2="24" />
         <line x1="24" y1="4" x2="24" y2="44" />
         <polyline points="10,38 20,20 30,28 40,10" />
-        <circle cx="20" cy="20" r="3" fill="var(--accent-bright)" opacity="0.3" />
-        <circle cx="30" cy="28" r="3" fill="var(--accent-bright)" opacity="0.3" />
+        <circle cx="20" cy="20" r="3" fill={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} opacity="0.25" />
+        <circle cx="30" cy="28" r="3" fill={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} opacity="0.25" />
       </svg>
-    ),
-  },
-  {
-    tone: 'accent',
-    tag: 'СИМУЛЯТОР',
-    name: 'Фигуралар геометриясы',
-    desc: 'Жазықтықта үшбұрыштарды салу, ауданы мен периметрін өлшеу.',
-    icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="var(--accent-bright)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
-        <polygon points="12,38 24,10 36,38" />
-        <line x1="16" y1="30" x2="32" y2="30" />
-        <circle cx="24" cy="10" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
-        <circle cx="12" cy="38" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
-        <circle cx="36" cy="38" r="2.5" fill="var(--accent-bright)" opacity="0.3" />
-      </svg>
-    ),
-  },
-  {
-    tone: 'amber',
-    tag: 'ОЙЫН',
-    name: 'Координаталар шайқасы',
-    desc: 'Қарсыласыңнан жылдам нүктені координаталары бойынша тап. Жылдамдыққа арналған ойын.',
-    icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
-        <rect x="8" y="8" width="32" height="32" rx="4" />
-        <path d="M16 24h16M24 16v16" />
-        <circle cx="18" cy="18" r="2" fill="#FBBF24" opacity="0.3" />
-        <text x="30" y="36" fill="#FBBF24" fontSize="12" fontWeight="600" opacity="0.5">?</text>
-      </svg>
-    ),
-  },
-  {
-    tone: 'amber',
-    tag: 'ОЙЫН',
-    name: 'Вектор-квест',
-    desc: 'Кейіпкерді векторлар көмегімен жылжыт. Әр деңгей — жаңа тапсырма.',
-    icon: (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.6">
-        <path d="M8 40L24 8l16 32" />
-        <line x1="14" y1="30" x2="34" y2="30" />
-        <path d="M24 8v32" strokeDasharray="3,3" />
-      </svg>
-    ),
-  },
-];
+    );
+  }
+
+  return (
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.65">
+      <polygon points="12,38 24,10 36,38" />
+      <line x1="16" y1="30" x2="32" y2="30" />
+      <path d="M10 14h8M28 14h8" />
+    </svg>
+  );
+}
 
 export function MathLaboratoryPage() {
+  const [status, setStatus] = useState<LoadStatus>('loading');
+  const [subjectId, setSubjectId] = useState<number | null>(null);
+  const [cards, setCards] = useState<LabGameCard[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchLabSubjects()
+      .then((subjects) => {
+        const math =
+          subjects.find((s) => s.name.toLowerCase() === 'math') ??
+          subjects.find((s) => s.name.toLowerCase().includes('math')) ??
+          null;
+
+        if (!math) {
+          setStatus('error');
+          setError('Математика пәні табылмады');
+          return;
+        }
+
+        setSubjectId(math.subjectId);
+        setStatus('loading');
+        setError(null);
+
+        return fetchLabGames(math.subjectId).then(({ items }) => {
+          const mapped: LabGameCard[] = items.map((item, index) => {
+            const tone = index % 3 === 0 ? 'amber' : 'accent';
+            return {
+              tone,
+              tag: tone === 'accent' ? 'СИМУЛЯТОР' : 'ОЙЫН',
+              name: item.name,
+              desc: item.content,
+              icon: labIcon(index, tone),
+              onClick: () => {
+                void fetchLabRoute(math.subjectId).then(({ route }) => {
+                  window.open(route, '_blank', 'noopener,noreferrer');
+                });
+              },
+            };
+          });
+
+          setCards(mapped);
+          setStatus('ready');
+        });
+      })
+      .catch((e) => {
+        setStatus('error');
+        setError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
+      });
+  }, []);
+
+  const reload = () => {
+    if (!subjectId) return;
+    setStatus('loading');
+    setError(null);
+    void fetchLabGames(subjectId)
+      .then(({ items }) => {
+        const mapped: LabGameCard[] = items.map((item, index) => {
+          const tone = index % 3 === 0 ? 'amber' : 'accent';
+          return {
+            tone,
+            tag: tone === 'accent' ? 'СИМУЛЯТОР' : 'ОЙЫН',
+            name: item.name,
+            desc: item.content,
+            icon: labIcon(index, tone),
+            onClick: () => {
+              void fetchLabRoute(subjectId).then(({ route }) => {
+                window.open(route, '_blank', 'noopener,noreferrer');
+              });
+            },
+          };
+        });
+        setCards(mapped);
+        setStatus('ready');
+      })
+      .catch((e) => {
+        setStatus('error');
+        setError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
+      });
+  };
+
   return (
     <LabShell
       subject="math"
@@ -112,7 +157,39 @@ export function MathLaboratoryPage() {
       subjectChip="Математика"
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
-      games={GAME_CARDS}
+      games={cards}
+      gamesExtra={
+        status !== 'ready' ? (
+          <div style={{ marginBottom: '12px' }}>
+            {status === 'loading' && (
+              <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Жүктелуде…</div>
+            )}
+            {status === 'error' && (
+              <div style={{ color: '#FCA5A5', fontSize: '13px' }}>
+                {error ?? 'Қате шықты'}
+                {subjectId && (
+                  <button
+                    type="button"
+                    onClick={reload}
+                    style={{
+                      marginLeft: '10px',
+                      height: '30px',
+                      padding: '0 12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'transparent',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Қайталау
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ) : null
+      }
       calculator={<GeoGebraCalculator />}
       instructions={
         <>
