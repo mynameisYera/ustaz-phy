@@ -10,6 +10,8 @@ export interface TourStep {
 interface Props {
   steps: TourStep[];
   onClose: () => void;
+  accentColor?: string;
+  accentBg?: string;
 }
 
 const ICONS: Record<string, string> = {
@@ -29,7 +31,7 @@ const PAD = 8;
 const POP_W = 330;
 const GAP = 14;
 
-export function Tour({ steps, onClose }: Props) {
+export function Tour({ steps, onClose, accentColor = '#1E6E5C', accentBg = '#E4EFEA' }: Props) {
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export function Tour({ steps, onClose }: Props) {
       <div style={{
         position: 'fixed',
         left: hx, top: hy, width: hw, height: hh,
-        border: '2px solid #1E6E5C',
+        border: `2px solid ${accentColor}`,
         borderRadius: 10,
         boxShadow: '0 0 0 9999px rgba(26,26,23,.48)',
         pointerEvents: 'none',
@@ -133,8 +135,8 @@ export function Tour({ steps, onClose }: Props) {
       }}>
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: '#E4EFEA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1E6E5C" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: accentBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               {isCircleIcon && <circle cx="12" cy="12" r="8.5" />}
               <path d={iconPath} />
             </svg>
@@ -159,10 +161,10 @@ export function Tour({ steps, onClose }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
               {steps.map((_, i) => (
-                <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === step ? '#1E6E5C' : '#D8D3C6', display: 'inline-block' }} />
+                <span key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: i === step ? accentColor : '#D8D3C6', display: 'inline-block' }} />
               ))}
             </div>
-            <button onClick={next} style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 8, background: '#1E6E5C', color: '#fff', fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={next} style={{ height: 36, padding: '0 16px', border: 'none', borderRadius: 8, background: accentColor, color: '#fff', fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               {isLast ? 'Дайын' : 'Келесі'}
               {!isLast && <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5"/></svg>}
             </button>

@@ -71,7 +71,7 @@ const GAME_CARDS: LabGameCard[] = [
   },
   {
     tone: 'amber',
-    tag: 'ИГРА',
+    tag: 'ОЙЫН',
     name: 'Реакция балансы',
     desc: 'Химиялық теңдеулердің коэффициенттерін дұрыс қойыңыз. (жақында)',
     icon: <span style={{ fontSize: '40px' }}>🧪</span>,
@@ -79,7 +79,7 @@ const GAME_CARDS: LabGameCard[] = [
   },
   {
     tone: 'amber',
-    tag: 'ИГРА',
+    tag: 'ОЙЫН',
     name: 'Молекула құрастыру',
     desc: 'Атомдардан молекула жинаңыз да, атауын табыңыз. (жақында)',
     icon: <span style={{ fontSize: '40px' }}>🔬</span>,
@@ -235,7 +235,7 @@ export function ChemistryLabPage() {
       instructions={
         <>
           <LabInstructionsHead
-            title="Инструкция"
+            title="Нұсқаулық"
             icon={
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="10" cy="10" r="8" />
@@ -252,7 +252,7 @@ export function ChemistryLabPage() {
             <LabStep n={4} title="Бейтарап деңгейге жеткізіңіз" body="pH = 7 мәніне жеткізіп, нәтижені тексеріңіз." inactive />
           </div>
 
-          <LabHint label="Подсказка">pH = -log[H⁺]. pH &lt; 7 — қышқыл, pH = 7 — бейтарап, pH &gt; 7 — негіз.</LabHint>
+          <LabHint label="Кеңес">pH = -log[H⁺]. pH &lt; 7 — қышқыл, pH = 7 — бейтарап, pH &gt; 7 — негіз.</LabHint>
         </>
       }
     />

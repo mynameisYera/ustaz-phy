@@ -169,7 +169,7 @@ export function PhysicsLabPage() {
       instructions={
         <>
           <LabInstructionsHead
-            title="Инструкция"
+            title="Нұсқаулық"
             icon={
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="10" cy="10" r="8" />
@@ -186,7 +186,7 @@ export function PhysicsLabPage() {
             <LabStep n={4} title="Қорытынды жасаңыз" body="Ek + Ep қосындысы тұрақты қалатынын тексеріңіз." inactive />
           </div>
 
-          <LabHint label="Подсказка">Толық механикалық энергия сақталады: Ek + Ep = const (үйкеліс болмаған жағдайда).</LabHint>
+          <LabHint label="Кеңес">Толық механикалық энергия сақталады: Ek + Ep = const (үйкеліс болмаған жағдайда).</LabHint>
         </>
       }
     />

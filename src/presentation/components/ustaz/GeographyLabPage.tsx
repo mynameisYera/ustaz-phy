@@ -115,14 +115,14 @@ export function GeographyLabPage() {
     },
     {
       tone: 'amber',
-      tag: 'ИГРА',
+      tag: 'ОЙЫН',
       name: 'Қашықтықты тап',
       desc: 'Екі қаланы шертіп, олардың арақашықтығын дәл есептеңіз.',
       icon: <span style={{ fontSize: '40px' }}>📍</span>,
     },
     {
       tone: 'amber',
-      tag: 'ИГРА',
+      tag: 'ОЙЫН',
       name: 'Координата-квест',
       desc: 'Координаталар бойынша орынды тауып, ұпай жинаңыз.',
       icon: <span style={{ fontSize: '40px' }}>🧭</span>,
@@ -196,7 +196,7 @@ export function GeographyLabPage() {
       instructions={
         <>
           <LabInstructionsHead
-            title="Инструкция"
+            title="Нұсқаулық"
             icon={
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="10" cy="10" r="8" />
@@ -213,7 +213,7 @@ export function GeographyLabPage() {
             <LabStep n={4} title="Нәтижені тексеріңіз" body="Төмендегі debug панелінен координаталар мен қашықтықты тексеріңіз." inactive />
           </div>
 
-          <LabHint label="Подсказка">Жердің радиусы R⊕ ≈ 6371 км. Қашықтық d = R · Δσ формуласымен есептеледі.</LabHint>
+          <LabHint label="Кеңес">Жердің радиусы R⊕ ≈ 6371 км. Қашықтық d = R · Δσ формуласымен есептеледі.</LabHint>
         </>
       }
     />

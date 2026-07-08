@@ -42,6 +42,7 @@ export interface GeoGebraApi {
   deleteObject(objName: string): void;
   exists(objName: string): boolean;
   setErrorDialogsActive(flag: boolean): void;
+  setSize(width: number, height: number): void;
   remove(): void;
 }
 

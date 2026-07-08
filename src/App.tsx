@@ -10,7 +10,7 @@ import { ListRecentGamesUseCase } from "@/domain/usecases/ListRecentGames";
 import { GetGameUseCase } from "@/domain/usecases/GetGame";
 import { ServicesProvider } from "@/presentation/context/ServicesContext";
 import { UstazApp } from "@/presentation/components/ustaz/UstazApp";
-import { LaboratoryPage } from "@/presentation/components/ustaz/LaboratoryPage";
+import { MathLaboratoryPage } from "@/presentation/components/ustaz/MathLaboratoryPage";
 import { PhysicsLabPage } from "@/presentation/components/ustaz/PhysicsLabPage";
 import { GeographyLabPage } from "@/presentation/components/ustaz/GeographyLabPage";
 import { ChemistryLabPage } from "@/presentation/components/ustaz/ChemistryLabPage";
@@ -32,7 +32,7 @@ const services = {
 
 export function App() {
   if (window.location.pathname === "/math") {
-    return <LaboratoryPage />;
+    return <MathLaboratoryPage />;
   }
 
   if (window.location.pathname === "/physics") {

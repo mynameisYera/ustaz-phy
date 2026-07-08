@@ -43,7 +43,14 @@ export function LabShell({
 
   return (
     <div className="lab-page" data-subject={subject}>
-      {showTour && <Tour steps={tourSteps} onClose={() => setShowTour(false)} />}
+      {showTour && (
+        <Tour
+          steps={tourSteps}
+          onClose={() => setShowTour(false)}
+          accentColor="var(--accent)"
+          accentBg="var(--accent-dim)"
+        />
+      )}
 
       <div className="lab-formulas" aria-hidden>
         {formulas.map((f) => (
@@ -57,7 +64,7 @@ export function LabShell({
         <header className="lab-nav">
           <div className="lab-nav-left">
             <button type="button" className="lab-brand" onClick={() => window.location.assign('/')}>
-              <span className="lab-brand-title">Ustaz Лаборатории</span>
+              <span className="lab-brand-title">Ustaz Зертханалары</span>
             </button>
             <div className="lab-divider" />
             <div className="lab-subject-icon">{subjectIcon}</div>
@@ -67,7 +74,7 @@ export function LabShell({
             </div>
           </div>
           <div className="lab-nav-right">
-            <button type="button" title="Как пользоваться" className="lab-icon-btn" onClick={() => setShowTour(true)}>
+            <button type="button" title="Қалай пайдалану керек" className="lab-icon-btn" onClick={() => setShowTour(true)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-bright)" strokeWidth="1.7">
                 <circle cx="12" cy="12" r="8.5" />
                 <path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.7-2 2.1-2 3.4M12 17.2h0" strokeLinecap="round" />
@@ -77,7 +84,7 @@ export function LabShell({
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10 3 5 8l5 5" />
               </svg>
-              На главную
+              Басты бетке
             </button>
           </div>
         </header>
@@ -95,8 +102,8 @@ export function LabShell({
 
           <section data-tour="games">
             <div className="lab-games-head">
-              <h2 className="lab-games-title">Выберите игру</h2>
-              <span className="lab-games-count">{games.length} игры</span>
+              <h2 className="lab-games-title">Ойынды таңдаңыз</h2>
+              <span className="lab-games-count">{games.length} ойын</span>
             </div>
 
             {gamesExtra}
@@ -118,7 +125,7 @@ export function LabShell({
                     <div className="lab-card-name">{card.name}</div>
                     <div className="lab-card-desc">{card.desc}</div>
                     <span className={`lab-card-cta tone-${card.tone}`}>
-                      Открыть игру <span>→</span>
+                      Ойынды ашу <span>→</span>
                     </span>
                   </div>
                 </button>
