@@ -320,8 +320,27 @@
   height: 100%;
 }
 
-/* Embedded GeoGebra applet host — fills the calculator card and provides the
-   measurement box the applet is injected into. */
+/* Embedded GeoGebra applet — wrapper hosts the fullscreen toggle and, when
+   fullscreen, becomes a fixed overlay filling the whole browser tab. */
+.lab-ggb-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+  background: #ffffff;
+}
+
+.lab-ggb-wrap--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  min-height: 0;
+  border-radius: 0;
+}
+
+/* Host — fills the wrapper and provides the measurement box the applet is
+   injected into (a ResizeObserver reflows the applet to match). */
 .lab-ggb-host {
   flex: 1;
   min-height: 520px;
@@ -330,9 +349,39 @@
   background: #ffffff;
 }
 
+.lab-ggb-wrap--fullscreen .lab-ggb-host {
+  min-height: 0;
+}
+
 .lab-ggb-host > div {
   position: absolute;
   inset: 0;
+}
+
+/* Fullscreen toggle — floats over the applet's top-right corner. */
+.lab-ggb-fs-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1001;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e6e2d8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4b4a44;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.lab-ggb-fs-btn:hover {
+  background: #ffffff;
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 /* Generic simulator host (physics / geography / chemistry) */

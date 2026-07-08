@@ -147,6 +147,7 @@ function GeoGebraCalculator() {
   const hostRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<GeoGebraApi | null>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   // Measure the host once to inject the applet at the right size, then keep it
   // in sync with container resizes via the GeoGebra setSize() API.
@@ -199,18 +200,56 @@ function GeoGebraCalculator() {
     }
   }, []);
 
+  // While fullscreen: lock page scroll and allow Esc to exit.
+  useEffect(() => {
+    if (!fullscreen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [fullscreen]);
+
   return (
-    <div ref={hostRef} className="lab-ggb-host">
-      {size && (
-        <GeoGebraApplet
-          appName="graphing"
-          width={size.width}
-          height={size.height}
-          showToolBar
-          showAlgebraInput
-          onReady={handleReady}
-        />
-      )}
+    <div className={`lab-ggb-wrap${fullscreen ? ' lab-ggb-wrap--fullscreen' : ''}`}>
+      <button
+        type="button"
+        className="lab-ggb-fs-btn"
+        onClick={() => setFullscreen((v) => !v)}
+        title={fullscreen ? 'Толық экраннан шығу (Esc)' : 'Толық экран'}
+        aria-label={fullscreen ? 'Толық экраннан шығу' : 'Толық экран'}
+      >
+        {fullscreen ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
+          </svg>
+        )}
+      </button>
+
+      <div ref={hostRef} className="lab-ggb-host">
+        {size && (
+          <GeoGebraApplet
+            appName="graphing"
+            width={size.width}
+            height={size.height}
+            showToolBar
+            showAlgebraInput
+            onReady={handleReady}
+          />
+        )}
+      </div>
     </div>
   );
 }
