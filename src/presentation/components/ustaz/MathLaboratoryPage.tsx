@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TourStep } from './Tour';
-import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabShell, LabInstructionsHead, LabStep, LabHint } from './LabShell';
+import { LabFilters, LabGamesStatus, LabGamesEmpty, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
 import { GeoGebraApplet, type GeoGebraApi } from '@/infrastructure/geogebra/GeoGebraApplet';
-import { fetchLabGames, fetchLabSubjects, openLabItemContent } from '@/infrastructure/labs/LabsApi';
+import { useLabGames } from '@/presentation/hooks/useLabGames';
 
 const CHALK_FORMULAS = [
   { text: 'a⃗ + b⃗ = c⃗', top: '4%', left: '3%' },
@@ -40,106 +41,11 @@ const LAB_TOUR_STEPS: TourStep[] = [
   },
 ];
 
-type LoadStatus = 'loading' | 'ready' | 'error';
-
-function labIcon(index: number, tone: 'accent' | 'amber') {
-  if (index % 2 === 0) {
-    return (
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.65">
-        <line x1="4" y1="24" x2="44" y2="24" />
-        <line x1="24" y1="4" x2="24" y2="44" />
-        <polyline points="10,38 20,20 30,28 40,10" />
-        <circle cx="20" cy="20" r="3" fill={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} opacity="0.25" />
-        <circle cx="30" cy="28" r="3" fill={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} opacity="0.25" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke={tone === 'accent' ? 'var(--accent-bright)' : '#FBBF24'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.65">
-      <polygon points="12,38 24,10 36,38" />
-      <line x1="16" y1="30" x2="32" y2="30" />
-      <path d="M10 14h8M28 14h8" />
-    </svg>
-  );
-}
-
 export function MathLaboratoryPage() {
-  const [status, setStatus] = useState<LoadStatus>('loading');
-  const [subjectId, setSubjectId] = useState<number | null>(null);
-  const [cards, setCards] = useState<LabGameCard[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames('math', 'Математика пәні табылмады');
 
-  useEffect(() => {
-    void fetchLabSubjects()
-      .then((subjects) => {
-        const math =
-          subjects.find((s) => s.name.toLowerCase() === 'math') ??
-          subjects.find((s) => s.name.toLowerCase().includes('math')) ??
-          null;
-
-        if (!math) {
-          setStatus('error');
-          setError('Математика пәні табылмады');
-          return;
-        }
-
-        setSubjectId(math.subjectId);
-        setStatus('loading');
-        setError(null);
-
-        return fetchLabGames(math.subjectId).then(({ items }) => {
-          const mapped: LabGameCard[] = items.map((item, index) => {
-            const tone = index % 3 === 0 ? 'amber' : 'accent';
-            return {
-              tone,
-              tag: tone === 'accent' ? 'СИМУЛЯТОР' : 'ОЙЫН',
-              name: item.name,
-              desc: item.content,
-              icon: labIcon(index, tone),
-              onClick: () => {
-                openLabItemContent(item);
-              },
-            };
-          });
-
-          setCards(mapped);
-          setStatus('ready');
-        });
-      })
-      .catch((e) => {
-        setStatus('error');
-        setError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
-      });
-  }, []);
-
-  const reload = () => {
-    if (!subjectId) return;
-    setStatus('loading');
-    setError(null);
-    void fetchLabGames(subjectId)
-      .then(({ items }) => {
-        const mapped: LabGameCard[] = items.map((item, index) => {
-          const tone = index % 3 === 0 ? 'amber' : 'accent';
-          return {
-            tone,
-            tag: tone === 'accent' ? 'СИМУЛЯТОР' : 'ОЙЫН',
-            name: item.name,
-            desc: item.content,
-            icon: labIcon(index, tone),
-            onClick: () => {
-              openLabItemContent(item);
-            },
-          };
-        });
-        setCards(mapped);
-        setStatus('ready');
-      })
-      .catch((e) => {
-        setStatus('error');
-        setError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
-      });
-  };
+  const games = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
 
   return (
     <LabShell
@@ -153,40 +59,21 @@ export function MathLaboratoryPage() {
       subjectChip="Математика"
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
-      games={cards}
+      games={games}
       gamesExtra={
-        status !== 'ready' ? (
-          <div style={{ marginBottom: '12px' }}>
-            {status === 'loading' && (
-              <div style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Жүктелуде…</div>
-            )}
-            {status === 'error' && (
-              <div style={{ color: '#FCA5A5', fontSize: '13px' }}>
-                {error ?? 'Қате шықты'}
-                {subjectId && (
-                  <button
-                    type="button"
-                    onClick={reload}
-                    style={{
-                      marginLeft: '10px',
-                      height: '30px',
-                      padding: '0 12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'transparent',
-                      color: 'inherit',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Қайталау
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        ) : null
+        <>
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
+          {status === 'ready' && games.length === 0 && <LabGamesEmpty search={search} />}
+        </>
       }
-      calculator={<GeoGebraCalculator />}
+      calculator={
+        activeGame ? (
+          <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
+        ) : (
+          <GeoGebraCalculator />
+        )
+      }
       instructions={
         <>
           <LabInstructionsHead

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import type { TourStep } from './Tour';
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabFilters, LabGamesStatus, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
+import { useLabGames } from '@/presentation/hooks/useLabGames';
 import { MapEngine } from '@/infrastructure/geography/MapEngine';
 import { setupGeoTask, type GeoTaskRuntimeState } from '@/infrastructure/geography/GeoTaskConfig';
 import { GEO_TASK_CONFIGS } from '@/infrastructure/geography/geoTaskConfigs';
@@ -53,7 +55,12 @@ const LAB_TOUR_STEPS: TourStep[] = [
 ];
 
 export function GeographyLabPage() {
-  const games: LabGameCard[] = [
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames('geography', 'География пәні табылмады');
+
+  const backendGames = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
+
+  const staticGames: LabGameCard[] = [
     {
       tone: 'accent',
       tag: 'СИМУЛЯТОР',
@@ -84,6 +91,8 @@ export function GeographyLabPage() {
     },
   ];
 
+  const games = [...staticGames, ...backendGames];
+
   return (
     <LabShell
       subject="geography"
@@ -98,7 +107,13 @@ export function GeographyLabPage() {
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
       games={games}
-      calculator={<GeographyMapPanel />}
+      gamesExtra={
+        <>
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
+        </>
+      }
+      calculator={activeGame ? <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} /> : <GeographyMapPanel />}
       instructions={
         <>
           <LabInstructionsHead

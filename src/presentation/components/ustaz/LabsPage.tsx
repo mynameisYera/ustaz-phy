@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
 import { openSubjectLab, type LabSubjectKey } from '@/domain/labs/subjectRoutes';
+import { fetchLabSubjects } from '@/infrastructure/labs/LabsApi';
 import mathAnimation from '@/assets/animations/math.lottie?url';
 import physicsAnimation from '@/assets/animations/physics.lottie?url';
 import chemistryAnimation from '@/assets/animations/chemistry.lottie?url';
+import biologyAnimation from '@/assets/animations/biology.lottie?url';
+import geographyAnimation from '@/assets/animations/geography.lottie?url';
+import worldhistoryAnimation from '@/assets/animations/worldhistory.lottie?url';
+import kzhistoryAnimation from '@/assets/animations/kzhistory.lottie?url';
 
 const LABS_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="subjects"]', icon: 'grid', title: 'Пәндер', body: 'Пән бойынша ресурстарды көру үшін карточканы таңдаңыз.' },
@@ -17,14 +22,16 @@ interface LabsPageProps {
   onNavTemplates: () => void;
 }
 
-const SUBJECT_LESSONS: {
+type SubjectLesson = {
   key: LabSubjectKey;
   eyebrow: string;
   title: string;
   description: string;
   animation: string;
   caption: string;
-}[] = [
+};
+
+const SUBJECT_LESSONS: SubjectLesson[] = [
   {
     key: 'physics',
     eyebrow: 'Мұғалімдер мен оқушыларға',
@@ -54,7 +61,7 @@ const SUBJECT_LESSONS: {
     eyebrow: 'Мұғалімдер мен оқушыларға',
     title: 'Биологияны интерактивті ету',
     description: 'Биологиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
-    animation: chemistryAnimation,
+    animation: biologyAnimation,
     caption: 'Биология зертханаларын зерттеу',
   },
   {
@@ -62,7 +69,7 @@ const SUBJECT_LESSONS: {
     eyebrow: 'Мұғалімдер мен оқушыларға',
     title: 'Қазақстан тарихын интерактивті ету',
     description: 'Қазақстан тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
-    animation: mathAnimation,
+    animation: kzhistoryAnimation,
     caption: 'Қазақстан тарихы зертханаларын зерттеу',
   },
   {
@@ -70,7 +77,7 @@ const SUBJECT_LESSONS: {
     eyebrow: 'Мұғалімдер мен оқушыларға',
     title: 'Дүниежүзі тарихын интерактивті ету',
     description: 'Дүниежүзі тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
-    animation: physicsAnimation,
+    animation: worldhistoryAnimation,
     caption: 'Дүниежүзі тарихы зертханаларын зерттеу',
   },
   {
@@ -78,13 +85,38 @@ const SUBJECT_LESSONS: {
     eyebrow: 'Мұғалімдер мен оқушыларға',
     title: 'Географияны интерактивті ету',
     description: 'Географиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
-    animation: mathAnimation,
+    animation: geographyAnimation,
     caption: 'География зертханаларын зерттеу',
   },
 ];
 
+type LoadStatus = 'loading' | 'ready' | 'error';
+
+const LESSON_BY_KEY = new Map<LabSubjectKey, SubjectLesson>(SUBJECT_LESSONS.map((l) => [l.key, l]));
+
 export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
   const [showTour, setShowTour] = useState(false);
+  const [status, setStatus] = useState<LoadStatus>('loading');
+  const [lessons, setLessons] = useState<SubjectLesson[]>(SUBJECT_LESSONS);
+
+  useEffect(() => {
+    void fetchLabSubjects()
+      .then((subjects) => {
+        // Backend drives which subjects appear and in what order; we only render
+        // subjects that have a matching presentation entry (animation + lab route).
+        // Backend-only subjects without a lab page (e.g. informatic, literature) are skipped.
+        const mapped = subjects
+          .map((s) => LESSON_BY_KEY.get(s.name.toLowerCase() as LabSubjectKey))
+          .filter((l): l is SubjectLesson => Boolean(l));
+        setLessons(mapped.length > 0 ? mapped : SUBJECT_LESSONS);
+        setStatus('ready');
+      })
+      .catch(() => {
+        // Never leave the page empty — fall back to the full static catalog.
+        setLessons(SUBJECT_LESSONS);
+        setStatus('error');
+      });
+  }, []);
 
   return (
     <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
@@ -100,16 +132,24 @@ export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
       />
 
       <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
-        <LabsHero />
+        {status === 'loading' && (
+          <p style={{ color: '#6F6E66', fontSize: '15px', margin: '0 0 24px' }}>Жүктелуде…</p>
+        )}
+        {status === 'error' && (
+          <p style={{ color: '#B45309', fontSize: '14px', margin: '0 0 24px' }}>
+            Пәндерді серверден жүктеу мүмкін болмады — сақталған тізім көрсетілуде.
+          </p>
+        )}
+        <LabsHero lessons={lessons} />
       </main>
     </div>
   );
 }
 
-function LabsHero() {
+function LabsHero({ lessons }: { lessons: SubjectLesson[] }) {
   return (
     <div data-tour="subjects" style={{ display: 'flex', flexDirection: 'column', gap: '28px', margin: '0 0 36px' }}>
-      {SUBJECT_LESSONS.map((lesson) => (
+      {lessons.map((lesson) => (
         <SubjectLessonBlock
           key={lesson.key}
           lesson={lesson}
@@ -124,7 +164,7 @@ function SubjectLessonBlock({
   lesson,
   onOpen,
 }: {
-  lesson: (typeof SUBJECT_LESSONS)[number];
+  lesson: SubjectLesson;
   onOpen: () => void;
 }) {
   return (

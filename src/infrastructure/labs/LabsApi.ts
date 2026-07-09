@@ -8,6 +8,7 @@ export interface LabSubject {
 
 export interface LabItem {
   id: number;
+  classId: number;
   name: string;
   content: string;
   created_at: string;
@@ -16,6 +17,7 @@ export interface LabItem {
 
 export interface LabGamesResponse {
   subjectId: number;
+  classId: number;
   items: LabItem[];
   total: number;
 }
@@ -57,10 +59,19 @@ export async function fetchLabSubjects(): Promise<LabSubject[]> {
   return (await response.json()) as LabSubject[];
 }
 
-export async function fetchLabGames(subjectId: number): Promise<LabGamesResponse> {
+export async function fetchLabGames(
+  subjectId: number,
+  classId: number,
+  name?: string,
+): Promise<LabGamesResponse> {
+  const trimmed = name?.trim();
   let response: Response;
   try {
-    response = await fetch(`${API_BASE}/lab/games/${subjectId}`);
+    response = await fetch(`${API_BASE}/lab/games/${subjectId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(trimmed ? { classId, name: trimmed } : { classId }),
+    });
   } catch {
     throw new Error(NETWORK_ERROR);
   }
@@ -91,6 +102,18 @@ function decodeBase64Utf8(input: string): string {
   const binary = atob(input);
   const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
   return new TextDecoder().decode(bytes);
+}
+
+/**
+ * Decode a lab item's base64-encoded HTML for inline rendering (iframe srcDoc).
+ * Falls back to the raw content if it is not valid base64 (plain HTML/URL).
+ */
+export function decodeLabItemHtml(item: LabItem): string {
+  try {
+    return decodeBase64Utf8(item.content);
+  } catch {
+    return item.content;
+  }
 }
 
 export function openLabItemContent(item: LabItem): void {

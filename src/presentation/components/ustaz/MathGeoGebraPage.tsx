@@ -79,7 +79,7 @@ export function MathGeoGebraPage() {
   const loadLabs = (id: number) => {
     setLabStatus('loading');
     setLabError(null);
-    void fetchLabGames(id)
+    void fetchLabGames(id, 1)
       .then(({ items }) => {
         setLabs(items);
         setLabStatus('ready');

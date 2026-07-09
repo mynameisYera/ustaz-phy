@@ -21,6 +21,7 @@ interface LabShellProps {
   subjectChip: string;
   tourSteps: TourStep[];
   formulas: { text: string; top: string; left?: string; right?: string }[];
+  topBar?: ReactNode;
   calculator: ReactNode;
   instructions: ReactNode;
   games: LabGameCard[];
@@ -34,12 +35,14 @@ export function LabShell({
   subjectChip,
   tourSteps,
   formulas,
+  topBar,
   calculator,
   instructions,
   games,
   gamesExtra,
 }: LabShellProps) {
   const [showTour, setShowTour] = useState(false);
+  const [instructionsOpen, setInstructionsOpen] = useState(true);
 
   return (
     <div className="lab-page" data-subject={subject}>
@@ -89,14 +92,45 @@ export function LabShell({
           </div>
         </header>
 
+        {topBar && <div className="lab-topbar">{topBar}</div>}
+
         <main className="lab-main">
-          <div className="lab-top-row">
+          <div className={`lab-top-row${instructionsOpen ? '' : ' lab-top-row--collapsed'}`}>
             <div data-tour="calculator" className="lab-calc">
               {calculator}
             </div>
 
-            <div data-tour="instructions" className="lab-instructions">
-              {instructions}
+            <div data-tour="instructions" className={`lab-instructions${instructionsOpen ? '' : ' lab-instructions--collapsed'}`}>
+              {instructionsOpen ? (
+                instructions
+              ) : (
+                <button
+                  type="button"
+                  className="lab-instructions-reopen"
+                  onClick={() => setInstructionsOpen(true)}
+                  title="Нұсқаулықты ашу"
+                  aria-label="Нұсқаулықты ашу"
+                >
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="10" cy="10" r="8" />
+                    <path d="M10 6v5M10 14h0" />
+                  </svg>
+                  <span>Нұсқаулық</span>
+                </button>
+              )}
+              {instructionsOpen && (
+                <button
+                  type="button"
+                  className="lab-instructions-collapse"
+                  onClick={() => setInstructionsOpen(false)}
+                  title="Нұсқаулықты жасыру"
+                  aria-label="Нұсқаулықты жасыру"
+                >
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 3 5 8l5 5" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 

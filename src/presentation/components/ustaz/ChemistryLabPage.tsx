@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { TourStep } from './Tour';
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabFilters, LabGamesStatus, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
+import { useLabGames } from '@/presentation/hooks/useLabGames';
 
 const CHALK_FORMULAS = [
   { text: 'H₂O', top: '8%', left: '4%' },
@@ -94,6 +96,12 @@ export function ChemistryLabPage() {
   const color = useMemo(() => phColor(ph), [ph]);
   const verdict = useMemo(() => phVerdict(ph), [ph]);
 
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames('chemistry', 'Химия пәні табылмады');
+
+  const backendGames = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
+  const games = [...GAME_CARDS, ...backendGames];
+
   const applyReagent = (r: Reagent) => {
     setActiveReagent(r.id);
     setPh(r.ph);
@@ -116,8 +124,17 @@ export function ChemistryLabPage() {
       subjectChip="Химия"
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
-      games={GAME_CARDS}
+      games={games}
+      gamesExtra={
+        <>
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
+        </>
+      }
       calculator={
+        activeGame ? (
+          <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
+        ) : (
         <div className="lab-panel-body">
           <div className="lab-panel-task">
             Реагентті таңдап немесе бегунокты жылжытып, ерітіндіні бейтарап (pH = 7) күйге келтіріңіз.
@@ -231,6 +248,7 @@ export function ChemistryLabPage() {
             </div>
           </div>
         </div>
+        )
       }
       instructions={
         <>

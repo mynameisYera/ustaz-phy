@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { TourStep } from './Tour';
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabFilters, LabGamesStatus, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
 import { KzHistoryCityMapGame } from './kz-history/KzHistoryCityMapGame';
-import { useLabGamesCards } from '@/presentation/hooks/useLabGamesCards';
+import { useLabGames } from '@/presentation/hooks/useLabGames';
 
 const FORMULAS = [
   { text: 'VII ғ. — Қазақ хандығы', top: '8%', left: '4%' },
@@ -35,7 +36,8 @@ const TOUR_STEPS: TourStep[] = [
 ];
 
 export function KzHistoryLabPage() {
-  const { status, cards, error, subjectId, reload } = useLabGamesCards('kz', 'Қазақстан тарихы пәні табылмады');
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames('kzhistory', 'Қазақстан тарихы пәні табылмады');
 
   const staticGames: LabGameCard[] = [
     {
@@ -44,10 +46,13 @@ export function KzHistoryLabPage() {
       name: 'Тарихи қалалар',
       desc: 'VIII–XII ғғ. қалаларын картада дұрыс орналастырыңыз.',
       icon: <span style={{ fontSize: '40px' }}>🗺️</span>,
+      onClick: () => setActiveGame(null),
     },
   ];
 
-  const games = status === 'ready' ? [...staticGames, ...cards] : staticGames;
+  const backendGames = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
+
+  const games = [...staticGames, ...backendGames];
 
   return (
     <LabShell
@@ -60,48 +65,17 @@ export function KzHistoryLabPage() {
       games={games}
       gamesExtra={
         <>
-          {status === 'loading' && (
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '16px' }}>Жүктелуде…</p>
-          )}
-          {status === 'error' && (
-            <div
-              style={{
-                marginBottom: '20px',
-                padding: '14px 18px',
-                borderRadius: '10px',
-                background: 'rgba(244,63,94,0.12)',
-                border: '1px solid rgba(244,63,94,0.3)',
-                color: '#fda4af',
-                fontSize: '14px',
-              }}
-            >
-              <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Жүктеу мүмкін болмады</p>
-              <p style={{ margin: 0 }}>{error}</p>
-              {subjectId && (
-                <button
-                  type="button"
-                  onClick={reload}
-                  style={{
-                    marginTop: '12px',
-                    height: '34px',
-                    padding: '0 16px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    background: 'var(--accent)',
-                    color: '#fff',
-                    fontFamily: 'inherit',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Қайталау 🔄
-                </button>
-              )}
-            </div>
-          )}
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
         </>
       }
-      calculator={<KzHistoryMapPanel />}
+      calculator={
+        activeGame ? (
+          <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
+        ) : (
+          <KzHistoryMapPanel />
+        )
+      }
       instructions={
         <>
           <LabInstructionsHead

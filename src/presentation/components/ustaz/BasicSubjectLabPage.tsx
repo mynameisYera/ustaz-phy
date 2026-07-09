@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type { TourStep } from "./Tour";
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabSubject } from "./LabShell";
-import { useLabGamesCards } from "@/presentation/hooks/useLabGamesCards";
+import { LabFilters, LabGamesStatus, LabGamesEmpty, InlineGamePanel, labItemsToCards } from "./LabGamesPanel";
+import { useLabGames } from "@/presentation/hooks/useLabGames";
 
 interface BasicSubjectLabPageProps {
   shellSubject: LabSubject;
@@ -40,7 +41,10 @@ export function BasicSubjectLabPage({
   steps,
   hint,
 }: BasicSubjectLabPageProps) {
-  const { status, cards, error, subjectId, reload } = useLabGamesCards(apiSubjectName, notFoundMessage);
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames(apiSubjectName, notFoundMessage);
+
+  const games = status === "ready" ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
 
   return (
     <LabShell
@@ -50,73 +54,41 @@ export function BasicSubjectLabPage({
       subjectChip={subjectChip}
       tourSteps={tourSteps}
       formulas={formulas}
-      games={status === "ready" ? cards : []}
+      games={games}
       gamesExtra={
         <>
-          {status === "loading" && (
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginBottom: "16px" }}>Жүктелуде…</p>
-          )}
-          {status === "error" && (
-            <div
-              style={{
-                marginBottom: "20px",
-                padding: "14px 18px",
-                borderRadius: "10px",
-                background: "rgba(244,63,94,0.12)",
-                border: "1px solid rgba(244,63,94,0.3)",
-                color: "#fda4af",
-                fontSize: "14px",
-              }}
-            >
-              <p style={{ margin: "0 0 8px", fontWeight: 600 }}>Жүктеу мүмкін болмады</p>
-              <p style={{ margin: 0 }}>{error}</p>
-              {subjectId && (
-                <button
-                  type="button"
-                  onClick={reload}
-                  style={{
-                    marginTop: "12px",
-                    height: "34px",
-                    padding: "0 16px",
-                    border: "none",
-                    borderRadius: "8px",
-                    background: "var(--accent)",
-                    color: "#fff",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Қайталау 🔄
-                </button>
-              )}
-            </div>
-          )}
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
+          {status === "ready" && games.length === 0 && <LabGamesEmpty search={search} />}
         </>
       }
       calculator={
-        <div className="lab-panel-body">
-          <div className="lab-panel-task">
-            <strong>Тапсырма:</strong> {taskText}
+        activeGame ? (
+          <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
+        ) : (
+          <div className="lab-panel-body">
+            <div className="lab-panel-task">
+              <strong>Тапсырма:</strong> {taskText}
+            </div>
+            <div
+              style={{
+                flex: 1,
+                minHeight: "460px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "16px",
+                padding: "32px",
+                textAlign: "center",
+              }}
+            >
+              <span style={{ fontSize: "72px", lineHeight: 1 }}>{heroEmoji}</span>
+              <h2 style={{ margin: 0, fontFamily: "Spectral, serif", fontSize: "28px", color: "#1a1a17" }}>{heroTitle}</h2>
+              <p style={{ margin: 0, maxWidth: "420px", color: "#6f6e66", fontSize: "15px", lineHeight: 1.6 }}>{heroDescription}</p>
+            </div>
           </div>
-          <div
-            style={{
-              flex: 1,
-              minHeight: "460px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "16px",
-              padding: "32px",
-              textAlign: "center",
-            }}
-          >
-            <span style={{ fontSize: "72px", lineHeight: 1 }}>{heroEmoji}</span>
-            <h2 style={{ margin: 0, fontFamily: "Spectral, serif", fontSize: "28px", color: "#1a1a17" }}>{heroTitle}</h2>
-            <p style={{ margin: 0, maxWidth: "420px", color: "#6f6e66", fontSize: "15px", lineHeight: 1.6 }}>{heroDescription}</p>
-          </div>
-        </div>
+        )
       }
       instructions={
         <>

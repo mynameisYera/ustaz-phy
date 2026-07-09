@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { TourStep } from './Tour';
-import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabShell, LabInstructionsHead, LabStep, LabHint } from './LabShell';
+import { LabFilters, LabGamesStatus, LabGamesEmpty, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
 import { EnergySimulator } from '@/presentation/components/EnergySimulator';
-import { fetchLabGames, fetchLabRoute, fetchLabSubjects, type LabItem } from '@/infrastructure/labs/LabsApi';
-
-type LoadStatus = 'loading' | 'ready' | 'error';
+import { useLabGames } from '@/presentation/hooks/useLabGames';
 
 const CHALK_FORMULAS = [
   { text: 'Ep = mgh', top: '5%', left: '4%' },
@@ -41,81 +40,11 @@ const LAB_TOUR_STEPS: TourStep[] = [
   },
 ];
 
-const GAME_ICONS = ['🧪', '🚀', '⚡', '🔬', '🪐', '💡'];
-
-function gameIcon(id: number): string {
-  return GAME_ICONS[id % GAME_ICONS.length];
-}
-
 export function PhysicsLabPage() {
-  const [status, setStatus] = useState<LoadStatus>('loading');
-  const [labs, setLabs] = useState<LabItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [subjectId, setSubjectId] = useState<number | null>(null);
-  const [openingId, setOpeningId] = useState<number | null>(null);
-  const [openError, setOpenError] = useState<string | null>(null);
+  const { status, error, subjectId, items, classId, search, setSearch, selectClass, activeGame, setActiveGame, reload } =
+    useLabGames('physics', 'Физика пәні табылмады');
 
-  const loadLabs = (id: number) => {
-    setStatus('loading');
-    setError(null);
-    void fetchLabGames(id)
-      .then(({ items }) => {
-        setLabs(items);
-        setStatus('ready');
-      })
-      .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Зертханаларды жүктеу мүмкін болмады');
-        setStatus('error');
-      });
-  };
-
-  useEffect(() => {
-    void fetchLabSubjects()
-      .then((items) => {
-        const physics =
-          items.find((s) => s.name.toLowerCase() === 'physics') ??
-          items.find((s) => s.name.toLowerCase().includes('physics')) ??
-          null;
-        if (!physics) {
-          setStatus('error');
-          setError('Физика пәні табылмады');
-          return;
-        }
-        setSubjectId(physics.subjectId);
-        loadLabs(physics.subjectId);
-      })
-      .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Пәндерді жүктеу мүмкін болмады');
-        setStatus('error');
-      });
-  }, []);
-
-  const handleOpenLab = async (labId: number) => {
-    if (!subjectId) return;
-    setOpeningId(labId);
-    setOpenError(null);
-    try {
-      const { route } = await fetchLabRoute(subjectId);
-      window.open(route, '_blank', 'noopener,noreferrer');
-    } catch (e) {
-      setOpenError(e instanceof Error ? e.message : 'Зертхананы ашу мүмкін болмады');
-    } finally {
-      setOpeningId(null);
-    }
-  };
-
-  const games: LabGameCard[] =
-    status === 'ready'
-      ? labs.map((lab) => ({
-          tone: 'accent',
-          tag: 'ЗЕРТХАНА',
-          name: lab.name,
-          desc: lab.content,
-          icon: <span style={{ fontSize: '40px' }}>{gameIcon(lab.id)}</span>,
-          onClick: () => void handleOpenLab(lab.id),
-          disabled: openingId === lab.id,
-        }))
-      : [];
+  const games = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
 
   return (
     <LabShell
@@ -133,30 +62,18 @@ export function PhysicsLabPage() {
       games={games}
       gamesExtra={
         <>
-          {status === 'loading' && <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '16px' }}>Жүктелуде…</p>}
-          {status === 'error' && (
-            <div style={{ marginBottom: '20px', padding: '14px 18px', borderRadius: '10px', background: 'rgba(244,63,94,0.12)', border: '1px solid rgba(244,63,94,0.3)', color: '#fda4af', fontSize: '14px' }}>
-              <p style={{ margin: '0 0 8px', fontWeight: 600 }}>Жүктеу мүмкін болмады</p>
-              <p style={{ margin: 0 }}>{error}</p>
-              {subjectId && (
-                <button
-                  type="button"
-                  onClick={() => loadLabs(subjectId)}
-                  style={{ marginTop: '12px', height: '34px', padding: '0 16px', border: 'none', borderRadius: '8px', background: 'var(--accent)', color: '#fff', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}
-                >
-                  Қайталау 🔄
-                </button>
-              )}
-            </div>
-          )}
-          {openError && (
-            <div style={{ marginBottom: '20px', padding: '14px 18px', borderRadius: '10px', background: 'rgba(244,63,94,0.12)', border: '1px solid rgba(244,63,94,0.3)', color: '#fda4af', fontSize: '14px' }}>
-              {openError}
-            </div>
-          )}
+          <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
+          <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
+          {status === 'ready' && games.length === 0 && <LabGamesEmpty search={search} />}
         </>
       }
-      calculator={<PhysicsSimulatorPanel />}
+      calculator={
+        activeGame ? (
+          <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
+        ) : (
+          <PhysicsSimulatorPanel />
+        )
+      }
       instructions={
         <>
           <LabInstructionsHead
