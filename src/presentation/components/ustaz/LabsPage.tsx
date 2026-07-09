@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
+import { openSubjectLab, type LabSubjectKey } from '@/domain/labs/subjectRoutes';
 import mathAnimation from '@/assets/animations/math.lottie?url';
 import physicsAnimation from '@/assets/animations/physics.lottie?url';
 import chemistryAnimation from '@/assets/animations/chemistry.lottie?url';
@@ -16,31 +17,8 @@ interface LabsPageProps {
   onNavTemplates: () => void;
 }
 
-export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
-  const [showTour, setShowTour] = useState(false);
-
-  return (
-    <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
-      {showTour && <Tour steps={LABS_TOUR_STEPS} onClose={() => setShowTour(false)} />}
-      <UstazHeader
-        onLogoClick={onBack}
-        onHelp={() => setShowTour(true)}
-        helpLabel="Нұсқаулар"
-        activePage="labs"
-        onNavHome={onNavHome}
-        onNavTemplates={onNavTemplates}
-        onNavLabs={() => {}}
-      />
-
-      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
-        <LabsHero />
-      </main>
-    </div>
-  );
-}
-
 const SUBJECT_LESSONS: {
-  key: 'math' | 'physics' | 'chemistry';
+  key: LabSubjectKey;
   eyebrow: string;
   title: string;
   description: string;
@@ -71,29 +49,84 @@ const SUBJECT_LESSONS: {
     animation: chemistryAnimation,
     caption: 'Химия зертханаларын зерттеу',
   },
+  {
+    key: 'biology',
+    eyebrow: 'Мұғалімдер мен оқушыларға',
+    title: 'Биологияны интерактивті ету',
+    description: 'Биологиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
+    animation: chemistryAnimation,
+    caption: 'Биология зертханаларын зерттеу',
+  },
+  {
+    key: 'kzhistory',
+    eyebrow: 'Мұғалімдер мен оқушыларға',
+    title: 'Қазақстан тарихын интерактивті ету',
+    description: 'Қазақстан тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
+    animation: mathAnimation,
+    caption: 'Қазақстан тарихы зертханаларын зерттеу',
+  },
+  {
+    key: 'worldhistory',
+    eyebrow: 'Мұғалімдер мен оқушыларға',
+    title: 'Дүниежүзі тарихын интерактивті ету',
+    description: 'Дүниежүзі тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
+    animation: physicsAnimation,
+    caption: 'Дүниежүзі тарихы зертханаларын зерттеу',
+  },
+  {
+    key: 'geography',
+    eyebrow: 'Мұғалімдер мен оқушыларға',
+    title: 'Географияны интерактивті ету',
+    description: 'Географиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
+    animation: mathAnimation,
+    caption: 'География зертханаларын зерттеу',
+  },
 ];
 
+export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
+  const [showTour, setShowTour] = useState(false);
+
+  return (
+    <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
+      {showTour && <Tour steps={LABS_TOUR_STEPS} onClose={() => setShowTour(false)} />}
+      <UstazHeader
+        onLogoClick={onBack}
+        onHelp={() => setShowTour(true)}
+        helpLabel="Нұсқаулар"
+        activePage="labs"
+        onNavHome={onNavHome}
+        onNavTemplates={onNavTemplates}
+        onNavLabs={() => {}}
+      />
+
+      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
+        <LabsHero />
+      </main>
+    </div>
+  );
+}
+
 function LabsHero() {
-  const ROUTES: Record<'math' | 'physics' | 'chemistry', string> = {
-    math: '/math',
-    physics: '/physics',
-    chemistry: '/chemistry',
-  };
-
-  const handleOpen = (key: 'math' | 'physics' | 'chemistry') => {
-    window.location.assign(ROUTES[key]);
-  };
-
   return (
     <div data-tour="subjects" style={{ display: 'flex', flexDirection: 'column', gap: '28px', margin: '0 0 36px' }}>
       {SUBJECT_LESSONS.map((lesson) => (
-        <SubjectLessonBlock key={lesson.key} lesson={lesson} onOpen={() => handleOpen(lesson.key)} />
+        <SubjectLessonBlock
+          key={lesson.key}
+          lesson={lesson}
+          onOpen={() => openSubjectLab(lesson.key)}
+        />
       ))}
     </div>
   );
 }
 
-function SubjectLessonBlock({ lesson, onOpen }: { lesson: (typeof SUBJECT_LESSONS)[number]; onOpen: () => void }) {
+function SubjectLessonBlock({
+  lesson,
+  onOpen,
+}: {
+  lesson: (typeof SUBJECT_LESSONS)[number];
+  onOpen: () => void;
+}) {
   return (
     <div
       style={{
@@ -164,4 +197,3 @@ function SubjectLessonBlock({ lesson, onOpen }: { lesson: (typeof SUBJECT_LESSON
     </div>
   );
 }
-

@@ -1,0 +1,237 @@
+.kz-map-root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+}
+
+.lab-ggb-host > .kz-map-root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.kz-map-game {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background: #f5f3eb;
+  overflow: hidden;
+}
+
+.kz-map-game--fullscreen {
+  min-height: 0;
+}
+
+.kz-map-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  pointer-events: none;
+  background: #e8e4da;
+}
+
+.kz-map-sidebar {
+  width: 168px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 10px;
+  background: linear-gradient(180deg, #faf8f2 0%, #f0ece2 100%);
+  border-right: 1px solid #e6e2d8;
+  overflow-y: auto;
+}
+
+.kz-map-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 10px 14px;
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.kz-map-chip:active {
+  cursor: grabbing;
+}
+
+.kz-map-chip--dragging {
+  opacity: 0.35;
+}
+
+.kz-map-chip--placed {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+.kz-map-chip__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.kz-map-chip--ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.95;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.kz-map-stage {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.kz-map-stage__map {
+  width: 100%;
+  height: 100%;
+}
+
+.kz-map-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.kz-map-drop {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  border: 2.5px solid #1a1a17;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.kz-map-drop--hover {
+  transform: scale(1.15);
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.kz-map-drop--filled {
+  border-width: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.kz-map-drop__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.kz-map-drop--correct .kz-map-drop__label {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+.kz-map-drop--wrong .kz-map-drop__label {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+.kz-map-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border-top: 1px solid #e6e2d8;
+  background: #faf8f2;
+}
+
+.kz-map-footer__submit {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #e8e4da;
+  color: #9a968a;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.kz-map-footer__submit--ready {
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.kz-map-footer__submit--ready:hover {
+  filter: brightness(1.05);
+}
+
+.kz-map-footer__result {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a17;
+}
+
+.kz-map-footer__result--success {
+  color: #15803d;
+}
+
+.kz-map-footer__result--partial {
+  color: #b45309;
+}
+
+.kz-map-footer__reset {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d4d0c6;
+  border-radius: 8px;
+  background: #fff;
+  color: #4a4943;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.kz-map-footer__reset:hover {
+  background: #f5f3eb;
+}

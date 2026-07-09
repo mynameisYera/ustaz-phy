@@ -14,6 +14,9 @@ import { MathLaboratoryPage } from "@/presentation/components/ustaz/MathLaborato
 import { PhysicsLabPage } from "@/presentation/components/ustaz/PhysicsLabPage";
 import { GeographyLabPage } from "@/presentation/components/ustaz/GeographyLabPage";
 import { ChemistryLabPage } from "@/presentation/components/ustaz/ChemistryLabPage";
+import { BiologyLabPage } from "@/presentation/components/ustaz/BiologyLabPage";
+import { KzHistoryLabPage } from "@/presentation/components/ustaz/KzHistoryLabPage";
+import { WorldHistoryLabPage } from "@/presentation/components/ustaz/WorldHistoryLabPage";
 import "@/presentation/styles/studio.css";
 
 const gameRepository = new InMemoryGameRepository();
@@ -45,6 +48,18 @@ export function App() {
 
   if (window.location.pathname === "/chemistry") {
     return <ChemistryLabPage />;
+  }
+
+  if (window.location.pathname === "/biology") {
+    return <BiologyLabPage />;
+  }
+
+  if (window.location.pathname === "/kz-history") {
+    return <KzHistoryLabPage />;
+  }
+
+  if (window.location.pathname === "/world-history") {
+    return <WorldHistoryLabPage />;
   }
 
   return (

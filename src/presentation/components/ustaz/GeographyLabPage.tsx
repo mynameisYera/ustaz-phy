@@ -53,51 +53,6 @@ const LAB_TOUR_STEPS: TourStep[] = [
 ];
 
 export function GeographyLabPage() {
-  const [tab, setTab] = useState<Tab>('grade7');
-  const [debugValues, setDebugValues] = useState<{ center: [number, number]; zoom: number; pitch: number; bearing: number } | null>(null);
-  const [measureValues, setMeasureValues] = useState<{ distanceKm: number | null; pointCount: number } | null>(null);
-  const [terrainNote, setTerrainNote] = useState<string | null>(null);
-
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const runtimeRef = useRef<GeoTaskRuntimeState | null>(null);
-
-  const activeConfig = GEO_TASK_CONFIGS.find((c) => c.id === TAB_TO_CONFIG_ID[tab])!;
-
-  const handleReady = useCallback(
-    (map: maplibregl.Map) => {
-      mapRef.current = map;
-
-      const runtime = setupGeoTask(map, activeConfig);
-      runtimeRef.current = runtime;
-      setTerrainNote(runtime.terrainNote);
-      runtime.onMeasureUpdate = (distanceKm, pointCount) => setMeasureValues({ distanceKm, pointCount });
-
-      const readCamera = () => {
-        const center = map.getCenter();
-        setDebugValues({
-          center: [center.lng, center.lat],
-          zoom: map.getZoom(),
-          pitch: map.getPitch(),
-          bearing: map.getBearing(),
-        });
-      };
-
-      readCamera();
-      map.on('move', readCamera);
-    },
-    [activeConfig]
-  );
-
-  useEffect(() => {
-    setDebugValues(null);
-    setMeasureValues(null);
-    setTerrainNote(null);
-    return () => {
-      runtimeRef.current?.destroy();
-      runtimeRef.current = null;
-    };
-  }, [tab]);
-
   const games: LabGameCard[] = [
     {
       tone: 'accent',
@@ -143,56 +98,7 @@ export function GeographyLabPage() {
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
       games={games}
-      calculator={
-        <div className="lab-panel-body">
-          <div className="lab-panel-toolbar">
-            <div className="lab-panel-tabs">
-              {TAB_LABELS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`lab-panel-tab${tab === t.id ? ' active' : ''}`}
-                  onClick={() => setTab(t.id)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="lab-panel-task">
-            {activeConfig.objective === 'measure_distance'
-              ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
-              : activeConfig.mode === 'globe'
-                ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
-                : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.'}
-          </div>
-          <div style={{ flex: 1, minHeight: '460px', position: 'relative' }}>
-            <MapEngine key={activeConfig.id} width={880} height={520} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
-          </div>
-          {terrainNote && (
-            <div className="lab-panel-task" style={{ borderTop: '1px solid #e6e2d8', borderBottom: 'none' }}>
-              ⛰️ {terrainNote}
-            </div>
-          )}
-          {debugValues && (
-            <div className="lab-panel-debug">
-              <span>
-                center = [<strong>{debugValues.center[0].toFixed(4)}</strong>, <strong>{debugValues.center[1].toFixed(4)}</strong>]
-              </span>
-              <span>
-                zoom = <strong>{debugValues.zoom.toFixed(2)}</strong>
-              </span>
-              {activeConfig.objective === 'measure_distance' && (
-                <span>
-                  {measureValues?.distanceKm != null
-                    ? <>distance = <strong>{measureValues.distanceKm.toFixed(1)} km</strong></>
-                    : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      }
+      calculator={<GeographyMapPanel />}
       instructions={
         <>
           <LabInstructionsHead
@@ -217,5 +123,169 @@ export function GeographyLabPage() {
         </>
       }
     />
+  );
+}
+
+const MAP_MIN_HEIGHT = 460;
+
+function GeographyMapPanel() {
+  const [tab, setTab] = useState<Tab>('grade7');
+  const [fullscreen, setFullscreen] = useState(false);
+  const [debugValues, setDebugValues] = useState<{ center: [number, number]; zoom: number; pitch: number; bearing: number } | null>(null);
+  const [measureValues, setMeasureValues] = useState<{ distanceKm: number | null; pointCount: number } | null>(null);
+  const [terrainNote, setTerrainNote] = useState<string | null>(null);
+  const [mapSize, setMapSize] = useState({ width: 880, height: 520 });
+
+  const hostRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const runtimeRef = useRef<GeoTaskRuntimeState | null>(null);
+
+  const activeConfig = GEO_TASK_CONFIGS.find((c) => c.id === TAB_TO_CONFIG_ID[tab])!;
+
+  const handleReady = useCallback(
+    (map: maplibregl.Map) => {
+      mapRef.current = map;
+
+      const runtime = setupGeoTask(map, activeConfig);
+      runtimeRef.current = runtime;
+      setTerrainNote(runtime.terrainNote);
+      runtime.onMeasureUpdate = (distanceKm, pointCount) => setMeasureValues({ distanceKm, pointCount });
+
+      const readCamera = () => {
+        const center = map.getCenter();
+        setDebugValues({
+          center: [center.lng, center.lat],
+          zoom: map.getZoom(),
+          pitch: map.getPitch(),
+          bearing: map.getBearing(),
+        });
+      };
+
+      readCamera();
+      map.on('move', readCamera);
+    },
+    [activeConfig]
+  );
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    const measure = () => ({
+      width: Math.max(280, Math.floor(host.clientWidth)),
+      height: Math.max(MAP_MIN_HEIGHT, Math.floor(host.clientHeight)),
+    });
+
+    setMapSize(measure());
+
+    const observer = new ResizeObserver(() => {
+      setMapSize(measure());
+    });
+    observer.observe(host);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    mapRef.current?.resize();
+  }, [mapSize, fullscreen]);
+
+  useEffect(() => {
+    setDebugValues(null);
+    setMeasureValues(null);
+    setTerrainNote(null);
+    return () => {
+      runtimeRef.current?.destroy();
+      runtimeRef.current = null;
+    };
+  }, [tab]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [fullscreen]);
+
+  const taskText =
+    activeConfig.objective === 'measure_distance'
+      ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
+      : activeConfig.mode === 'globe'
+        ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
+        : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.';
+
+  return (
+    <div className={`lab-ggb-wrap${fullscreen ? ' lab-ggb-wrap--fullscreen' : ''}`}>
+      <button
+        type="button"
+        className="lab-ggb-fs-btn"
+        onClick={() => setFullscreen((v) => !v)}
+        title={fullscreen ? 'Толық экраннан шығу (Esc)' : 'Толық экран'}
+        aria-label={fullscreen ? 'Толық экраннан шығу' : 'Толық экран'}
+      >
+        {fullscreen ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
+          </svg>
+        )}
+      </button>
+
+      <div className="lab-panel-body">
+        <div className="lab-panel-toolbar">
+          <div className="lab-panel-tabs">
+            {TAB_LABELS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`lab-panel-tab${tab === t.id ? ' active' : ''}`}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {!fullscreen && <div className="lab-panel-task">{taskText}</div>}
+        <div ref={hostRef} className="lab-ggb-host">
+          <MapEngine key={activeConfig.id} width={mapSize.width} height={mapSize.height} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
+        </div>
+        {terrainNote && (
+          <div className="lab-panel-task" style={{ borderTop: '1px solid #e6e2d8', borderBottom: 'none' }}>
+            ⛰️ {terrainNote}
+          </div>
+        )}
+        {debugValues && (
+          <div className="lab-panel-debug">
+            <span>
+              center = [<strong>{debugValues.center[0].toFixed(4)}</strong>, <strong>{debugValues.center[1].toFixed(4)}</strong>]
+            </span>
+            <span>
+              zoom = <strong>{debugValues.zoom.toFixed(2)}</strong>
+            </span>
+            {activeConfig.objective === 'measure_distance' && (
+              <span>
+                {measureValues?.distanceKm != null
+                  ? <>distance = <strong>{measureValues.distanceKm.toFixed(1)} km</strong></>
+                  : `points clicked = ${measureValues?.pointCount ?? 0} / 2`}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

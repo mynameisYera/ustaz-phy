@@ -16,6 +16,10 @@ export function MapEngine({ width, height, styleUrl, onReady }: MapEngineProps) 
   onReadyRef.current = onReady;
 
   useEffect(() => {
+    mapRef.current?.resize();
+  }, [width, height]);
+
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
