@@ -156,16 +156,7 @@ export function PhysicsLabPage() {
           )}
         </>
       }
-      calculator={
-        <div className="lab-panel-body">
-          <div className="lab-panel-task">
-            <strong>Тапсырма:</strong> Денені итеріп, лақтырып немесе түсіріп, потенциалдық және кинетикалық энергияның бір-біріне айналуын бақылаңыз.
-          </div>
-          <div style={{ flex: 1, minHeight: '460px', position: 'relative' }}>
-            <EnergySimulator />
-          </div>
-        </div>
-      }
+      calculator={<PhysicsSimulatorPanel />}
       instructions={
         <>
           <LabInstructionsHead
@@ -190,5 +181,59 @@ export function PhysicsLabPage() {
         </>
       }
     />
+  );
+}
+
+function PhysicsSimulatorPanel() {
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [fullscreen]);
+
+  return (
+    <div className={`lab-ggb-wrap${fullscreen ? ' lab-ggb-wrap--fullscreen' : ''}`}>
+      <button
+        type="button"
+        className="lab-ggb-fs-btn"
+        onClick={() => setFullscreen((v) => !v)}
+        title={fullscreen ? 'Толық экраннан шығу (Esc)' : 'Толық экран'}
+        aria-label={fullscreen ? 'Толық экраннан шығу' : 'Толық экран'}
+      >
+        {fullscreen ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" />
+          </svg>
+        )}
+      </button>
+
+      <div className="lab-panel-body">
+        {!fullscreen && (
+          <div className="lab-panel-task">
+            <strong>Тапсырма:</strong> Денені итеріп, лақтырып немесе түсіріп, потенциалдық және кинетикалық энергияның бір-біріне айналуын бақылаңыз.
+          </div>
+        )}
+        <div className="lab-ggb-host">
+          <EnergySimulator />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -86,3 +86,21 @@ export async function fetchLabRoute(subjectId: number): Promise<LabRoute> {
 
   return (await response.json()) as LabRoute;
 }
+
+function decodeBase64Utf8(input: string): string {
+  const binary = atob(input);
+  const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+export function openLabItemContent(item: LabItem): void {
+  try {
+    const html = decodeBase64Utf8(item.content);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch {
+    // Fallback for non-base64 content (if backend returns a plain URL/path)
+    window.open(item.content, "_blank", "noopener,noreferrer");
+  }
+}

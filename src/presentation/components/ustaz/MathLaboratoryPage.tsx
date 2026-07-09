@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TourStep } from './Tour';
 import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
 import { GeoGebraApplet, type GeoGebraApi } from '@/infrastructure/geogebra/GeoGebraApplet';
-import { fetchLabGames, fetchLabRoute, fetchLabSubjects } from '@/infrastructure/labs/LabsApi';
+import { fetchLabGames, fetchLabSubjects, openLabItemContent } from '@/infrastructure/labs/LabsApi';
 
 const CHALK_FORMULAS = [
   { text: 'a⃗ + b⃗ = c⃗', top: '4%', left: '3%' },
@@ -98,9 +98,7 @@ export function MathLaboratoryPage() {
               desc: item.content,
               icon: labIcon(index, tone),
               onClick: () => {
-                void fetchLabRoute(math.subjectId).then(({ route }) => {
-                  window.open(route, '_blank', 'noopener,noreferrer');
-                });
+                openLabItemContent(item);
               },
             };
           });
@@ -130,9 +128,7 @@ export function MathLaboratoryPage() {
             desc: item.content,
             icon: labIcon(index, tone),
             onClick: () => {
-              void fetchLabRoute(subjectId).then(({ route }) => {
-                window.open(route, '_blank', 'noopener,noreferrer');
-              });
+              openLabItemContent(item);
             },
           };
         });
