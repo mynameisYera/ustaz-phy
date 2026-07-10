@@ -28,6 +28,22 @@ export interface LabRoute {
   route: string;
 }
 
+export interface LabGameCreated {
+  id: number;
+  classId: number;
+  name: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UploadLabGameInput {
+  subjectId: number;
+  classId: number;
+  name: string;
+  contentBase64: string;
+}
+
 interface ErrorBody {
   detail?: string;
 }
@@ -114,6 +130,46 @@ export function decodeLabItemHtml(item: LabItem): string {
   } catch {
     return item.content;
   }
+}
+
+function encodeBase64Utf8(input: string): string {
+  const bytes = new TextEncoder().encode(input);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+/**
+ * UTF-8-safe base64 encoder for HTML content — mirror of `decodeBase64Utf8`.
+ * Used by the upload page to encode raw HTML into `contentBase64`.
+ */
+export function toContentBase64(input: string): string {
+  return encodeBase64Utf8(input);
+}
+
+/**
+ * Create a lab-game record on the external backend.
+ * POST /api/lab/games with { subjectId, classId, name, contentBase64 }.
+ */
+export async function uploadLabGame(input: UploadLabGameInput): Promise<LabGameCreated> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/lab/games`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    throw new Error(NETWORK_ERROR);
+  }
+
+  if (!response.ok) {
+    throw new Error(await readError(response, `Не удалось загрузить игру (${response.status})`));
+  }
+
+  return (await response.json()) as LabGameCreated;
 }
 
 export function openLabItemContent(item: LabItem): void {
