@@ -16,7 +16,6 @@ interface BasicSubjectLabPageProps {
   heroEmoji: string;
   heroTitle: string;
   heroDescription: string;
-  taskText: string;
   instructionsTitle: string;
   instructionsDesc: string;
   steps: { title: string; body: string }[];
@@ -35,7 +34,6 @@ export function BasicSubjectLabPage({
   heroEmoji,
   heroTitle,
   heroDescription,
-  taskText,
   instructionsTitle,
   instructionsDesc,
   steps,
@@ -67,9 +65,6 @@ export function BasicSubjectLabPage({
           <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
         ) : (
           <div className="lab-panel-body">
-            <div className="lab-panel-task">
-              <strong>Тапсырма:</strong> {taskText}
-            </div>
             <div
               style={{
                 flex: 1,

@@ -142,11 +142,6 @@ function PhysicsSimulatorPanel() {
       </button>
 
       <div className="lab-panel-body">
-        {!fullscreen && (
-          <div className="lab-panel-task">
-            <strong>Тапсырма:</strong> Денені итеріп, лақтырып немесе түсіріп, потенциалдық және кинетикалық энергияның бір-біріне айналуын бақылаңыз.
-          </div>
-        )}
         <div className="lab-ggb-host">
           <EnergySimulator />
         </div>

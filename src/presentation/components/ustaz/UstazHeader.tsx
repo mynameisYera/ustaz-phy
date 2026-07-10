@@ -10,7 +10,7 @@ interface UstazHeaderProps {
 
 export function UstazHeader({ onLogoClick, onHelp, helpLabel, activePage, onNavHome, onNavTemplates, onNavLabs }: UstazHeaderProps) {
   return (
-    <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 40px', borderBottom: '1px solid #E6E2D8' }}>
+    <header style={{ position: 'sticky', top: 0, zIndex: 20, background: '#F7F5EF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 40px', borderBottom: '1px solid #E6E2D8' }}>
       <button
         type="button"
         onClick={onLogoClick}

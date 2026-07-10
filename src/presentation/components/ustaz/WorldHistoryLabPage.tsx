@@ -27,7 +27,6 @@ export function WorldHistoryLabPage() {
       heroEmoji="🌍"
       heroTitle="Дүниежүзі тарихы зертханасы"
       heroDescription="Әлемнің маңызды оқиғалары мен өркениеттерін интерактивті түрде үйреніңіз."
-      taskText="Дүниежүзі тарихындағы оқиғаларды зерттеу арқылы тақырыпты түсініңіз."
       instructionsTitle="Нұсқаулық"
       instructionsDesc="Тақырыпты қадам бойынша зерттеңіз."
       steps={[

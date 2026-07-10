@@ -136,9 +136,6 @@ export function ChemistryLabPage() {
           <InlineGamePanel game={activeGame} onBack={() => setActiveGame(null)} />
         ) : (
         <div className="lab-panel-body">
-          <div className="lab-panel-task">
-            Реагентті таңдап немесе бегунокты жылжытып, ерітіндіні бейтарап (pH = 7) күйге келтіріңіз.
-          </div>
           <div style={{ flex: 1, minHeight: '460px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '24px', flexWrap: 'wrap' }}>
             <div
               aria-hidden

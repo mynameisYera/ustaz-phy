@@ -27,7 +27,6 @@ export function BiologyLabPage() {
       heroEmoji="🧬"
       heroTitle="Биология зертханасы"
       heroDescription="Тірі ағзалар, жасуша құрылымы және биологиялық процестерді интерактивті зерттеңіз."
-      taskText="Биологиялық құбылыстарды зерттеу арқылы тақырыпты түсініңіз."
       instructionsTitle="Нұсқаулық"
       instructionsDesc="Тақырыпты қадам бойынша зерттеңіз."
       steps={[

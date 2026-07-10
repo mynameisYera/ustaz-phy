@@ -232,13 +232,6 @@ function GeographyMapPanel() {
     };
   }, [fullscreen]);
 
-  const taskText =
-    activeConfig.objective === 'measure_distance'
-      ? 'Екі қаланы шертіп, олардың арақашықтығын есептеңіз.'
-      : activeConfig.mode === 'globe'
-        ? 'Жер шарын еркін бұрап, айналдырып қарап шығыңыз.'
-        : '3D камераны еркін бұрап, ғимараттар мен рельефті зерттеңіз.';
-
   return (
     <div className={`lab-ggb-wrap${fullscreen ? ' lab-ggb-wrap--fullscreen' : ''}`}>
       <button
@@ -274,7 +267,6 @@ function GeographyMapPanel() {
             ))}
           </div>
         </div>
-        {!fullscreen && <div className="lab-panel-task">{taskText}</div>}
         <div ref={hostRef} className="lab-ggb-host">
           <MapEngine key={activeConfig.id} width={mapSize.width} height={mapSize.height} styleUrl={activeConfig.styleUrl} onReady={handleReady} />
         </div>

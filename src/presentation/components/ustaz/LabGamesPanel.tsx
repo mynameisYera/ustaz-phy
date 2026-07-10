@@ -224,9 +224,13 @@ export function LabGamesEmpty({ search }: { search: string }) {
 
 /**
  * Renders a loaded lab game inline (iframe srcDoc) in place of a subject's
- * calculator/simulator panel, with a fullscreen toggle and a back button.
+ * calculator/simulator panel. The only chrome is a floating fullscreen toggle;
+ * returning to the game list is done via the subject's own filters/cards.
+ * `onBack` is kept in the prop contract for callers but is currently unused.
  */
-export function InlineGamePanel({ game, onBack }: { game: LabItem; onBack: () => void }) {
+export function InlineGamePanel({ game }: { game: LabItem; onBack?: () => void }) {
+  // The game opens inline; the floating button toggles fullscreen. There is no
+  // navbar strip — Esc exits fullscreen when it is on.
   const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
@@ -267,16 +271,6 @@ export function InlineGamePanel({ game, onBack }: { game: LabItem; onBack: () =>
       </button>
 
       <div className="lab-panel-body">
-        <div className="lab-panel-task" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-          <span><strong>Ойын:</strong> {game.name}</span>
-          <button
-            type="button"
-            onClick={onBack}
-            style={{ flexShrink: 0, height: '30px', padding: '0 12px', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', color: 'inherit', fontFamily: 'inherit', fontSize: '13px', cursor: 'pointer' }}
-          >
-            ← Артқа оралу
-          </button>
-        </div>
         <div className="lab-ggb-host">
           <iframe
             title={game.name}

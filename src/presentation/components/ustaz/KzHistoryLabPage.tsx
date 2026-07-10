@@ -142,11 +142,6 @@ function KzHistoryMapPanel() {
       </button>
 
       <div className="lab-panel-body">
-        {!fullscreen && (
-          <div className="lab-panel-task">
-            <strong>Тапсырма:</strong> VIII–XII ғасырлардағы тарихи қалаларды картада дұрыс орындарға орналастырыңыз.
-          </div>
-        )}
         <div className="lab-ggb-host">
           <KzHistoryCityMapGame fullscreen={fullscreen} />
         </div>
