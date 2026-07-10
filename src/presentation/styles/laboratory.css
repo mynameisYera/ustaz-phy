@@ -47,6 +47,15 @@
   --bg: #0a2626;
 }
 
+.lab-page[data-subject='history'] {
+  --accent: #9a3b12;
+  --accent-bright: #e0a86e;
+  --accent-line: rgba(154, 59, 18, 0.3);
+  --accent-dim: rgba(154, 59, 18, 0.2);
+  --accent-dim-2: rgba(154, 59, 18, 0.12);
+  --bg: #2b1508;
+}
+
 .lab-formulas {
   position: fixed;
   inset: 0;

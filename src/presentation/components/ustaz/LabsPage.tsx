@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { UstazHeader } from './UstazHeader';
 import { Tour, type TourStep } from './Tour';
@@ -29,6 +29,9 @@ type SubjectLesson = {
   description: string;
   animation: string;
   caption: string;
+  accent: string;
+  accentSoft: string;
+  doodles: { text: string; top: string; left?: string; right?: string; size?: string; rotate?: string }[];
 };
 
 const SUBJECT_LESSONS: SubjectLesson[] = [
@@ -39,6 +42,14 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Физикалық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
     animation: physicsAnimation,
     caption: 'Физика зертханаларын зерттеу',
+    accent: '#1E6E5C',
+    accentSoft: '#E4F2ED',
+    doodles: [
+      { text: 'E = mc²', top: '10%', left: '4%', size: '15px', rotate: '-6deg' },
+      { text: '⚛', top: '65%', left: '8%', size: '30px', rotate: '10deg' },
+      { text: 'F = ma', top: '18%', right: '6%', size: '13px', rotate: '4deg' },
+      { text: '⚡', top: '72%', right: '10%', size: '24px', rotate: '-8deg' },
+    ],
   },
   {
     key: 'math',
@@ -46,7 +57,15 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     title: 'Математиканы интерактивті ету',
     description: 'Зерттеу тапсырмалары арқылы негізгі математикалық ұғымдарды ашыңыз, содан кейін жаттығулармен бекітіңіз.',
     animation: mathAnimation,
-    caption: 'Пифагор теоремасын зерттеу',
+    caption: 'Математика зертханаларын зерттеу',
+    accent: '#1E3A8A',
+    accentSoft: '#E4E9F7',
+    doodles: [
+      { text: 'a² + b² = c²', top: '12%', left: '4%', size: '14px', rotate: '-4deg' },
+      { text: 'π', top: '68%', left: '10%', size: '34px', rotate: '8deg' },
+      { text: '∑', top: '20%', right: '8%', size: '28px', rotate: '-10deg' },
+      { text: '∫f(x)dx', top: '74%', right: '6%', size: '13px', rotate: '5deg' },
+    ],
   },
   {
     key: 'chemistry',
@@ -55,6 +74,14 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Химиялық реакциялар мен процестерді виртуалды зертханада қауіпсіз әрі көрнекі түрде көрсетіңіз.',
     animation: chemistryAnimation,
     caption: 'Химия зертханаларын зерттеу',
+    accent: '#6D28A6',
+    accentSoft: '#F1E9F9',
+    doodles: [
+      { text: 'H₂O', top: '10%', left: '5%', size: '15px', rotate: '-5deg' },
+      { text: '⚗', top: '66%', left: '9%', size: '30px', rotate: '9deg' },
+      { text: 'NaCl', top: '20%', right: '7%', size: '13px', rotate: '6deg' },
+      { text: '🧪', top: '72%', right: '9%', size: '24px', rotate: '-7deg' },
+    ],
   },
   {
     key: 'biology',
@@ -63,6 +90,14 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Биологиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
     animation: biologyAnimation,
     caption: 'Биология зертханаларын зерттеу',
+    accent: '#1E7A4C',
+    accentSoft: '#E4F3EA',
+    doodles: [
+      { text: 'DNA', top: '11%', left: '4%', size: '14px', rotate: '-5deg' },
+      { text: '🧬', top: '65%', left: '8%', size: '30px', rotate: '10deg' },
+      { text: '2n = 46', top: '19%', right: '6%', size: '13px', rotate: '5deg' },
+      { text: '🍃', top: '73%', right: '9%', size: '26px', rotate: '-8deg' },
+    ],
   },
   {
     key: 'kzhistory',
@@ -71,6 +106,14 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Қазақстан тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
     animation: kzhistoryAnimation,
     caption: 'Қазақстан тарихы зертханаларын зерттеу',
+    accent: '#9A3B12',
+    accentSoft: '#F8E9DE',
+    doodles: [
+      { text: 'VIII ғ.', top: '11%', left: '5%', size: '14px', rotate: '-4deg' },
+      { text: '🏛', top: '66%', left: '9%', size: '30px', rotate: '8deg' },
+      { text: '1465', top: '19%', right: '7%', size: '13px', rotate: '5deg' },
+      { text: '🐎', top: '72%', right: '8%', size: '26px', rotate: '-7deg' },
+    ],
   },
   {
     key: 'worldhistory',
@@ -79,6 +122,14 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Дүниежүзі тарихын зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
     animation: worldhistoryAnimation,
     caption: 'Дүниежүзі тарихы зертханаларын зерттеу',
+    accent: '#1F5FA8',
+    accentSoft: '#E6EFF9',
+    doodles: [
+      { text: '1789', top: '11%', left: '5%', size: '14px', rotate: '-5deg' },
+      { text: '🏺', top: '65%', left: '9%', size: '29px', rotate: '9deg' },
+      { text: '476', top: '19%', right: '6%', size: '13px', rotate: '4deg' },
+      { text: '⚔', top: '72%', right: '9%', size: '25px', rotate: '-8deg' },
+    ],
   },
   {
     key: 'geography',
@@ -87,12 +138,33 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
     description: 'Географиялық құбылыстарды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
     animation: geographyAnimation,
     caption: 'География зертханаларын зерттеу',
+    accent: '#B0361F',
+    accentSoft: '#FAEAE6',
+    doodles: [
+      { text: 'N 43°', top: '11%', left: '5%', size: '14px', rotate: '-4deg' },
+      { text: '🌍', top: '65%', left: '9%', size: '30px', rotate: '8deg' },
+      { text: 'R⊕ ≈ 6371 км', top: '19%', right: '6%', size: '12px', rotate: '5deg' },
+      { text: '🧭', top: '72%', right: '9%', size: '26px', rotate: '-9deg' },
+    ],
   },
 ];
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 
 const LESSON_BY_KEY = new Map<LabSubjectKey, SubjectLesson>(SUBJECT_LESSONS.map((l) => [l.key, l]));
+
+const PAGE_DOODLES: { text: string; top: string; left?: string; right?: string }[] = [
+  { text: 'E = mc²', top: '6%', left: '3%' },
+  { text: 'a² + b² = c²', top: '16%', right: '4%' },
+  { text: '⚛', top: '28%', left: '90%' },
+  { text: 'H₂O', top: '38%', left: '2%' },
+  { text: '∫f(x)dx', top: '48%', right: '3%' },
+  { text: '🧬', top: '58%', left: '92%' },
+  { text: 'π ≈ 3.14159', top: '68%', left: '4%' },
+  { text: '🌍', top: '78%', right: '5%' },
+  { text: 'F = ma', top: '88%', left: '88%' },
+  { text: '∑', top: '95%', left: '6%' },
+];
 
 export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
   const [showTour, setShowTour] = useState(false);
@@ -119,7 +191,15 @@ export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
   }, []);
 
   return (
-    <div className="u365-root" style={{ overflowY: 'auto', height: '100%' }}>
+    <div className="u365-root" style={{ overflowY: 'auto', height: '100%', position: 'relative' }}>
+      <div aria-hidden style={pageDoodleLayerStyle}>
+        {PAGE_DOODLES.map((d, i) => (
+          <span key={i} style={{ position: 'absolute', top: d.top, left: d.left, right: d.right }}>
+            {d.text}
+          </span>
+        ))}
+      </div>
+
       {showTour && <Tour steps={LABS_TOUR_STEPS} onClose={() => setShowTour(false)} />}
       <UstazHeader
         onLogoClick={onBack}
@@ -131,7 +211,7 @@ export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
         onNavLabs={() => {}}
       />
 
-      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px' }}>
+      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '48px 40px 80px', position: 'relative', zIndex: 1 }}>
         {status === 'loading' && (
           <p style={{ color: '#6F6E66', fontSize: '15px', margin: '0 0 24px' }}>Жүктелуде…</p>
         )}
@@ -145,6 +225,19 @@ export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
     </div>
   );
 }
+
+const pageDoodleLayerStyle: CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  overflow: 'hidden',
+  pointerEvents: 'none',
+  zIndex: 0,
+  fontFamily: 'Spectral, serif',
+  fontStyle: 'italic',
+  fontSize: '22px',
+  color: '#1A1A17',
+  opacity: 0.05,
+};
 
 function LabsHero({ lessons }: { lessons: SubjectLesson[] }) {
   return (
@@ -170,6 +263,7 @@ function SubjectLessonBlock({
   return (
     <div
       style={{
+        position: 'relative',
         display: 'flex',
         alignItems: 'stretch',
         gap: '40px',
@@ -178,10 +272,49 @@ function SubjectLessonBlock({
         borderRadius: '16px',
         background: '#FFFFFF',
         padding: '36px',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ flex: '1 1 320px', display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: '260px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', color: '#1E6E5C', textTransform: 'uppercase', margin: '0 0 10px' }}>
+      <div aria-hidden style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {lesson.doodles.map((d, i) => (
+          <span
+            key={i}
+            style={{
+              position: 'absolute',
+              top: d.top,
+              left: d.left,
+              right: d.right,
+              fontFamily: 'Spectral, serif',
+              fontStyle: 'italic',
+              fontWeight: 600,
+              fontSize: d.size ?? '16px',
+              color: lesson.accent,
+              opacity: 0.1,
+              transform: `rotate(${d.rotate ?? '0deg'})`,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {d.text}
+          </span>
+        ))}
+      </div>
+
+      <div style={{ position: 'relative', flex: '1 1 320px', display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: '260px' }}>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignSelf: 'flex-start',
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            color: lesson.accent,
+            textTransform: 'uppercase',
+            margin: '0 0 10px',
+            padding: '4px 10px',
+            borderRadius: '999px',
+            background: lesson.accentSoft,
+          }}
+        >
           {lesson.eyebrow}
         </span>
         <h2 style={{ fontFamily: 'Spectral, serif', fontWeight: 600, fontSize: '30px', letterSpacing: '-0.01em', margin: '0 0 12px', lineHeight: 1.15 }}>
@@ -199,7 +332,7 @@ function SubjectLessonBlock({
               padding: '0 22px',
               border: 'none',
               borderRadius: '8px',
-              background: '#1E6E5C',
+              background: lesson.accent,
               color: '#FFFFFF',
               fontFamily: 'inherit',
               fontSize: '14px',
@@ -212,12 +345,12 @@ function SubjectLessonBlock({
         </div>
       </div>
 
-      <div style={{ flex: '1 1 340px', minWidth: '280px', maxWidth: '460px' }}>
+      <div style={{ position: 'relative', flex: '1 1 340px', minWidth: '280px', maxWidth: '460px' }}>
         <div
           style={{
-            border: '1px solid #E6E2D8',
+            border: `1px solid ${lesson.accentSoft}`,
             borderRadius: '12px',
-            background: '#FBFAF6',
+            background: lesson.accentSoft,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

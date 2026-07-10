@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Tour, type TourStep } from './Tour';
 import '@/presentation/styles/laboratory.css';
 
-export type LabSubject = 'math' | 'physics' | 'geography' | 'chemistry';
+export type LabSubject = 'math' | 'physics' | 'geography' | 'chemistry' | 'history';
 
 export interface LabGameCard {
   tone: 'accent' | 'amber';

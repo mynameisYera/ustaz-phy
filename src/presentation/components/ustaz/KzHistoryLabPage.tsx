@@ -56,7 +56,7 @@ export function KzHistoryLabPage() {
 
   return (
     <LabShell
-      subject="math"
+      subject="history"
       subjectIcon={<span style={{ fontSize: '18px' }}>🏛️</span>}
       subjectTitle="Қазақстан тарихы"
       subjectChip="Тарих"
