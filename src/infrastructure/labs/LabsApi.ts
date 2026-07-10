@@ -172,6 +172,25 @@ export async function uploadLabGame(input: UploadLabGameInput): Promise<LabGameC
   return (await response.json()) as LabGameCreated;
 }
 
+/**
+ * Delete a lab-game record by id.
+ * DELETE /api/lab/games/{game_id} — returns 204 on success.
+ */
+export async function deleteLabGame(gameId: number): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/lab/games/${gameId}`, {
+      method: "DELETE",
+    });
+  } catch {
+    throw new Error(NETWORK_ERROR);
+  }
+
+  if (!response.ok) {
+    throw new Error(await readError(response, `Не удалось удалить игру (${response.status})`));
+  }
+}
+
 export function openLabItemContent(item: LabItem): void {
   try {
     const html = decodeBase64Utf8(item.content);

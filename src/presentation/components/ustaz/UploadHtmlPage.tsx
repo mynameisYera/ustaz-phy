@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
 import {
+  deleteLabGame,
   fetchLabSubjects,
   toContentBase64,
   uploadLabGame,
@@ -27,6 +28,10 @@ export function UploadHtmlPage() {
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [message, setMessage] = useState<string>('');
   const [created, setCreated] = useState<LabGameCreated | null>(null);
+
+  const [deleteId, setDeleteId] = useState<string>('');
+  const [deleteStatus, setDeleteStatus] = useState<SubmitStatus>('idle');
+  const [deleteMessage, setDeleteMessage] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,7 +109,36 @@ export function UploadHtmlPage() {
     }
   }
 
+  async function handleDelete(event: FormEvent) {
+    event.preventDefault();
+
+    const idNum = Number(deleteId);
+    if (!Number.isInteger(idNum) || deleteId.trim() === '') {
+      setDeleteStatus('error');
+      setDeleteMessage('Жарамды ойын ID енгізіңіз.');
+      return;
+    }
+
+    if (!window.confirm(`#${idNum} ойынын өшіру керек пе? Бұл әрекетті болдырмау мүмкін емес.`)) {
+      return;
+    }
+
+    setDeleteStatus('submitting');
+    setDeleteMessage('');
+
+    try {
+      await deleteLabGame(idNum);
+      setDeleteStatus('success');
+      setDeleteMessage(`#${idNum} ойыны өшірілді.`);
+      setDeleteId('');
+    } catch (err) {
+      setDeleteStatus('error');
+      setDeleteMessage(err instanceof Error ? err.message : 'Белгісіз қате орын алды.');
+    }
+  }
+
   const submitting = status === 'submitting';
+  const deleting = deleteStatus === 'submitting';
 
   return (
     <div style={rootStyle}>
@@ -220,6 +254,35 @@ export function UploadHtmlPage() {
             </div>
           )}
         </form>
+
+        <h2 style={sectionTitleStyle}>Ойынды өшіру</h2>
+        <p style={subtitleStyle}>
+          <code>POST /lab/games</code> жауабындағы ID арқылы ойынды өшіріңіз.
+        </p>
+
+        <form onSubmit={handleDelete} style={cardStyle}>
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Ойын ID (game_id)</span>
+            <input
+              type="number"
+              value={deleteId}
+              onChange={(e) => setDeleteId(e.target.value)}
+              placeholder="123"
+              style={inputStyle}
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={deleting}
+            style={{ ...buttonStyle, background: '#B0361F', opacity: deleting ? 0.6 : 1 }}
+          >
+            {deleting ? 'Өшірілуде…' : 'Ойынды өшіру'}
+          </button>
+
+          {deleteStatus === 'error' && <div style={errorBoxStyle}>{deleteMessage}</div>}
+          {deleteStatus === 'success' && <div style={successBoxStyle}>{deleteMessage}</div>}
+        </form>
       </main>
     </div>
   );
@@ -264,6 +327,14 @@ const subtitleStyle: CSSProperties = {
   color: '#6F6E66',
   fontSize: '15px',
   margin: '0 0 28px',
+};
+
+const sectionTitleStyle: CSSProperties = {
+  fontFamily: 'Spectral, serif',
+  fontWeight: 600,
+  fontSize: '24px',
+  letterSpacing: '-0.01em',
+  margin: '48px 0 8px',
 };
 
 const cardStyle: CSSProperties = {
