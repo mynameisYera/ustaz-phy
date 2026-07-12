@@ -1,24 +1,30 @@
-import { useEffect, useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
+import { useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent } from 'react';
 import {
   deleteLabGame,
-  fetchLabSubjects,
   toContentBase64,
   uploadLabGame,
-  type LabSubject,
   type LabGameCreated,
 } from '@/infrastructure/labs/LabsApi';
 
 const ACCENT = '#1E6E5C';
 const ACCENT_SOFT = '#E4F2ED';
 
-type SubjectsStatus = 'loading' | 'ready' | 'error';
+const SUBJECTS: { name: string; subjectId: number }[] = [
+  { name: 'math', subjectId: 12 },
+  { name: 'physics', subjectId: 13 },
+  { name: 'chemistry', subjectId: 14 },
+  { name: 'geography', subjectId: 15 },
+  { name: 'kzhistory', subjectId: 16 },
+  { name: 'worldhistory', subjectId: 17 },
+  { name: 'biology', subjectId: 18 },
+  { name: 'informatic', subjectId: 19 },
+  { name: 'literature', subjectId: 20 },
+];
+
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
 export function UploadHtmlPage() {
-  const [subjects, setSubjects] = useState<LabSubject[]>([]);
-  const [subjectsStatus, setSubjectsStatus] = useState<SubjectsStatus>('loading');
-
-  const [subjectId, setSubjectId] = useState<string>('');
+  const [subjectId, setSubjectId] = useState<string>(String(SUBJECTS[0].subjectId));
   const [classId, setClassId] = useState<string>('7');
   const [name, setName] = useState<string>('Жаңа ойын');
   const [content, setContent] = useState<string>('');
@@ -34,20 +40,6 @@ export function UploadHtmlPage() {
   const [deleteMessage, setDeleteMessage] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    void fetchLabSubjects()
-      .then((list) => {
-        setSubjects(list);
-        setSubjectsStatus('ready');
-        if (list.length > 0) {
-          setSubjectId(String(list[0].subjectId));
-        }
-      })
-      .catch(() => {
-        setSubjectsStatus('error');
-      });
-  }, []);
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -152,35 +144,17 @@ export function UploadHtmlPage() {
         <form onSubmit={handleSubmit} style={cardStyle}>
           <label style={fieldStyle}>
             <span style={labelStyle}>Пән (subjectId)</span>
-            {subjectsStatus === 'ready' ? (
-              <select
-                value={subjectId}
-                onChange={(e) => setSubjectId(e.target.value)}
-                style={inputStyle}
-              >
-                {subjects.map((s) => (
-                  <option key={s.subjectId} value={s.subjectId}>
-                    {s.name} (#{s.subjectId})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <>
-                <input
-                  type="number"
-                  value={subjectId}
-                  onChange={(e) => setSubjectId(e.target.value)}
-                  placeholder="12"
-                  style={inputStyle}
-                />
-                {subjectsStatus === 'loading' && <span style={hintStyle}>Пәндер жүктелуде…</span>}
-                {subjectsStatus === 'error' && (
-                  <span style={hintStyle}>
-                    Пәндер тізімін жүктеу мүмкін болмады — subjectId-ді қолмен енгізіңіз.
-                  </span>
-                )}
-              </>
-            )}
+            <select
+              value={subjectId}
+              onChange={(e) => setSubjectId(e.target.value)}
+              style={inputStyle}
+            >
+              {SUBJECTS.map((s) => (
+                <option key={s.subjectId} value={s.subjectId}>
+                  {s.name} (#{s.subjectId})
+                </option>
+              ))}
+            </select>
           </label>
 
           <label style={fieldStyle}>
