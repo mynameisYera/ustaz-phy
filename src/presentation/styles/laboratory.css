@@ -226,6 +226,10 @@
   grid-template-columns: 1fr 56px;
 }
 
+.lab-top-row--full {
+  grid-template-columns: 1fr;
+}
+
 @media (max-width: 900px) {
   .lab-top-row,
   .lab-top-row--collapsed {

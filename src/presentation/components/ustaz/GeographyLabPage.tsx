@@ -106,6 +106,7 @@ export function GeographyLabPage() {
       subjectChip="География"
       tourSteps={LAB_TOUR_STEPS}
       formulas={CHALK_FORMULAS.map((f) => ({ ...f }))}
+      hideInstructions
       games={games}
       gamesExtra={
         <>

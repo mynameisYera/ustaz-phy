@@ -24,6 +24,8 @@ interface LabShellProps {
   topBar?: ReactNode;
   calculator: ReactNode;
   instructions: ReactNode;
+  /** Temporarily hide the instructions panel; calculator takes the full row width. */
+  hideInstructions?: boolean;
   games: LabGameCard[];
   gamesExtra?: ReactNode;
 }
@@ -38,6 +40,7 @@ export function LabShell({
   topBar,
   calculator,
   instructions,
+  hideInstructions,
   games,
   gamesExtra,
 }: LabShellProps) {
@@ -95,43 +98,45 @@ export function LabShell({
         {topBar && <div className="lab-topbar">{topBar}</div>}
 
         <main className="lab-main">
-          <div className={`lab-top-row${instructionsOpen ? '' : ' lab-top-row--collapsed'}`}>
+          <div className={`lab-top-row${hideInstructions || !instructionsOpen ? ' lab-top-row--collapsed' : ''}${hideInstructions ? ' lab-top-row--full' : ''}`}>
             <div data-tour="calculator" className="lab-calc">
               {calculator}
             </div>
 
-            <div data-tour="instructions" className={`lab-instructions${instructionsOpen ? '' : ' lab-instructions--collapsed'}`}>
-              {instructionsOpen ? (
-                instructions
-              ) : (
-                <button
-                  type="button"
-                  className="lab-instructions-reopen"
-                  onClick={() => setInstructionsOpen(true)}
-                  title="Нұсқаулықты ашу"
-                  aria-label="Нұсқаулықты ашу"
-                >
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="10" cy="10" r="8" />
-                    <path d="M10 6v5M10 14h0" />
-                  </svg>
-                  <span>Нұсқаулық</span>
-                </button>
-              )}
-              {instructionsOpen && (
-                <button
-                  type="button"
-                  className="lab-instructions-collapse"
-                  onClick={() => setInstructionsOpen(false)}
-                  title="Нұсқаулықты жасыру"
-                  aria-label="Нұсқаулықты жасыру"
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 3 5 8l5 5" />
-                  </svg>
-                </button>
-              )}
-            </div>
+            {!hideInstructions && (
+              <div data-tour="instructions" className={`lab-instructions${instructionsOpen ? '' : ' lab-instructions--collapsed'}`}>
+                {instructionsOpen ? (
+                  instructions
+                ) : (
+                  <button
+                    type="button"
+                    className="lab-instructions-reopen"
+                    onClick={() => setInstructionsOpen(true)}
+                    title="Нұсқаулықты ашу"
+                    aria-label="Нұсқаулықты ашу"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--accent-bright)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="10" cy="10" r="8" />
+                      <path d="M10 6v5M10 14h0" />
+                    </svg>
+                    <span>Нұсқаулық</span>
+                  </button>
+                )}
+                {instructionsOpen && (
+                  <button
+                    type="button"
+                    className="lab-instructions-collapse"
+                    onClick={() => setInstructionsOpen(false)}
+                    title="Нұсқаулықты жасыру"
+                    aria-label="Нұсқаулықты жасыру"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 3 5 8l5 5" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <section data-tour="games">

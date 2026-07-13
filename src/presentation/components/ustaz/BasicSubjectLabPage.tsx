@@ -52,6 +52,7 @@ export function BasicSubjectLabPage({
       subjectChip={subjectChip}
       tourSteps={tourSteps}
       formulas={formulas}
+      hideInstructions
       games={games}
       gamesExtra={
         <>

@@ -62,6 +62,7 @@ export function KzHistoryLabPage() {
       subjectChip="Тарих"
       tourSteps={TOUR_STEPS}
       formulas={FORMULAS}
+      hideInstructions
       games={games}
       gamesExtra={
         <>
