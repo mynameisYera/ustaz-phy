@@ -2,8 +2,11 @@ import { useRef, useState, type CSSProperties, type ChangeEvent, type FormEvent 
 import {
   deleteLabGame,
   toContentBase64,
+  updateLabGame,
   uploadLabGame,
   type LabGameCreated,
+  type LabGameUpdated,
+  type UpdateLabGameInput,
 } from '@/infrastructure/labs/LabsApi';
 
 const ACCENT = '#1E6E5C';
@@ -39,7 +42,19 @@ export function UploadHtmlPage() {
   const [deleteStatus, setDeleteStatus] = useState<SubmitStatus>('idle');
   const [deleteMessage, setDeleteMessage] = useState<string>('');
 
+  const [updateId, setUpdateId] = useState<string>('');
+  const [updateSubjectId, setUpdateSubjectId] = useState<string>('');
+  const [updateClassId, setUpdateClassId] = useState<string>('');
+  const [updateName, setUpdateName] = useState<string>('');
+  const [updateContent, setUpdateContent] = useState<string>('');
+  const [updateIsBase64, setUpdateIsBase64] = useState<boolean>(false);
+  const [updateFileName, setUpdateFileName] = useState<string>('');
+  const [updateStatus, setUpdateStatus] = useState<SubmitStatus>('idle');
+  const [updateMessage, setUpdateMessage] = useState<string>('');
+  const [updated, setUpdated] = useState<LabGameUpdated | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const updateFileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -129,8 +144,81 @@ export function UploadHtmlPage() {
     }
   }
 
+  async function handleUpdateFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    setUpdateContent(text);
+    setUpdateIsBase64(false);
+    setUpdateFileName(file.name);
+  }
+
+  async function handleUpdate(event: FormEvent) {
+    event.preventDefault();
+
+    const idNum = Number(updateId);
+    if (!Number.isInteger(idNum) || updateId.trim() === '') {
+      setUpdateStatus('error');
+      setUpdateMessage('Жарамды ойын ID енгізіңіз.');
+      return;
+    }
+
+    const payload: UpdateLabGameInput = {};
+
+    if (updateSubjectId.trim() !== '') {
+      const n = Number(updateSubjectId);
+      if (!Number.isFinite(n)) {
+        setUpdateStatus('error');
+        setUpdateMessage('subjectId дұрыс емес.');
+        return;
+      }
+      payload.subjectId = n;
+    }
+
+    if (updateClassId.trim() !== '') {
+      const n = Number(updateClassId);
+      if (!Number.isFinite(n)) {
+        setUpdateStatus('error');
+        setUpdateMessage('classId дұрыс емес.');
+        return;
+      }
+      payload.classId = n;
+    }
+
+    if (updateName.trim() !== '') {
+      payload.name = updateName.trim();
+    }
+
+    if (updateContent.trim() !== '') {
+      payload.contentBase64 = updateIsBase64
+        ? updateContent.trim()
+        : toContentBase64(updateContent);
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setUpdateStatus('error');
+      setUpdateMessage('Кемінде бір өрісті өзгертіңіз.');
+      return;
+    }
+
+    setUpdateStatus('submitting');
+    setUpdateMessage('');
+    setUpdated(null);
+
+    try {
+      const result = await updateLabGame(idNum, payload);
+      setUpdateStatus('success');
+      setUpdated(result);
+      setUpdateMessage(`#${idNum} ойыны жаңартылды.`);
+    } catch (err) {
+      setUpdateStatus('error');
+      setUpdateMessage(err instanceof Error ? err.message : 'Белгісіз қате орын алды.');
+    }
+  }
+
   const submitting = status === 'submitting';
   const deleting = deleteStatus === 'submitting';
+  const updating = updateStatus === 'submitting';
 
   return (
     <div style={rootStyle}>
@@ -224,6 +312,111 @@ export function UploadHtmlPage() {
               <strong>{message}</strong>
               <div style={{ marginTop: '6px', fontSize: '14px' }}>
                 ID: <b>{created.id}</b> · Атауы: {created.name} · Сынып: {created.classId}
+              </div>
+            </div>
+          )}
+        </form>
+
+        <h2 style={sectionTitleStyle}>Ойынды жаңарту</h2>
+        <p style={subtitleStyle}>
+          <code>PATCH /lab/games/{'{game_id}'}</code> — тек өзгерткіңіз келетін өрістерді толтырыңыз.
+        </p>
+
+        <form onSubmit={handleUpdate} style={cardStyle}>
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Ойын ID (game_id)</span>
+            <input
+              type="number"
+              value={updateId}
+              onChange={(e) => setUpdateId(e.target.value)}
+              placeholder="123"
+              style={inputStyle}
+            />
+          </label>
+
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Пән (subjectId)</span>
+            <select
+              value={updateSubjectId}
+              onChange={(e) => setUpdateSubjectId(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">— өзгертпеу —</option>
+              {SUBJECTS.map((s) => (
+                <option key={s.subjectId} value={s.subjectId}>
+                  {s.name} (#{s.subjectId})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Сынып (classId)</span>
+            <input
+              type="number"
+              value={updateClassId}
+              onChange={(e) => setUpdateClassId(e.target.value)}
+              placeholder="өзгертпеу үшін бос қалдырыңыз"
+              style={inputStyle}
+            />
+          </label>
+
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Атауы (name)</span>
+            <input
+              type="text"
+              value={updateName}
+              onChange={(e) => setUpdateName(e.target.value)}
+              placeholder="өзгертпеу үшін бос қалдырыңыз"
+              style={inputStyle}
+            />
+          </label>
+
+          <div style={fieldStyle}>
+            <span style={labelStyle}>HTML файлы</span>
+            <input
+              ref={updateFileInputRef}
+              type="file"
+              accept=".html,.htm,text/html"
+              onChange={handleUpdateFile}
+              style={{ fontSize: '14px' }}
+            />
+            {updateFileName && <span style={hintStyle}>Жүктелген файл: {updateFileName}</span>}
+          </div>
+
+          <label style={fieldStyle}>
+            <span style={labelStyle}>Мазмұн (HTML немесе base64)</span>
+            <textarea
+              value={updateContent}
+              onChange={(e) => {
+                setUpdateContent(e.target.value);
+                setUpdateFileName('');
+              }}
+              placeholder="өзгертпеу үшін бос қалдырыңыз"
+              rows={8}
+              style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: '13px' }}
+            />
+          </label>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#3A3A34' }}>
+            <input
+              type="checkbox"
+              checked={updateIsBase64}
+              onChange={(e) => setUpdateIsBase64(e.target.checked)}
+            />
+            Мазмұн base64 форматында (қайта кодталмайды)
+          </label>
+
+          <button type="submit" disabled={updating} style={{ ...buttonStyle, opacity: updating ? 0.6 : 1 }}>
+            {updating ? 'Жаңартылуда…' : 'Ойынды жаңарту'}
+          </button>
+
+          {updateStatus === 'error' && <div style={errorBoxStyle}>{updateMessage}</div>}
+          {updateStatus === 'success' && updated && (
+            <div style={successBoxStyle}>
+              <strong>{updateMessage}</strong>
+              <div style={{ marginTop: '6px', fontSize: '14px' }}>
+                ID: <b>{updated.id}</b> · Атауы: {updated.name} · Сынып: {updated.classId}
               </div>
             </div>
           )}

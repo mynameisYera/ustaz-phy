@@ -44,6 +44,24 @@ export interface UploadLabGameInput {
   contentBase64: string;
 }
 
+export interface UpdateLabGameInput {
+  subjectId?: number;
+  classId?: number;
+  name?: string;
+  content?: string;
+  contentBase64?: string;
+}
+
+export interface LabGameUpdated {
+  id: number;
+  subjectId: number;
+  classId: number;
+  name: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface ErrorBody {
   detail?: string;
 }
@@ -170,6 +188,33 @@ export async function uploadLabGame(input: UploadLabGameInput): Promise<LabGameC
   }
 
   return (await response.json()) as LabGameCreated;
+}
+
+/**
+ * Partially update a lab-game record by id.
+ * PATCH /api/lab/games/{game_id} with any subset of
+ * { subjectId, classId, name, content, contentBase64 }.
+ */
+export async function updateLabGame(
+  gameId: number,
+  input: UpdateLabGameInput,
+): Promise<LabGameUpdated> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/lab/games/${gameId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+  } catch {
+    throw new Error(NETWORK_ERROR);
+  }
+
+  if (!response.ok) {
+    throw new Error(await readError(response, `Не удалось обновить игру (${response.status})`));
+  }
+
+  return (await response.json()) as LabGameUpdated;
 }
 
 /**

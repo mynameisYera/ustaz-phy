@@ -230,6 +230,11 @@
   grid-template-columns: 1fr;
 }
 
+.lab-top-row--full .lab-calc {
+  height: calc(100vh - 150px);
+  min-height: 520px;
+}
+
 @media (max-width: 900px) {
   .lab-top-row,
   .lab-top-row--collapsed {

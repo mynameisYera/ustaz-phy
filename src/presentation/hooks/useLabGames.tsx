@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchLabGames, fetchLabSubjects, type LabItem } from "@/infrastructure/labs/LabsApi";
 
 type LoadStatus = "loading" | "ready" | "error";
@@ -57,6 +57,26 @@ export function useLabGames(apiSubjectName: string, notFoundMessage: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiSubjectName, notFoundMessage]);
 
+  // When a game is opened it replaces the calculator/simulator panel at the top
+  // of the page, so scroll back up to bring that panel into view (the cards live
+  // further down). Opening from a card click otherwise leaves the user staring
+  // at the grid with no visible change.
+  const openGame = useCallback((game: LabItem | null) => {
+    setActiveGame(game);
+    if (game) {
+      // Scroll after the panel has swapped in — running it in the same tick as
+      // setState can get cancelled by the ensuing layout change. Two rAFs defer
+      // it past React's commit + the resulting reflow; we hit both window and
+      // the scrolling element so it works whichever one actually scrolls.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          document.scrollingElement?.scrollTo({ top: 0, behavior: "smooth" });
+        })
+      );
+    }
+  }, []);
+
   const selectClass = (cls: number) => {
     if (cls === classId) return;
     setClassId(cls);
@@ -88,7 +108,7 @@ export function useLabGames(apiSubjectName: string, notFoundMessage: string) {
     setSearch,
     selectClass,
     activeGame,
-    setActiveGame,
+    setActiveGame: openGame,
     reload,
   };
 }
