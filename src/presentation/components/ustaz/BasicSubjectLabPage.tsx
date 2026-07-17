@@ -58,7 +58,7 @@ export function BasicSubjectLabPage({
         <>
           <LabFilters classId={classId} onSelectClass={selectClass} search={search} onSearchChange={setSearch} />
           <LabGamesStatus status={status} error={error} onRetry={subjectId ? reload : undefined} />
-          {status === "ready" && games.length === 0 && <LabGamesEmpty search={search} />}
+          {status === "ready" && games.length === 0 && <LabGamesEmpty search={search} classId={classId} />}
         </>
       }
       calculator={

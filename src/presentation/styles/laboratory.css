@@ -2,13 +2,22 @@
 
 /* —— Laboratory · shared subject-lab shell —— */
 
+/* Subject palettes. Each keeps its hue family; brightness lives in --bg and
+   --accent-bright. --accent stays deep enough to carry white 12px text
+   (.lab-subject-chip / .lab-card-tag) at AA contrast — brightening it further
+   is what breaks those, so lift --bg instead. */
 .lab-page {
-  --accent: #2563eb;
-  --accent-bright: #60a5fa;
-  --accent-line: rgba(37, 99, 235, 0.25);
-  --accent-dim: rgba(37, 99, 235, 0.15);
-  --accent-dim-2: rgba(37, 99, 235, 0.1);
-  --bg: #0f1e3d;
+  --accent: #2f6fe0;
+  --accent-bright: #93c5fd;
+  --accent-line: rgba(47, 111, 224, 0.4);
+  --accent-dim: rgba(47, 111, 224, 0.22);
+  --accent-dim-2: rgba(47, 111, 224, 0.15);
+  --bg: #16294f;
+
+  /* The "ОЙЫН" tone. Not subject-themed, but it must stay distinct from this
+     page's --accent — the warm subjects below override it to a yellow. */
+  --amber: #a35209;
+  --amber-bright: #fbbf24;
 
   position: relative;
   min-height: 100vh;
@@ -21,46 +30,52 @@
 }
 
 .lab-page[data-subject='geography'] {
-  --accent: #dc2626;
-  --accent-bright: #f87171;
-  --accent-line: rgba(220, 38, 38, 0.25);
-  --accent-dim: rgba(220, 38, 38, 0.15);
-  --accent-dim-2: rgba(220, 38, 38, 0.1);
-  --bg: #2e0f14;
+  --accent: #cf2f2f;
+  --accent-bright: #fca5a5;
+  --accent-line: rgba(207, 47, 47, 0.4);
+  --accent-dim: rgba(207, 47, 47, 0.22);
+  --accent-dim-2: rgba(207, 47, 47, 0.15);
+  --bg: #43171e;
+  /* red accent — shift the game tone to yellow so the two tags stay distinct */
+  --amber: #8a6608;
+  --amber-bright: #fcd34d;
 }
 
 .lab-page[data-subject='chemistry'] {
-  --accent: #7c3aed;
-  --accent-bright: #a78bfa;
-  --accent-line: rgba(124, 58, 237, 0.25);
-  --accent-dim: rgba(124, 58, 237, 0.15);
-  --accent-dim-2: rgba(124, 58, 237, 0.1);
-  --bg: #1e1240;
+  --accent: #7c46e0;
+  --accent-bright: #c4b5fd;
+  --accent-line: rgba(124, 70, 224, 0.4);
+  --accent-dim: rgba(124, 70, 224, 0.22);
+  --accent-dim-2: rgba(124, 70, 224, 0.15);
+  --bg: #2b1a58;
 }
 
 .lab-page[data-subject='physics'] {
-  --accent: #0f6f6a;
-  --accent-bright: #2dd4bf;
-  --accent-line: rgba(15, 111, 106, 0.3);
-  --accent-dim: rgba(15, 111, 106, 0.2);
-  --accent-dim-2: rgba(15, 111, 106, 0.12);
-  --bg: #0a2626;
+  --accent: #12807a;
+  --accent-bright: #5eead4;
+  --accent-line: rgba(18, 128, 122, 0.42);
+  --accent-dim: rgba(18, 128, 122, 0.26);
+  --accent-dim-2: rgba(18, 128, 122, 0.16);
+  --bg: #0f3835;
 }
 
 .lab-page[data-subject='history'] {
-  --accent: #9a3b12;
-  --accent-bright: #e0a86e;
-  --accent-line: rgba(154, 59, 18, 0.3);
-  --accent-dim: rgba(154, 59, 18, 0.2);
-  --accent-dim-2: rgba(154, 59, 18, 0.12);
-  --bg: #2b1508;
+  --accent: #b04a18;
+  --accent-bright: #f0c088;
+  --accent-line: rgba(176, 74, 24, 0.42);
+  --accent-dim: rgba(176, 74, 24, 0.26);
+  --accent-dim-2: rgba(176, 74, 24, 0.16);
+  --bg: #3d2010;
+  /* orange accent — shift the game tone to yellow so the two tags stay distinct */
+  --amber: #7d6608;
+  --amber-bright: #fcd34d;
 }
 
 .lab-formulas {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.06;
+  opacity: 0.09;
   font-family: 'Times New Roman', serif;
   font-style: italic;
   color: #fff;
@@ -84,8 +99,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .lab-nav-left {
@@ -509,8 +524,8 @@
 /* Instruction panel */
 .lab-instructions {
   position: relative;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   padding: 24px 22px;
   display: flex;
@@ -595,7 +610,7 @@
 
 .lab-instructions-desc {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.68);
   margin: 0 0 18px;
   line-height: 1.55;
 }
@@ -626,8 +641,8 @@
 }
 
 .lab-step-num.inactive {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .lab-step-title {
@@ -637,25 +652,25 @@
 }
 
 .lab-step-title.inactive {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .lab-step-body {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.68);
   margin-top: 3px;
 }
 
 .lab-step-body.inactive {
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .lab-hint {
   margin-top: 20px;
   padding: 14px 16px;
-  background: var(--accent-dim-2);
+  background: var(--accent-dim);
   border-radius: 8px;
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--accent-bright);
 }
 
 .lab-hint-label {
@@ -667,7 +682,7 @@
 
 .lab-hint-body {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.5;
 }
 
@@ -689,7 +704,7 @@
 
 .lab-games-count {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .lab-games-grid {
@@ -732,22 +747,22 @@
   gap: 10px;
   text-align: center;
   padding: 44px 24px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .lab-games-empty-title {
   margin: 0;
   font-size: 15px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .lab-games-empty-sub {
   margin: 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 @media (max-width: 1100px) {
@@ -763,8 +778,8 @@
 }
 
 .lab-card {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -779,12 +794,12 @@
 
 .lab-card.tone-accent:hover {
   border-color: var(--accent-line);
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .lab-card.tone-amber:hover {
-  border-color: rgba(251, 191, 36, 0.3);
-  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .lab-card-thumb {
@@ -797,11 +812,11 @@
 }
 
 .lab-card-thumb.tone-accent {
-  background: var(--accent-dim-2);
+  background: var(--accent-dim);
 }
 
 .lab-card-thumb.tone-amber {
-  background: rgba(217, 119, 6, 0.1);
+  background: rgba(251, 191, 36, 0.14);
 }
 
 .lab-card-tag {
@@ -821,7 +836,7 @@
 }
 
 .lab-card-tag.tone-amber {
-  background: #d97706;
+  background: var(--amber);
 }
 
 .lab-card-body {
@@ -840,7 +855,7 @@
 
 .lab-card-desc {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.68);
   line-height: 1.5;
   flex: 1;
 }
@@ -859,5 +874,5 @@
 }
 
 .lab-card-cta.tone-amber {
-  color: #fbbf24;
+  color: var(--amber-bright);
 }

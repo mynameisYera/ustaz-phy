@@ -1,17 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { decodeLabItemHtml, type LabItem } from '@/infrastructure/labs/LabsApi';
 
-const CLASS_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+/** `null` = every class of the subject, the default when a lab page opens. */
+const CLASS_OPTIONS: (number | null)[] = [null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-/** Class (1-11) + name-search controls, shared across every subject lab page. */
+const ALL_CLASSES_LABEL = "Барлық сыныптар";
+
+function classLabel(cls: number | null): string {
+  return cls === null ? ALL_CLASSES_LABEL : `${cls} сынып`;
+}
+
+/** Class filter (all / 1-11) + name-search controls, shared across every subject lab page. */
 export function LabFilters({
   classId,
   onSelectClass,
   search,
   onSearchChange,
 }: {
-  classId: number;
-  onSelectClass: (cls: number) => void;
+  classId: number | null;
+  onSelectClass: (cls: number | null) => void;
   search: string;
   onSearchChange: (value: string) => void;
 }) {
@@ -62,7 +69,7 @@ export function LabFilters({
   );
 }
 
-function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: number) => void }) {
+function ClassDropdown({ value, onSelect }: { value: number | null; onSelect: (cls: number | null) => void }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +96,7 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
         onClick={() => setOpen((v) => !v)}
         style={{
           height: '38px',
-          minWidth: '110px',
+          minWidth: '160px',
           padding: '0 12px',
           borderRadius: '8px',
           border: '1px solid rgba(255,255,255,0.14)',
@@ -104,7 +111,7 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
           gap: '10px',
         }}
       >
-        {value} сынып
+        {classLabel(value)}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
           <path d="M2.5 4.5 6 8l3.5-3.5" />
         </svg>
@@ -117,7 +124,7 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
             top: 'calc(100% + 6px)',
             left: 0,
             zIndex: 20,
-            minWidth: '110px',
+            minWidth: '160px',
             maxHeight: '220px',
             overflowY: 'auto',
             borderRadius: '8px',
@@ -131,7 +138,7 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
             const active = cls === value;
             return (
               <button
-                key={cls}
+                key={cls ?? 'all'}
                 type="button"
                 onClick={() => {
                   onSelect(cls);
@@ -143,8 +150,10 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
                   textAlign: 'left',
                   height: '32px',
                   padding: '0 10px',
+                  marginBottom: cls === null ? '4px' : undefined,
                   borderRadius: '6px',
                   border: 'none',
+                  borderBottom: cls === null ? '1px solid rgba(255,255,255,0.12)' : undefined,
                   background: active ? 'var(--accent)' : 'transparent',
                   color: active ? '#fff' : 'rgba(255,255,255,0.75)',
                   fontFamily: 'inherit',
@@ -153,7 +162,7 @@ function ClassDropdown({ value, onSelect }: { value: number; onSelect: (cls: num
                   cursor: 'pointer',
                 }}
               >
-                {cls} сынып
+                {classLabel(cls)}
               </button>
             );
           })}
@@ -205,7 +214,7 @@ export function LabGamesStatus({
 }
 
 /** Empty-state card shown in the games grid area when a class/search has 0 results. */
-export function LabGamesEmpty({ search }: { search: string }) {
+export function LabGamesEmpty({ search, classId }: { search: string; classId?: number | null }) {
   return (
     <div className="lab-games-empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-bright)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
@@ -213,10 +222,18 @@ export function LabGamesEmpty({ search }: { search: string }) {
         <path d="M8 21h8M12 18v3M7 9l2 2 2-3 2 3 2-2" />
       </svg>
       <p className="lab-games-empty-title">
-        {search.trim() ? 'Іздеу бойынша ойын табылмады' : 'Бұл сынып үшін ойындар әзірге жоқ'}
+        {search.trim()
+          ? 'Іздеу бойынша ойын табылмады'
+          : classId == null
+            ? 'Бұл пән үшін ойындар әзірге жоқ'
+            : 'Бұл сынып үшін ойындар әзірге жоқ'}
       </p>
       <p className="lab-games-empty-sub">
-        {search.trim() ? 'Басқа атауды қолданып көріңіз немесе сүзгіні тазалаңыз.' : 'Басқа сыныпты таңдап көріңіз немесе кейінірек оралыңыз.'}
+        {search.trim()
+          ? 'Басқа атауды қолданып көріңіз немесе сүзгіні тазалаңыз.'
+          : classId == null
+            ? 'Кейінірек оралып көріңіз.'
+            : 'Басқа сыныпты таңдап көріңіз немесе кейінірек оралыңыз.'}
       </p>
     </div>
   );
@@ -289,11 +306,15 @@ function gameIcon(id: number): string {
   return icons[id % icons.length];
 }
 
-/** Maps loaded LabItems to LabGameCard entries with a consistent look across subjects. */
+/**
+ * Maps loaded LabItems to LabGameCard entries with a consistent look across subjects.
+ * Listing across all classes omits per-item classId, so the badge falls back to a
+ * generic label rather than rendering an empty class number.
+ */
 export function labItemsToCards(items: LabItem[], onOpen: (item: LabItem) => void, activeGameId?: number) {
   return items.map((item) => ({
     tone: 'accent' as const,
-    tag: `${item.classId} СЫНЫП`,
+    tag: item.classId != null ? `${item.classId} СЫНЫП` : 'ЗЕРТХАНА',
     name: item.name,
     desc: 'Интерактивті зертхана — ойын осы жерде, тапсырманың орнында ашылады.',
     icon: <span style={{ fontSize: '40px' }}>{gameIcon(item.id)}</span>,

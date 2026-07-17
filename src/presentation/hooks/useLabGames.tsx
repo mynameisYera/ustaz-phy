@@ -5,7 +5,8 @@ type LoadStatus = "loading" | "ready" | "error";
 
 /**
  * Shared subject-lab game loading: resolves the backend subjectId by name,
- * then loads games for a selectable class (1-11) with optional name search.
+ * then loads games for a selectable class with optional name search. The class
+ * filter starts at `null` — every game of the subject, across all classes.
  * Also tracks which game is currently open inline (replacing the subject's
  * calculator/simulator panel).
  */
@@ -14,11 +15,11 @@ export function useLabGames(apiSubjectName: string, notFoundMessage: string) {
   const [subjectId, setSubjectId] = useState<number | null>(null);
   const [items, setItems] = useState<LabItem[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [classId, setClassId] = useState(1);
+  const [classId, setClassId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [activeGame, setActiveGame] = useState<LabItem | null>(null);
 
-  const load = (id: number, cls: number, name?: string) => {
+  const load = (id: number, cls: number | null, name?: string) => {
     setStatus("loading");
     setError(null);
     void fetchLabGames(id, cls, name)
@@ -77,7 +78,7 @@ export function useLabGames(apiSubjectName: string, notFoundMessage: string) {
     }
   }, []);
 
-  const selectClass = (cls: number) => {
+  const selectClass = (cls: number | null) => {
     if (cls === classId) return;
     setClassId(cls);
     setActiveGame(null);

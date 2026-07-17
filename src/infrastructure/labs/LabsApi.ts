@@ -6,18 +6,22 @@ export interface LabSubject {
   subjectId: number;
 }
 
+/**
+ * A lab game. When listing across all classes the backend returns a leaner
+ * shape (`id`/`name`/`content` only), so everything else is optional.
+ */
 export interface LabItem {
   id: number;
-  classId: number;
+  classId?: number;
   name: string;
   content: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LabGamesResponse {
   subjectId: number;
-  classId: number;
+  classId: number | null;
   items: LabItem[];
   total: number;
 }
@@ -93,19 +97,33 @@ export async function fetchLabSubjects(): Promise<LabSubject[]> {
   return (await response.json()) as LabSubject[];
 }
 
+/**
+ * List a subject's lab games.
+ *
+ * `classId: null` means "all classes": the POST endpoint requires a classId, so
+ * that case goes through `GET /api/lab/games/{subject_id}`, where both filters
+ * are optional. The GET returns the leaner item shape (no per-item classId).
+ */
 export async function fetchLabGames(
   subjectId: number,
-  classId: number,
+  classId: number | null,
   name?: string,
 ): Promise<LabGamesResponse> {
   const trimmed = name?.trim();
   let response: Response;
   try {
-    response = await fetch(`${API_BASE}/lab/games/${subjectId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(trimmed ? { classId, name: trimmed } : { classId }),
-    });
+    if (classId === null) {
+      const query = new URLSearchParams();
+      if (trimmed) query.set("name", trimmed);
+      const suffix = query.toString() ? `?${query.toString()}` : "";
+      response = await fetch(`${API_BASE}/lab/games/${subjectId}${suffix}`);
+    } else {
+      response = await fetch(`${API_BASE}/lab/games/${subjectId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trimmed ? { classId, name: trimmed } : { classId }),
+      });
+    }
   } catch {
     throw new Error(NETWORK_ERROR);
   }
