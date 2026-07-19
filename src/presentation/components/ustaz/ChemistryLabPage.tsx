@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { TourStep } from './Tour';
-import { LabShell, LabInstructionsHead, LabStep, LabHint, type LabGameCard } from './LabShell';
+import { LabShell, LabInstructionsHead, LabStep, LabHint } from './LabShell';
 import { LabFilters, LabGamesStatus, InlineGamePanel, labItemsToCards } from './LabGamesPanel';
 import { useLabGames } from '@/presentation/hooks/useLabGames';
 
@@ -63,31 +63,6 @@ const REAGENTS: Reagent[] = [
   { id: 'bleach', label: '🧴 Хлор', ph: 13 },
 ];
 
-const GAME_CARDS: LabGameCard[] = [
-  {
-    tone: 'accent',
-    tag: 'СИМУЛЯТОР',
-    name: 'pH-микс',
-    desc: 'Реагенттерді араластырып, ерітіндінің қышқылдығын анықтаңыз.',
-    icon: <span style={{ fontSize: '40px' }}>⚗️</span>,
-  },
-  {
-    tone: 'amber',
-    tag: 'ОЙЫН',
-    name: 'Реакция балансы',
-    desc: 'Химиялық теңдеулердің коэффициенттерін дұрыс қойыңыз. (жақында)',
-    icon: <span style={{ fontSize: '40px' }}>🧪</span>,
-    disabled: true,
-  },
-  {
-    tone: 'amber',
-    tag: 'ОЙЫН',
-    name: 'Молекула құрастыру',
-    desc: 'Атомдардан молекула жинаңыз да, атауын табыңыз. (жақында)',
-    icon: <span style={{ fontSize: '40px' }}>🔬</span>,
-    disabled: true,
-  },
-];
 
 export function ChemistryLabPage() {
   const [ph, setPh] = useState(7);
@@ -100,7 +75,7 @@ export function ChemistryLabPage() {
     useLabGames('chemistry', 'Химия пәні табылмады');
 
   const backendGames = status === 'ready' ? labItemsToCards(items, setActiveGame, activeGame?.id) : [];
-  const games = [...GAME_CARDS, ...backendGames];
+  const games = [...backendGames];
 
   const applyReagent = (r: Reagent) => {
     setActiveReagent(r.id);
