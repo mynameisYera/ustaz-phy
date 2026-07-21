@@ -5,7 +5,8 @@ export type LabSubjectKey =
   | "biology"
   | "kzhistory"
   | "worldhistory"
-  | "geography";
+  | "geography"
+  | "informatic";
 
 export const LAB_SUBJECT_ROUTES: Record<LabSubjectKey, string> = {
   math: "/math",
@@ -15,6 +16,7 @@ export const LAB_SUBJECT_ROUTES: Record<LabSubjectKey, string> = {
   kzhistory: "/kz-history",
   worldhistory: "/world-history",
   geography: "/geography",
+  informatic: "/informatic",
 };
 
 export function openSubjectLab(key: LabSubjectKey): void {

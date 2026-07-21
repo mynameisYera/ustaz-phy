@@ -17,6 +17,7 @@ import { ChemistryLabPage } from "@/presentation/components/ustaz/ChemistryLabPa
 import { BiologyLabPage } from "@/presentation/components/ustaz/BiologyLabPage";
 import { KzHistoryLabPage } from "@/presentation/components/ustaz/KzHistoryLabPage";
 import { WorldHistoryLabPage } from "@/presentation/components/ustaz/WorldHistoryLabPage";
+import { InformaticLabPage } from "@/presentation/components/ustaz/InformaticLabPage";
 import { UploadHtmlPage } from "@/presentation/components/ustaz/UploadHtmlPage";
 import "@/presentation/styles/studio.css";
 
@@ -61,6 +62,10 @@ export function App() {
 
   if (window.location.pathname === "/world-history") {
     return <WorldHistoryLabPage />;
+  }
+
+  if (window.location.pathname === "/informatic") {
+    return <InformaticLabPage />;
   }
 
   if (window.location.pathname === "/uploadhtml") {

@@ -11,6 +11,8 @@ import biologyAnimation from '@/assets/animations/biology.lottie?url';
 import geographyAnimation from '@/assets/animations/geography.lottie?url';
 import worldhistoryAnimation from '@/assets/animations/worldhistory.lottie?url';
 import kzhistoryAnimation from '@/assets/animations/kzhistory.lottie?url';
+// Reuse math animation until a dedicated informatic.lottie asset exists.
+import informaticAnimation from '@/assets/animations/math.lottie?url';
 
 const LABS_TOUR_STEPS: TourStep[] = [
   { target: '[data-tour="subjects"]', icon: 'grid', title: 'Пәндер', body: 'Пән бойынша ресурстарды көру үшін карточканы таңдаңыз.' },
@@ -147,6 +149,22 @@ const SUBJECT_LESSONS: SubjectLesson[] = [
       { text: '🧭', top: '72%', right: '9%', size: '26px', rotate: '-9deg' },
     ],
   },
+  {
+    key: 'informatic',
+    eyebrow: 'Мұғалімдер мен оқушыларға',
+    title: 'Информатиканы интерактивті изви',
+    description: 'Алгоритмдер мен программалауды зерттеу зертханаларын қолданып, теманы тәжірибе арқылы түсіндіріңіз.',
+    animation: informaticAnimation,
+    caption: 'Информатика зертханаларын зерттеу',
+    accent: '#0F766E',
+    accentSoft: '#E0F5F2',
+    doodles: [
+      { text: 'if / else', top: '11%', left: '4%', size: '14px', rotate: '-5deg' },
+      { text: '💻', top: '65%', left: '8%', size: '30px', rotate: '10deg' },
+      { text: 'O(n)', top: '19%', right: '6%', size: '13px', rotate: '5deg' },
+      { text: '01', top: '73%', right: '9%', size: '26px', rotate: '-8deg' },
+    ],
+  },
 ];
 
 type LoadStatus = 'loading' | 'ready' | 'error';
@@ -176,7 +194,7 @@ export function LabsPage({ onBack, onNavHome, onNavTemplates }: LabsPageProps) {
       .then((subjects) => {
         // Backend drives which subjects appear and in what order; we only render
         // subjects that have a matching presentation entry (animation + lab route).
-        // Backend-only subjects without a lab page (e.g. informatic, literature) are skipped.
+        // Backend-only subjects without a lab page (e.g. literature) are skipped.
         const mapped = subjects
           .map((s) => LESSON_BY_KEY.get(s.name.toLowerCase() as LabSubjectKey))
           .filter((l): l is SubjectLesson => Boolean(l));
